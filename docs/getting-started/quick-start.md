@@ -17,16 +17,11 @@ After installing, start AimSync from the release package. The dashboard opens on
 
 Set this under **Global Settings → Input method**.
 
-## 3. Start the free trial (optional)
+## 3. Confirm access mode
 
-Premium features include **Game Engine** and **cloud pattern upload**.
+For now, AimSync runs in **free access mode**: Game Engine and cloud upload are unlocked for everyone.
 
-1. In **Global Settings**, find **Donator License**.
-2. Click **Start Free Trial**.
-3. The page refreshes when activation succeeds.
-4. You should see a live countdown (for example `Free Trial: 119m 45s left`).
-
-Trial limits: **2 hours of active use per calendar day**, tracked server-side by hardware ID. See [Licensing and free trial](../user-guide/licensing.md).
+In **Global Settings**, you should see **FREE ACCESS ENABLED** in the access status row.
 
 ## 4. Enable the master switch
 
@@ -40,9 +35,11 @@ Toggle **Master Switch** on or assign a hotkey (M4/M5 recommended). Recoil compe
 | **Recoil Lab** | Custom multi-step patterns with the visualizer |
 | **Game Engine** | Built-in weapon sprays (CS2, Valorant, PUBG, R6S, Rust, …) |
 
+Optional: in **Recoil Lab**, use **Pattern Generator** to import a spray image/GIF and convert it into recoil steps.
+
 For Game Engine:
 
-1. Open the **Game Engine** tab (requires premium or active trial).
+1. Open the **Game Engine** tab.
 2. Select your game and weapon.
 3. Match **in-game sensitivity** to the value in AimSync.
 

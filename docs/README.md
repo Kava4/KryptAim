@@ -13,7 +13,7 @@ Welcome to the AimSync knowledge base. This wiki covers installation, daily use,
 | Page | Description |
 |------|-------------|
 | [Installation](getting-started/installation.md) | **Releases (recommended)** vs public GitHub clone (incomplete by design) |
-| [Quick start](getting-started/quick-start.md) | Five-minute setup: hardware, trial, first profile |
+| [Quick start](getting-started/quick-start.md) | Five-minute setup: hardware, access mode, first profile |
 
 ### User guide
 
@@ -25,7 +25,8 @@ Welcome to the AimSync knowledge base. This wiki covers installation, daily use,
 | [Simple recoil](user-guide/simple-recoil.md) | Slider-based compensation |
 | [Recoil Lab](user-guide/recoil-lab.md) | Pattern editor, visualizer, save/load, cloud share |
 | [Game Engine](user-guide/game-engine.md) | Per-game weapon profiles and sensitivity |
-| [Licensing and free trial](user-guide/licensing.md) | Donator keys, 2-hour daily trial, premium features |
+| [Access mode](user-guide/licensing.md) | Current free mode and future licensing placeholder |
+| [Pattern Generator](user-guide/pattern-generator.md) | Build weapon patterns from image/GIF spray captures |
 
 ### Reference
 
@@ -43,7 +44,7 @@ Welcome to the AimSync knowledge base. This wiki covers installation, daily use,
 | [Developer setup](development/setup.md) | Clone, dependencies, run, test, build |
 | [Architecture](development/architecture.md) | Modules, data flow, threading |
 | [Pattern Generator](development/pattern-generator.md) | Standalone GIF/image analysis tool |
-| [Cloud deployment](development/cloud-deployment.md) | Vercel, Supabase, trial schema |
+| [Cloud deployment](development/cloud-deployment.md) | Vercel + Supabase deployment notes |
 
 ### Support
 
@@ -73,9 +74,8 @@ Welcome to the AimSync knowledge base. This wiki covers installation, daily use,
 ## Conventions in this wiki
 
 - **Local API** — HTTP server started by `main.py` (default `http://<LAN-IP>:5000`).
-- **Cloud API** — Hosted at `https://project-mkgdr.vercel.app` (license validation, community patterns).
-- **Premium / Donator** — Paid or active free-trial access to Game Engine and cloud upload.
-- **HWID** — Hardware identifier derived from the machine MAC address for license binding.
+- **Cloud API** — Hosted at `https://project-mkgdr.vercel.app` (community patterns and cloud services).
+- **Access mode** — Currently free for all users; licensing hooks are placeholders.
 
 ---
 

@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AimSync</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="{{ url_for('static', filename='qrcode.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vis.css') }}">
+    <style>
+        /* Hide scrollbar for tabs on mobile but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .tab-button.active { border-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body class="min-h-screen bg-neutral-950 font-['Inter',sans-serif] flex flex-col">
+    <div id="boot-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/95 backdrop-blur-sm transition-opacity duration-500">
+        <div class="flex flex-col items-center gap-4 text-center">
+                    <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="Logo" class="w-9 h-9 rounded-lg">
+            <div>
+                <p class="text-2xl font-semibold tracking-wide text-white">AimSync</p>
+                <p class="text-xs font-medium text-blue-300/90 tracking-wide">{{ app_version }} · {{ app_version_label }}</p>
+                <p class="text-sm text-white/60">Loading your interface...</p>
+            </div>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="h-2.5 w-2.5 rounded-full bg-blue-400 animate-pulse"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-blue-400 animate-pulse [animation-delay:120ms]"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-blue-400 animate-pulse [animation-delay:240ms]"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="bg-neutral-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center gap-2.5 flex-shrink-0" title="AimSync {{ app_version }}">
+                    <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="AimSync Logo" class="h-12 w-auto">
+                    <span class="sm:hidden text-[10px] font-semibold text-blue-300/90">{{ app_version }}</span>
+                    <span class="hidden sm:inline-flex flex-col leading-tight">
+                        <span class="text-sm font-semibold text-white">AimSync</span>
+                        <span class="text-[10px] font-medium uppercase tracking-wider text-blue-300/80">{{ app_version }} · {{ app_version_label }}</span>
+                    </span>
+                </a>
+                
+                <!-- Makcu Hardware Status (Desktop Only) -->
+                <div class="flex items-center gap-2 md:gap-4 ml-auto mr-4">
+                    <!-- Mobile Link Button -->
+                    <button onclick="toggleQRModal()" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all group" title="Connect Mobile Device">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                            <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                            <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                            <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                            <path d="M7 7h.01M17 7h.01M17 17h.01" stroke-linecap="round" />
+                        </svg>
+                        <span class="text-xs font-semibold hidden sm:inline">Mobile Link</span>
+                    </button>
+
+                    <!-- External Links -->
+                    <div class="flex items-center gap-4 lg:border-r lg:border-white/10 lg:pr-3">
+                        <a href="https://github.com/Kava4/AimSync" target="_blank" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all" title="GitHub Repository">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/>
+                            </svg>
+                            <span class="text-xs font-semibold hidden lg:inline">GitHub</span>
+                        </a>
+                        
+                        <!-- Feedback Button -->
+                        <button onclick="toggleFeedbackModal()" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all" title="Send Feedback">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <span class="text-xs font-semibold hidden lg:inline">Feedback</span>
+                        </button>
+
+                        <div class="relative inline-block text-left" id="support-dropdown-container">
+                            <button onclick="toggleSupportDropdown()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                                <span class="text-xs font-semibold">Support</span>
+                                <svg class="w-3 h-3 opacity-40 transition-transform duration-200" id="support-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <div id="support-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-neutral-900 border border-white/10 shadow-2xl py-1 z-50">
+                                <a href="https://ko-fi.com/kava4" target="_blank" class="flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all border-b border-white/5">
+                                    <svg class="w-4 h-4 text-[#F16061]" fill="currentColor" viewBox="0 0 24 24"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg>
+                                    Support on Ko-fi
+                                </a>
+                                <a href="https://paypal.me/kava4" target="_blank" class="flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all">
+                                    <svg class="w-4 h-4 text-[#00457C]" fill="currentColor" viewBox="0 0 24 24"><path d="M20.067 8.178c-.246 4.352-3.411 6.556-7.345 6.556H9.336L7.96 21.037H2.603L5.61 4.545h7.32c3.483 0 5.488 1.432 5.488 3.633zm-4.72.015c0-1.258-.785-1.776-2.146-1.776h-2.18l-1.123 6.136h1.222c2.147 0 4.227-1.082 4.227-4.36z"/></svg>
+                                    Donate via PayPal
+                                </a>
+                                <!-- Crypto Donate Sub-menu -->
+                                <div class="relative w-full">
+                                    <button id="crypto-donate-button" onclick="toggleCryptoSubDropdown(event)" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                        <svg class="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
+                                        <span>Crypto Donate</span>
+                                        <svg class="w-3 h-3 opacity-40 transition-transform duration-200 ml-auto" id="crypto-sub-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </button>
+                                    <div id="crypto-sub-dropdown" class="hidden absolute left-full top-0 ml-2 w-48 rounded-xl bg-neutral-800 border border-white/10 shadow-lg py-1 z-51 overflow-hidden">
+                                        <button onclick="copyWalletAddress('bc1qd27qdj08nr8ce4lwp72yzf4j2gs93hfgx9chsv', 'btc')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                            <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
+                                            <span id="btc-text">Copy Bitcoin (BTC)</span>
+                                        </button>
+                                        <button onclick="copyWalletAddress('0x50e665731aa32b2e255762669deEdf1a8d0B7423', 'eth')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                            <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
+                                            <span id="eth-text">Copy Ethereum (ETH)</span>
+                                        </button>
+                                        <button onclick="copyWalletAddress('3KCAuktD3Jh9jfDuk4WPhxGYNbGJPprUzbfsH82dWMAp', 'sol')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                            <svg class="w-4 h-4 text-teal-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
+                                            <span id="sol-text">Copy Solana (SOL)</span>
+                                        </button>
+                                        <button onclick="copyWalletAddress('0x50e665731aa32b2e255762669deEdf1a8d0B7423', 'base')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                            <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
+                                            <span id="base-text">Copy Base</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="quitApplication()" class="hidden md:inline-flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-1.5 text-xs font-semibold text-red-200 hover:bg-red-400/20 transition-colors">Stop App</button>
+                    <button id="menu-btn" onclick="toggleMobileMenu()" class="md:hidden flex flex-col gap-1.5 p-1.5 rounded-lg hover:bg-white/5 transition-colors" aria-label="Toggle menu">
+                        <span id="bar-1" class="block w-5 h-0.5 bg-white/80 transition-all duration-300 origin-center"></span>
+                        <span id="bar-2" class="block w-5 h-0.5 bg-white/80 transition-all duration-300"></span>
+                        <span id="bar-3" class="block w-5 h-0.5 bg-white/80 transition-all duration-300 origin-center"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile QR Modal -->
+    <div id="qr-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">Connect Mobile</h3>
+                <button onclick="toggleQRModal()" class="text-white/40 hover:text-white transition-colors p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="flex flex-col items-center gap-6">
+                <div id="qrcode-container" class="bg-white p-4 rounded-xl shadow-inner overflow-hidden"></div>
+                <div class="text-center">
+                    <p class="text-sm font-medium text-white/80">Scan with your phone camera</p>
+                </div>
+                <button onclick="toggleQRModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">Send Feedback</h3>
+                <button onclick="toggleFeedbackModal()" class="text-white/40 hover:text-white transition-colors p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <!-- Bug Type Selector -->
+            <div class="mb-4">
+                <select id="feedback-type-input" class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 outline-none hover:border-white/20 focus:border-white/30 transition-colors cursor-pointer">
+                    <option value="UI / UX">UI / Interface Issue</option>
+                    <option value="Recoil Engine">Recoil Engine Logic</option>
+                    <option value="Hardware">Hardware / Makcu Connection</option>
+                    <option value="Bug Report">General Bug Report</option>
+                    <option value="Feature Request">Feature Suggestion</option>
+                </select>
+            </div>
+            <textarea id="feedback-message-input" rows="8" placeholder="Tell us what you think, report a bug, or suggest a feature..."
+                      class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 outline-none resize-y hover:border-white/20 focus:border-white/30 transition-colors placeholder-white/20 mb-4"></textarea>
+            <input type="text" id="contact-info-input" placeholder="Your Discord tag or email (optional)"
+                   class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 outline-none hover:border-white/20 focus:border-white/30 transition-colors placeholder-white/20 mb-4">
+            <button onclick="sendFeedback()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+                Send Feedback
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-menu-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 z-[45] bg-black/60 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0"></div>
+    <div id="mobile-menu-drawer" class="fixed top-0 right-0 z-[50] h-full w-72 bg-neutral-900 border-l border-white/10 translate-x-full transition-transform duration-300 ease-in-out p-6 flex flex-col overflow-y-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-2">
+                <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="Logo" class="h-8 w-auto">
+                <span class="text-white font-semibold">Menu</span>
+            </div>
+            <button onclick="toggleMobileMenu()" class="text-white/40 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        <div class="flex flex-col gap-1">
+            <p class="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-2 ml-4">Navigation</p>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-white/5 transition-all active" data-tab="global">Global Settings</button>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="safety">Safety Features</button>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="simple">Simple Recoil</button>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="advanced">Recoil Lab</button>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="CS2">Game Engine</button>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/5 space-y-4">
+            <div class="grid grid-cols-3 gap-2">
+                <a href="https://github.com/Kava4/AimSync" target="_blank" class="flex items-center justify-center p-3 rounded-xl bg-white/5 text-white/40 hover:text-white transition-colors" title="GitHub">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
+                </a>
+                <a href="https://ko-fi.com/kava4" target="_blank" class="flex items-center justify-center p-3 rounded-xl bg-white/5 text-white/40 hover:text-white transition-colors" title="Ko-fi">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg>
+                </a>
+                <a href="https://paypal.me/kava4" target="_blank" class="flex items-center justify-center p-3 rounded-xl bg-white/5 text-white/40 hover:text-white transition-colors" title="PayPal">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.067 8.178c-.246 4.352-3.411 6.556-7.345 6.556H9.336L7.96 21.037H2.603L5.61 4.545h7.32c3.483 0 5.488 1.432 5.488 3.633zm-4.72.015c0-1.258-.785-1.776-2.146-1.776h-2.18l-1.123 6.136h1.222c2.147 0 4.227-1.082 4.227-4.36z"/></svg>
+                </a>
+                <button onclick="toggleFeedbackModal()" class="flex items-center justify-center p-3 rounded-xl bg-white/5 text-white/40 hover:text-white transition-colors" title="Send Feedback">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <button type="button" onclick="quitApplication()" class="w-full flex items-center justify-center gap-2 rounded-xl border border-red-400/30 bg-red-400/10 py-3 text-sm font-semibold text-red-200 hover:bg-red-400/20 transition-colors">
+                Stop Application
+            </button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 md:px-6 py-8">
+        <!-- Tab Navigation -->
+        <div id="tab-nav" class="hidden md:flex border-b border-white/10 overflow-x-auto no-scrollbar whitespace-nowrap sticky top-16 bg-neutral-950/80 backdrop-blur-md z-30 -mx-4 px-4 md:mx-0 md:px-0">
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white border-b-2 border-blue-500 transition-colors active" data-tab="global">Global Settings</button>
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="safety">Safety Features</button>
+            <div class="hidden md:block w-px h-4 bg-white/10 self-center mx-2"></div>
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="simple">Simple Recoil</button>
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="advanced">Recoil Lab</button>
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="CS2">Game Engine</button>
+        </div>
+
+        <!-- Global Settings Tab -->
+        <div id="tab-content-global" class="tab-content mt-5">
+            <div class="bg-neutral-900 border border-white/10 rounded-xl p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Global Control</p>
+                            <p class="text-xs text-white/40">Master switch and hardware binding.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select id="recoil-keybind" name="recoil_keybind" hx-post="/api/recoil/keybind" hx-trigger="change" hx-swap="none" class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
+                            <option value="LMB" {{ 'selected' if config.recoil_keybind == 'LMB' }}>LMB (Mouse 1)</option>
+                            <option value="RMB" {{ 'selected' if config.recoil_keybind == 'RMB' }}>RMB (Mouse 2)</option>
+                            <option value="MB3" {{ 'selected' if config.recoil_keybind == 'MB3' }}>MB3 (Mouse 3)</option>
+                            <option value="MMB" {{ 'selected' if config.recoil_keybind == 'MMB' }}>MMB (Middle Mouse)</option>
+                            <option value="M4" {{ 'selected' if config.recoil_keybind == 'M4' }}>M4</option>
+                            <option value="M5" {{ 'selected' if config.recoil_keybind == 'M5' }}>M5</option>
+                        </select>
+                        <span id="recoil-toggle-wrapper"> <!-- Removed hx-get and hx-trigger from here to prevent UI conflicts -->
+                            <input id="recoil-toggle" type="checkbox" name="recoil_enabled"
+                                   hx-post="/api/recoil/toggle"
+                                   hx-trigger="change"
+                                   hx-swap="none"
+                                   class="w-4 h-4 accent-blue-500 cursor-pointer"
+                                   {{ 'checked' if config.recoil_enabled else '' }}>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Require RMB</p>
+                        <p class="text-xs text-white/40">Recoil only activates when right mouse is held.</p>
+                    </div>
+                    <input id="recoil-require-rmb" type="checkbox" name="recoil_require_rmb" hx-post="/api/recoil/require_rmb" hx-trigger="change" hx-swap="none" {{ 'checked' if config.recoil_require_rmb else '' }} class="w-4 h-4 accent-blue-500 cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Shutdown PC on Stop</p>
+                        <p class="text-xs text-white/40">Automatically shut down Windows when closing AimSync.</p>
+                    </div>
+                    <input type="checkbox" name="shutdown_on_app_stop" hx-post="/api/recoil/shutdown_on_exit_toggle" hx-trigger="change" hx-swap="none" {{ 'checked' if config.shutdown_on_app_stop else '' }} class="w-4 h-4 accent-red-500 cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Input Method</p>
+                        <p class="text-xs text-white/40">Hardware (HID) for security or Software (SendInput) for ease.</p>
+                    </div>
+                    <select name="recoil_input_method" 
+                            hx-post="/api/recoil/input_method" 
+                            hx-trigger="change" 
+                            hx-target="#input-method-warning" 
+                            hx-swap="innerHTML"
+                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
+                        <option value="hardware" {{ 'selected' if config.recoil_input_method == 'hardware' }}>Hardware (Makcu)</option>
+                        <option value="software" {{ 'selected' if config.recoil_input_method == 'software' }}>Software (SendInput)</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Cloud Username</p>
+                        <p class="text-xs text-white/40">The author name shown when you share patterns.</p>
+                    </div>
+                    <input type="text" name="cloud_username" value="{{ config.cloud_username if config.cloud_username else 'Anonymous' }}" 
+                           hx-post="/api/recoil/cloud_username" hx-trigger="keyup changed delay:500ms" hx-swap="none"
+                           class="w-32 text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-6 border-t border-white/5 pt-6 gap-4">
+                    <div class="text-center sm:text-left">
+                        <p class="text-sm font-medium text-white">Access Mode</p>
+                        <p class="text-xs text-white/40">All features are currently unlocked for everyone.</p>
+                    </div>
+                    <div class="flex flex-col items-center sm:items-end gap-2">
+                        <div id="license-status" hx-get="/api/recoil/license_status" hx-trigger="load" hx-swap="innerHTML">
+                            <span class="text-blue-400 text-[10px] font-bold uppercase tracking-widest">FREE ACCESS ENABLED</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="input-method-warning" class="mt-4">
+                    {% if config.recoil_input_method == 'software' %}
+                    <div class="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200/80 text-xs">
+                        <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                        </svg>
+                        <p><strong class="text-amber-400 block mb-0.5 uppercase tracking-wide">Security Warning</strong> Software input (SendInput) is significantly easier to detect. Physical hardware is highly recommended for competitive play.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Features Tab -->
+        <div id="tab-content-safety" class="tab-content mt-5 hidden">
+            <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 mb-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-white">Safety Features Master Switch</p>
+                        <p class="text-xs text-white/40">Globally enable or disable all safety features.</p>
+                    </div>
+                    <input id="recoil-safety-features-toggle" type="checkbox" name="recoil_safety_features_enabled"
+                           hx-post="/api/recoil/safety_features_toggle"
+                           hx-trigger="change"
+                           hx-swap="none"
+                           class="w-4 h-4 accent-blue-500 cursor-pointer"
+                           onchange="document.getElementById('safety-features-section-wrapper').classList.toggle('pointer-events-none', !this.checked); document.getElementById('safety-features-section-wrapper').classList.toggle('opacity-50', !this.checked)"
+                           {{ 'checked' if config.recoil_safety_features_enabled else '' }}>
+                </div>
+            </div>
+
+            <div id="safety-features-section-wrapper" class="space-y-6 {{ 'pointer-events-none opacity-50' if not config.recoil_safety_features_enabled else '' }}">
+                <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 space-y-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Safety Modifiers</p>
+                            <p class="text-xs text-white/40">Apply global jitter and movement scaling.</p>
+                        </div>
+                        <button onclick="resetMultipliers()" class="text-[10px] font-bold text-blue-400 hover:text-blue-300 uppercase tracking-widest bg-blue-400/5 border border-blue-400/20 px-2 py-1 rounded-md transition-all">
+                            Reset All to defaults
+                        </button>
+                    </div>
+                    <div class="space-y-4 pt-4 border-t border-white/5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-white">Randomisation</p>
+                                <p class="text-xs text-white/40">Add randomized jitter to break static patterns.</p>
+                            </div>
+                            <input id="recoil-randomisation" type="checkbox" name="recoil_randomisation" hx-post="/api/recoil/randomisation" hx-trigger="change" hx-swap="none" {{ 'checked' if config.recoil_randomisation else '' }} class="w-4 h-4 accent-blue-500 cursor-pointer">
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-white text-nowrap">Random Strength</p>
+                            <div class="flex items-center gap-3 w-1/2">
+                                <input type="range" min="0" max="25" step="0.5" name="recoil_random_strength" value="{{ config.recoil_random_strength }}" hx-post="/api/recoil/random_strength" hx-trigger="change" hx-swap="none" oninput="this.nextElementSibling.textContent = this.value" class="w-full accent-blue-500 cursor-pointer">
+                                <span class="text-xs font-medium text-white bg-neutral-800 border border-white/10 rounded-md px-2 py-1 w-10 text-center tabular-nums">{{ config.recoil_random_strength }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-white text-nowrap">X Control</p>
+                            <div class="flex items-center gap-3 w-1/2">
+                                <input type="range" min="0" max="100" name="recoil_x_control" value="{{ config.recoil_x_control }}" hx-post="/api/recoil/x_control" hx-trigger="change" hx-swap="none" oninput="this.nextElementSibling.textContent = this.value" class="w-full accent-blue-500 cursor-pointer">
+                                <span class="text-xs font-medium text-white bg-neutral-800 border border-white/10 rounded-md px-2 py-1 w-10 text-center tabular-nums">{{ config.recoil_x_control }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-white text-nowrap">Y Control</p>
+                            <div class="flex items-center gap-3 w-1/2">
+                                <input type="range" min="0" max="100" name="recoil_y_control" value="{{ config.recoil_y_control }}" hx-post="/api/recoil/y_control" hx-trigger="change" hx-swap="none" oninput="this.nextElementSibling.textContent = this.value" class="w-full accent-blue-500 cursor-pointer">
+                                <span class="text-xs font-medium text-white bg-neutral-800 border border-white/10 rounded-md px-2 py-1 w-10 text-center tabular-nums">{{ config.recoil_y_control }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium text-white text-nowrap">Speed Scale</p>
+                            <div class="flex items-center gap-3 w-1/2">
+                                <input type="range" min="50" max="200" name="recoil_speed_control" value="{{ config.recoil_speed_control if config.recoil_speed_control else 100 }}" hx-post="/api/recoil/speed_control" hx-trigger="change" hx-swap="none" oninput="this.nextElementSibling.textContent = this.value" class="w-full accent-blue-500 cursor-pointer">
+                                <span class="text-xs font-medium text-white bg-neutral-800 border border-white/10 rounded-md px-2 py-1 w-10 text-center tabular-nums">{{ config.recoil_speed_control if config.recoil_speed_control else 100 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simple Recoil -->
+        <div id="tab-content-simple" class="tab-content mt-5 hidden">
+            <div id="simple-recoil-card" class="bg-neutral-900 border border-white/10 rounded-xl p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path d="M4 8h16M4 16h16" stroke-linecap="round"/>
+                        <circle cx="9" cy="8" r="2" fill="currentColor" stroke="none"/>
+                        <circle cx="15" cy="16" r="2" fill="currentColor" stroke="none"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-white">Simple Recoil</p>
+                    <p class="text-xs text-white/40">Adjust recoil using X & Y sliders.</p>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 mt-5 pt-5 space-y-4">
+
+                <!-- Simple X -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-white">X</p>
+                        <p class="text-xs text-white/40">Horizontal recoil.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-1/2">
+                        <input
+                            type="range"
+                            min="-100" max="100"
+                            name="x"
+                            value="{{ config.recoil_simple_settings.recoil_x }}"
+                            hx-post="/api/recoil/x"
+                            hx-trigger="change"
+                            hx-swap="none"
+                            oninput="this.nextElementSibling.textContent = this.value"
+                            class="w-full accent-blue-500 cursor-pointer">
+                        <span class="text-xs font-medium text-white bg-neutral-800 border border-white/10 rounded-md px-2 py-1 w-10 text-center tabular-nums">{{ config.recoil_simple_settings.recoil_x }}</span>
+                    </div>
+                </div>
+
+                <!-- Simple Y -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-white">Y</p>
+                        <p class="text-xs text-white/40">Vertical recoil.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-1/2">
+                        <input
+                            type="range"
+                            min="-100" max="100"
+                            name="y"
+                            value="{{ config.recoil_simple_settings.recoil_y }}"
+                            hx-post="/api/recoil/y"
+                            hx-trigger="change"
+                            hx-swap="none"
+                            oninput="this.nextElementSibling.textContent = this.value"
+                            class="w-full accent-blue-500 cursor-pointer">
+                        <span class="text-xs font-medium text-white bg-neutral-800 border border-white/10 rounded-md px-2 py-1 w-10 text-center tabular-nums">{{ config.recoil_simple_settings.recoil_y }}</span>
+                    </div>
+                </div>
+
+                <!-- Delay -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-white">Delay</p>
+                        <p class="text-xs text-white/40">Millisecond recoil delay.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-1/2">
+                        <input
+                            type="range"
+                            min="0" max="250"
+                            name="recoil_delay"
+                            value="{{ config.recoil_simple_settings.recoil_delay }}"
+                            hx-post="/api/recoil/delay"
+                            hx-trigger="change"
+                            hx-swap="none"
+                            oninput="this.nextElementSibling.textContent = this.value"
+                            class="w-full accent-blue-500 cursor-pointer">
+                        <span class="text-xs font-medium text-white bg-neutral-800 border border-white/10 rounded-md px-2 py-1 w-10 text-center tabular-nums">{{ config.recoil_simple_settings.recoil_delay }}</span>
+                    </div>
+                </div>
+                            </div>
+        </div> <!-- simple-recoil-card -->
+    </div> <!-- tab-content-simple -->
+
+    <!-- Recoil Lab (Advanced) -->
+        <div id="tab-content-advanced" class="tab-content mt-5 hidden">
+            <div id="advanced-recoil-card" class="bg-neutral-900 border border-white/10 rounded-xl p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-white">Recoil Lab</p>
+                    <p class="text-xs text-white/40">Input individual X, Y values.</p>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 mt-5 pt-5 space-y-3">
+
+                <!-- Saved Patterns -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-white">Saved Patterns</p>
+                        <p class="text-xs text-white/40">Load or delete a saved pattern.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select
+                            id="pattern-select"
+                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
+                            <option value="">...</option>
+                            {% for name in pattern_names %}
+                            <option value="{{ name }}" {{ 'selected' if config.recoil_advanced_settings.recoil_active_pattern_name == name }}>{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button
+                            onclick="loadPattern()"
+                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 hover:border-white/20 hover:text-white transition-colors cursor-pointer">
+                            Load
+                        </button>
+                        <button
+                            onclick="deletePattern()"
+                            class="text-xs text-red-400/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 hover:border-red-400/30 hover:text-red-400 transition-colors cursor-pointer">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pattern Editor -->
+                <div>
+                    <p class="text-sm font-medium text-white">Pattern</p>
+                    <p class="text-xs text-white/40 mt-0.5">One step per line: <span class="font-mono">x, y, delay_ms</span></p>
+                </div>
+                <div class="rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <p class="text-sm font-semibold text-emerald-200">New: Pattern Generator</p>
+                        <p class="text-xs text-emerald-100/70">Import spray image/GIF, fix points, and append canonical 1:1 weapon data.</p>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="window.open('/pattern-generator', '_blank')"
+                        class="text-xs font-semibold text-emerald-200 bg-emerald-500/20 border border-emerald-300/30 rounded-lg px-4 py-2 hover:bg-emerald-500/30 transition-colors cursor-pointer whitespace-nowrap">
+                        Open Generator
+                    </button>
+                </div>
+                <textarea
+                    id="pattern-textarea"
+                    name="advanced_pattern"
+                    rows="8"
+                    hx-post="/api/recoil/advanced_pattern"
+                    hx-trigger="keyup changed delay:600ms"
+                    hx-swap="none"
+                    class="w-full text-xs font-mono text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 outline-none resize-y hover:border-white/20 focus:border-white/30 transition-colors placeholder-white/20">{% if config.recoil_advanced_settings.recoil_selected_pattern %}{% for s in config.recoil_advanced_settings.recoil_selected_pattern %}{{ s.x }},{{ s.y }},{{ s.delay_ms }}
+{% endfor %}{% endif %}</textarea>
+
+                <!-- Save Pattern -->
+                <div class="flex items-center gap-2">
+                    <input
+                        id="save-pattern-name"
+                        type="text"
+                        placeholder="Pattern name..."
+                        class="flex-1 text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none hover:border-white/20 focus:border-white/30 transition-colors placeholder-white/20">
+                    <button
+                        onclick="savePattern()"
+                        class="text-xs font-semibold text-blue-400/80 bg-neutral-800 border border-white/10 rounded-lg px-4 py-1.5 hover:border-blue-400/30 hover:text-blue-400 transition-colors cursor-pointer">
+                        Save
+                    </button>
+                    <button
+                        type="button"
+                        onclick="window.open('/pattern-generator', '_blank')"
+                        class="text-xs font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-400/20 rounded-lg px-4 py-1.5 hover:bg-emerald-500/20 transition-colors cursor-pointer">
+                        Pattern Generator
+                    </button>
+                    <button
+                        onclick="shareToCloud()"
+                        class="text-xs font-semibold text-amber-400/80 bg-neutral-800 border border-white/10 rounded-lg px-4 py-1.5 hover:border-amber-400/30 hover:text-amber-400 transition-colors cursor-pointer flex items-center gap-2">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.5 19c-3.037 0-5.5-2.463-5.5-5.5 0-3.037 2.463-5.5 5.5-5.5s5.5 2.463 5.5 5.5c0 3.037-2.463 5.5-5.5 5.5zm-11.5-2c-2.485 0-4.5-2.015-4.5-4.5s2.015-4.5 4.5-4.5 4.5 2.015 4.5 4.5-2.015 4.5-4.5 4.5z"/></svg>
+                        Share
+                    </button>
+                </div>
+
+                <!-- Cloud patterns section -->
+                <div class="mt-6 pt-6 border-t border-white/5">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-xs font-bold text-white/30 uppercase tracking-widest">Cloud Repository</p>
+                        <button hx-get="/api/recoil/cloud/list" hx-target="#cloud-pattern-list" class="text-[10px] text-blue-500 hover:underline">Refresh Community</button>
+                    </div>
+                    <div id="cloud-pattern-list" hx-get="/api/recoil/cloud/list" hx-trigger="load" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div class="animate-pulse text-white/10 text-[10px]">Connecting to repository...</div>
+                    </div>
+                </div>
+
+                <!-- Loop -->
+                <div class="flex items-center justify-between border-t border-white/10 pt-3">
+                    <div>
+                        <p class="text-sm font-medium text-white">Loop Recoil</p>
+                        <p class="text-xs text-white/40">Loop the pattern until mouse is released.</p>
+                    </div>
+                    <input
+                        id="recoil-loop"
+                        type="checkbox"
+                        name="recoil_loop"
+                        hx-post="/api/recoil/loop"
+                        hx-trigger="change"
+                        hx-swap="none"
+                        {{ 'checked' if config.recoil_advanced_settings.recoil_loop else '' }}
+                        class="w-4 h-4 accent-blue-500 cursor-pointer">
+                </div>
+                        </div>
+        </div> <!-- advanced-recoil-card -->
+    </div> <!-- tab-content-advanced -->
+
+    <!-- Pattern Visualiser -->
+        <div id="pattern-visualiser-card" class="vis-card mt-5 hidden">
+            <div class="vis-header">
+                <div class="vis-header-left">
+                    <div class="vis-icon-wrap">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                            <path d="M3 3l18 18M3 21l7-7m4-4l7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/>
+                            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+                            <circle cx="16" cy="8"  r="1.5" fill="currentColor" stroke="none"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="vis-title text-white">AimSync Visualiser</p>
+                        <p class="vis-subtitle text-white/50">live recoil path preview &amp; editor</p>
+                    </div>
+                </div>
+
+                <div class="vis-stats flex-wrap md:flex-nowrap gap-y-3 justify-center md:justify-start">
+                    <div class="vis-stat">
+                        <span class="vis-stat-val" id="vis-steps">0</span>
+                        <span class="vis-stat-label text-white/40">steps</span>
+                    </div>
+                    <div class="vis-divider hidden md:block"></div>
+                    <div class="vis-stat">
+                        <span class="vis-stat-val text-white" id="vis-totx">0</span>
+                        <span class="vis-stat-label text-white/40">total x</span>
+                    </div>
+                    <div class="vis-divider hidden md:block"></div>
+                    <div class="vis-stat">
+                        <span class="vis-stat-val text-white" id="vis-toty">0</span>
+                        <span class="vis-stat-label text-white/40">total y</span>
+                    </div>
+                    <div class="vis-divider hidden md:block"></div>
+                    <div class="vis-stat">
+                        <span class="vis-stat-val text-white" id="vis-dur">0ms</span>
+                        <span class="vis-stat-label text-white/40">duration</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vis-toolbar">
+                <!-- Undo / Redo -->
+                <button id="vis-undo" class="vis-tool-btn" title="Undo (Ctrl+Z)" disabled>
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M9 14L4 9l5-5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" stroke-linecap="round"/>
+                    </svg>
+                    Undo
+                </button>
+                <button id="vis-redo" class="vis-tool-btn" title="Redo (Ctrl+Y)" disabled>
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M15 14l5-5-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" stroke-linecap="round"/>
+                    </svg>
+                    Redo
+                </button>
+
+                <!-- Play -->
+                <button id="vis-play-btn" class="vis-tool-btn" title="Simulate mouse movement" onclick="visPlay()">
+                    <svg width="11" height="11" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4l15 8-15 8V4z"/></svg>
+                    play
+                </button>
+
+                <div class="vis-toolbar-sep"></div>
+
+                <!-- Add step -->
+                <button class="vis-tool-btn vis-btn-add" title="Append a new step" onclick="visAddStep()">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M12 5v14M5 12h14" stroke-linecap="round"/>
+                    </svg>
+                    Add step
+                </button>
+
+                <div class="vis-toolbar-sep"></div>
+
+                <!-- Bulk ops dropdown -->
+                <div style="position:relative;display:inline-block;">
+                    <button class="vis-tool-btn" onclick="this.nextElementSibling.classList.toggle('vis-ctx-hidden')" title="Bulk operations">
+                        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+                        </svg>
+                        Bulk
+                        <svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke-linecap="round"/></svg>
+                    </button>
+                    <div class="vis-ctx-menu vis-ctx-hidden" style="position:absolute;top:calc(100% + 4px);left:0;z-index:200;" onclick="this.classList.add('vis-ctx-hidden')">
+                        <button class="vis-ctx-item" onclick="visBulk('reverse')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 12H3M9 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Reverse
+                        </button>
+                        <button class="vis-ctx-item" onclick="visBulk('mirror-x')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 3v18M5 7l7-4 7 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Mirror X
+                        </button>
+                        <button class="vis-ctx-item" onclick="visBulk('mirror-y')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12h18M7 5l-4 7 4 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Mirror Y
+                        </button>
+                        <button class="vis-ctx-item" onclick="visBulk('smooth')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 17c3-8 6-8 9 0s6 8 9 0" stroke-linecap="round"/></svg>
+                            Smooth
+                        </button>
+                        <div class="vis-ctx-sep"></div>
+                        <button class="vis-ctx-item" onclick="visBulk('scale-x')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" stroke-linecap="round"/></svg>
+                            Scale X…
+                        </button>
+                        <button class="vis-ctx-item" onclick="visBulk('scale-y')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" stroke-linecap="round"/></svg>
+                            Scale Y…
+                        </button>
+                        <button class="vis-ctx-item" onclick="visBulk('scale-delay')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Scale delays…
+                        </button>
+                        <button class="vis-ctx-item" onclick="visBulk('set-delay')">
+                            <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>
+                            Set all delays…
+                        </button>
+                    </div>
+                </div>
+
+                <div class="vis-toolbar-sep"></div>
+
+                <!-- Snap -->
+                <label class="vis-tool-label">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                        <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke-linecap="round"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    snap
+                </label>
+                <select id="vis-snap" class="vis-select">
+                    <option value="0">off</option>
+                    <option value="1">1</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                </select>
+
+                <div class="vis-toolbar-sep"></div>
+
+                <!-- Toggles -->
+                <label class="vis-toggle-label" title="Toggle grid">
+                    <input type="checkbox" id="vis-grid" checked class="vis-toggle-cb">
+                    <span class="vis-toggle-track"></span>
+                    grid
+                </label>
+                <label class="vis-toggle-label" title="Show step numbers">
+                    <input type="checkbox" id="vis-show-nums" class="vis-toggle-cb">
+                    <span class="vis-toggle-track"></span>
+                    numbers
+                </label>
+            </div>
+
+            <!-- Body: canvas + step list -->
+            <div class="vis-body">
+                <div class="vis-canvas-wrap">
+                    <canvas id="vis-canvas"></canvas>
+
+                    <div id="vis-tooltip" class="vis-tooltip" style="display:none;"></div>
+
+                    <!-- Inspector -->
+                    <div id="vis-inspector" class="vis-inspector vis-insp-hidden">
+                        <div class="vis-insp-header">
+                            <span id="vis-insp-step" class="vis-insp-title">step 1</span>
+                            <div class="vis-insp-nav">
+                                <button id="vis-insp-prev" class="vis-insp-nav-btn" title="Previous step">
+                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button>
+                                <button id="vis-insp-next" class="vis-insp-nav-btn" title="Next step">
+                                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button>
+                            </div>
+                            <button id="vis-insp-close" class="vis-insp-close" title="Close">
+                                <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke-linecap="round"/></svg>
+                            </button>
+                        </div>
+                        <div class="vis-insp-row">
+                            <label class="vis-insp-label">x</label>
+                            <input id="vis-insp-x" type="number" step="1" class="vis-insp-input">
+                        </div>
+                        <div class="vis-insp-row">
+                            <label class="vis-insp-label">y</label>
+                            <input id="vis-insp-y" type="number" step="1" class="vis-insp-input">
+                        </div>
+                        <div class="vis-insp-row">
+                            <label class="vis-insp-label">ms</label>
+                            <input id="vis-insp-d" type="number" step="1" min="1" class="vis-insp-input">
+                        </div>
+                        <div id="vis-insp-dist" class="vis-insp-dist"></div>
+                        <p class="vis-insp-hint">arrows nudge · shift×5 · del removes</p>
+                        <button id="vis-insp-del" class="vis-insp-del">
+                            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Delete step
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step list panel -->
+                <div class="vis-step-panel">
+                    <div class="vis-step-panel-header">
+                        <span class="vis-step-panel-title text-white">Steps</span>
+                        <button class="vis-step-panel-add" onclick="visAddStep()">
+                            <svg width="10" height="10" fill="none" stroke="currentColor" text-white stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                            Add
+                        </button>
+                    </div>
+                    <div class="vis-sl-cols text-white/40">
+                        <span class="vis-sl-col vis-sl-col-num">#</span>
+                        <span class="vis-sl-col vis-sl-col-x">X</span>
+                        <span class="vis-sl-col vis-sl-col-y">Y</span>
+                        <span class="vis-sl-col vis-sl-col-d">ms</span>
+                        <span class="vis-sl-col vis-sl-col-del"></span>
+                    </div>
+                    <div id="vis-step-list"></div>
+                </div>
+            </div>
+
+            <div class="vis-legend text-white/60">
+                <span class="vis-leg-item"><span class="vis-leg-dot" style="background:#38bdf8"></span>origin</span>
+                <span class="vis-leg-item"><span class="vis-leg-dot" style="background:#00f0ff"></span>step</span>
+                <span class="vis-leg-item"><span class="vis-leg-dot" style="background:#fbbf24"></span>hovered</span>
+                <span class="vis-leg-item"><span class="vis-leg-dot" style="background:#a78bfa"></span>selected</span>
+                <span class="vis-leg-item">
+                    <span style="display:inline-flex;gap:2px;align-items:center">
+                        <span class="vis-leg-dot" style="background:#00f0ff"></span>
+                        <span class="vis-leg-dot" style="background:#fbbf24"></span>
+                        <span class="vis-leg-dot" style="background:#f87171"></span>
+                    </span>
+                    slow→fast
+                </span>
+                <span class="vis-leg-item vis-leg-hint text-white/40">Double-click canvas to add · right-click for options · drag to reorder</span>
+            </div>
+        </div>
+
+        <!-- Right-click context menu (canvas) -->
+        <div id="vis-ctx-menu" class="vis-ctx-menu vis-ctx-hidden">
+            <button class="vis-ctx-item vis-ctx-green" data-action="add-here">
+                <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                Add step here
+            </button>
+            <button class="vis-ctx-item vis-ctx-green" data-action="add-end">
+                <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+                Append step
+            </button>
+            <div class="vis-ctx-sep"></div>
+            <button class="vis-ctx-item" data-action="insert-before">
+                <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Insert before
+            </button>
+            <button class="vis-ctx-item" data-action="insert-after">
+                <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Insert after
+            </button>
+            <button class="vis-ctx-item" data-action="inspect">
+                <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>
+                Inspect
+            </button>
+            <div class="vis-ctx-sep"></div>
+            <button class="vis-ctx-item vis-ctx-danger" data-action="delete">
+                <svg class="vis-ctx-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Delete step
+            </button>
+        </div>
+
+        <!-- Game Engine -->
+        <div id="tab-content-CS2" class="tab-content mt-5 hidden">
+            <div id="cs2-recoil-card" class="bg-neutral-900 border border-white/10 rounded-xl p-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9" stroke-linecap="round"/>
+                        <path d="M12 3v3M12 18v3M3 12h3M18 12h3M12 12l4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-white">Game Engine</p>
+                    <p class="text-xs text-white/40">Select game and weapon profile.</p>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 mt-5 pt-5 space-y-4">
+                <!-- Game Select -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <img id="active-game-icon" src="/static/games/{{ config.active_game }}.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'" class="w-8 h-8 object-contain">
+                            <div class="hidden w-8 h-8 bg-white/5 rounded flex items-center justify-center text-xs text-white/20">?</div>
+                            <p class="text-sm font-medium text-white">Target Game</p>
+                        </div>
+                        <p class="text-xs text-white/40">Active profile for pattern scaling.</p>
+                    </div>
+                    <select name="active_game" 
+                            hx-post="/api/recoil/active_game" 
+                            hx-trigger="change"
+                            hx-target="#weapon-select-container"
+                            hx-swap="outerHTML"
+                            onchange="const icon = document.getElementById('active-game-icon'); icon.src='/static/games/' + this.value + '.png'; icon.style.display='block'; icon.nextElementSibling.style.display='none';"
+                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer">
+                        {% for id, game in games.items() %}
+                            <option value="{{ id }}" {{ 'selected' if config.active_game == id }}>
+                                {{ game.name }}{% if not game.supported %} (Coming Soon){% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Weapon Select -->
+                <div id="weapon-select-container">
+                    {% if games[config.active_game].supported %}
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-white">Weapon</p>
+                            <p class="text-xs text-white/40">Select the weapon to compensate for.</p>
+                        </div>
+                        <select
+                            id="game-weapon"
+                            name="weapon"
+                            hx-post="/api/recoil/game_weapon"
+                            hx-trigger="change"
+                            hx-swap="none"
+                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
+                            {% for weapon in weapons %}
+                                <option value="{{ weapon }}" {{ 'selected' if config.recoil_game_settings.weapon == weapon }}>
+                                    {{ weapon.replace('_', ' ').upper() }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% else %}
+                    <div class="flex items-start gap-3 p-4 rounded-lg bg-neutral-800/50 border border-white/5 text-white/50 text-xs">
+                        <svg class="w-5 h-5 text-amber-500/50 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div>
+                            <p class="font-semibold text-white/70 mb-1 uppercase tracking-wide">Under Development</p>
+                            <p>Recoil profiles for this game are not yet implemented. Official patterns for {{ games[config.active_game].name }} are coming soon!</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- CS2 Sensitivity -->
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5 relative group">
+                            <p class="text-sm font-medium text-white">In-Game Sensitivity</p>
+                            <svg id="sensitivity-info-icon" class="w-3.5 h-3.5 text-white/20 hover:text-white/40 cursor-help transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 16v-4M12 8h.01" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <div id="sensitivity-tooltip" class="absolute hidden z-50 px-3 py-2 text-xs font-medium text-white bg-neutral-700 rounded-lg shadow-lg opacity-0 transition-opacity duration-200 pointer-events-none whitespace-nowrap max-w-xs"
+                                style="top: 100%; left: 50%; transform: translateX(-50%) translateY(8px);">
+                                Matches the recoil pattern scale to your in-game mouse sensitivity.
+                                <br>Ensure this matches your game settings for accurate compensation.
+                                <div class="absolute w-2 h-2 bg-neutral-700 rotate-45" style="top: -4px; left: 50%; transform: translateX(-50%);"></div>
+                            </div>
+                        </div>
+                        <p class="text-xs text-white/40">Your in-game sensitivity value.</p>
+                    </div>
+                    <input
+                        id="game-sensitivity"
+                        type="number"
+                        min="0.1" max="10" step="0.05"
+                        name="sensitivity"
+                        value="{{ config.recoil_game_settings.sensitivity }}"
+                        hx-post="/api/recoil/game_sensitivity"
+                        hx-trigger="change"
+                        hx-swap="none"
+                        class="w-24 text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none hover:border-white/20 focus:border-white/30 transition-colors tabular-nums">
+                </div>
+
+                <!-- Loop Recoil for Game Engine -->
+                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Loop Recoil</p>
+                        <p class="text-xs text-white/40">Loop the pattern until mouse is released.</p>
+                    </div>
+                    <input
+                        id="recoil-game-loop"
+                        type="checkbox"
+                        name="recoil_loop"
+                        hx-post="/api/recoil/game_loop"
+                        hx-trigger="change"
+                        hx-swap="none"
+                        {{ 'checked' if config.recoil_game_settings.recoil_loop else '' }}
+                        class="w-4 h-4 accent-blue-500 cursor-pointer">
+                </div>
+
+                <!-- Cycle Weapon Key -->
+                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Change Weapon Key</p>
+                        <p class="text-xs text-white/40">Cycle through CS2 weapon profiles using a mouse button.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select name="recoil_cycle_keybind" 
+                                hx-post="/api/recoil/cycle_keybind" 
+                                hx-trigger="change" 
+                                hx-swap="none" 
+                                class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
+                            <option value="None" {{ 'selected' if config.recoil_cycle_keybind == 'None' }}>None</option>
+                            <option value="MMB" {{ 'selected' if config.recoil_cycle_keybind == 'MMB' }}>MMB (Middle Mouse)</option>
+                            <option value="M4" {{ 'selected' if config.recoil_cycle_keybind == 'M4' }}>M4</option>
+                            <option value="M5" {{ 'selected' if config.recoil_cycle_keybind == 'M5' }}>M5</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </div> <!-- cs2-recoil-card -->
+    </div> <!-- tab-content-CS2 -->
+
+</main>
+
+    <!-- Footer -->
+    <footer class="mt-12 bg-neutral-900 border-t border-white/10 py-8 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-blue-400/80" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div hx-get="/api/recoil/hardware-check" hx-trigger="load">
+                    <span class="text-white/20 text-[10px] animate-pulse uppercase tracking-widest">Analyzing Integrity...</span>
+                </div>
+            </div>
+            <p class="text-white/20 text-[11px] uppercase tracking-widest font-medium">© 2026 AimSync Utility</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='navigation.js') }}"></script>
+    <script src="{{ url_for('static', filename='pattern_config.js') }}"></script>
+    <script src="{{ url_for('static', filename='pattern_visualiser.js') }}"></script>
+    <script>
+        // Mobile Menu Logic
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobile-menu-drawer');
+            const overlay = document.getElementById('mobile-menu-overlay');
+            const isOpening = drawer.classList.contains('translate-x-full');
+            
+            if (isOpening) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.add('opacity-100');
+                    drawer.classList.remove('translate-x-full');
+                    document.getElementById('bar-1').classList.add('rotate-45', 'translate-y-2');
+                    document.getElementById('bar-2').classList.add('opacity-0');
+                    document.getElementById('bar-3').classList.add('-rotate-45', '-translate-y-2');
+                }, 10);
+            } else {
+                overlay.classList.remove('opacity-100');
+                drawer.classList.add('translate-x-full');
+                document.getElementById('bar-1').classList.remove('rotate-45', 'translate-y-2');
+                document.getElementById('bar-2').classList.remove('opacity-0');
+                document.getElementById('bar-3').classList.remove('-rotate-45', '-translate-y-2');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
+        // Application Shutdown logic
+        function quitApplication() {
+            if (!confirm('Are you sure you want to stop the application?')) return;
+
+            // Read the checkbox state from the global settings toggle to show correct text
+            const willShutdownPC = document.querySelector('[name="shutdown_on_app_stop"]').checked;
+            
+            fetch('/api/quit', { method: 'POST' })
+                .finally(() => {
+                    document.body.innerHTML = `
+                        <div class="min-h-screen bg-neutral-950 flex items-center justify-center text-center p-6">
+                            <div class="flex flex-col items-center gap-4">
+                                <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-2">
+                                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </div>
+                                <h1 class="text-2xl font-bold text-white mb-2">AimSync Stopped</h1>
+                                <p class="text-white/40 text-sm">The hardware connection has been released. You can safely close this window.</p>
+                                ${willShutdownPC ? '<p class="text-white/60 text-sm mt-2 font-semibold">System shutdown initiated...</p>' : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+
+        // Tab switching logic
+        function importPatternIntoRecoilLab(patternText) {
+            if (!patternText) return;
+            const advancedBtn = document.querySelector('.tab-button[data-tab="advanced"]');
+            if (advancedBtn) advancedBtn.click();
+
+            const textarea = document.getElementById('pattern-textarea');
+            if (!textarea) return;
+            textarea.value = patternText;
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            textarea.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin) return;
+            if (!event.data || event.data.type !== 'aimsync_pattern_import') return;
+            importPatternIntoRecoilLab(event.data.pattern || '');
+        });
+
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const selectedTab = this.dataset.tab;
+                const modeTabs = ['simple', 'advanced', 'CS2'];
+
+                // Close drawer if it was clicked from there
+                const drawer = document.getElementById('mobile-menu-drawer');
+                if (!drawer.classList.contains('translate-x-full')) toggleMobileMenu();
+
+                // 1. Instant UI update
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                const targetContent = document.getElementById(`tab-content-${selectedTab}`);
+                if (targetContent) targetContent.classList.remove('hidden');
+
+                // Update all instances of tab buttons (drawer and horizontal bar)
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    if (btn.dataset.tab === selectedTab) {
+                        btn.classList.add('active', 'border-blue-500', 'text-white');
+                        btn.classList.remove('border-transparent', 'text-white/70');
+                        
+                        // Handle scroll for horizontal bar
+                        if (btn.parentElement.id === 'tab-nav') {
+                            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    } else {
+                        btn.classList.remove('active', 'border-blue-500', 'text-white');
+                        btn.classList.add('border-transparent', 'text-white/70');
+                    }
+                });
+
+                // Handle visualiser visibility and refresh
+                const vis = document.getElementById('pattern-visualiser-card');
+                if (vis) vis.classList.toggle('hidden', selectedTab !== 'advanced');
+                
+                if (modeTabs.includes(selectedTab)) {
+                    if (typeof visRefresh === 'function') visRefresh(selectedTab);
+                    
+                    // 2. Sync mode with backend if it's a recoil mode tab
+                    const formData = new FormData();
+                    formData.append('recoil_mode', selectedTab);
+                    fetch('/api/recoil/mode', { method: 'POST', body: formData });
+                }
+            });
+        });
+
+        // Initial setup: land on Global Settings by default
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const bootScreen = document.getElementById('boot-screen');
+            setTimeout(() => {
+                if (bootScreen) {
+                    bootScreen.classList.add('opacity-0');
+                    setTimeout(() => bootScreen.remove(), 500);
+                }
+            }, 1200);
+
+            // Always open Global Settings on launch (recoil_mode is unchanged until user picks a mode tab)
+            const startTab = 'global';
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById('tab-content-global')?.classList.remove('hidden');
+
+            const vis = document.getElementById('pattern-visualiser-card');
+            if (vis) vis.classList.add('hidden');
+
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                if (btn.dataset.tab === startTab) {
+                    btn.classList.add('active', 'border-blue-500', 'text-white');
+                    btn.classList.remove('border-transparent', 'text-white/70');
+                } else {
+                    btn.classList.remove('active', 'border-blue-500', 'text-white');
+                    btn.classList.add('border-transparent', 'text-white/70');
+                }
+            });
+
+            try {
+                const queued = localStorage.getItem('aimsync.pattern.import');
+                if (queued) {
+                    const parsed = JSON.parse(queued);
+                    if (parsed && parsed.pattern) {
+                        importPatternIntoRecoilLab(parsed.pattern);
+                    }
+                    localStorage.removeItem('aimsync.pattern.import');
+                }
+            } catch (_) {}
+        });
+        document.body.addEventListener('htmx:afterSwap', function(e) {
+            if (e.detail.target.id === 'recoil-toggle') {
+                htmx.process(e.detail.target);
+            }
+        });
+
+        // QR Modal Toggle Logic
+        function toggleQRModal() {
+            const modal = document.getElementById('qr-modal');
+            const container = document.getElementById('qrcode-container');
+            
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                container.innerHTML = '';
+                new QRCode(container, {
+                    text: `http://{{ local_ip }}:5000`,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#171717",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Cloud sharing functions
+        function shareToCloud() {
+            const name = document.getElementById('save-pattern-name').value;
+            const pattern = document.getElementById('pattern-textarea').value;
+            if (!name) { alert('Enter a pattern name first!'); return; }
+            
+            const formData = new FormData();
+            formData.append('pattern_name', name);
+            formData.append('advanced_pattern', pattern);
+            
+            fetch('/api/recoil/cloud/upload', { method: 'POST', body: formData })
+                .then(r => r.text())
+                .then(msg => alert(msg));
+        }
+
+        function loadCloudPattern(name) {
+            if(!confirm(`Import community pattern "${name}"? This will overwrite your current unsaved editor content.`)) return;
+            
+            fetch(`/api/recoil/cloud/load?name=${encodeURIComponent(name)}`)
+                .then(r => r.text())
+                .then(content => {
+                    const ta = document.getElementById('pattern-textarea');
+                    ta.value = content;
+                    // Trigger the visualiser and backend sync
+                    ta.dispatchEvent(new Event('input', { bubbles: true }));
+                    alert(`Successfully imported: ${name}`);
+                });
+        }
+
+        
+
+        // Placeholder for future licensing events.
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            // Intentionally empty for now.
+        });
+
+        function resetMultipliers() {
+            const sliders = [
+                { name: 'recoil_random_strength', val: 5, url: '/api/recoil/random_strength' },
+                { name: 'recoil_x_control', val: 100, url: '/api/recoil/x_control' },
+                { name: 'recoil_y_control', val: 100, url: '/api/recoil/y_control' },
+                { name: 'recoil_speed_control', val: 100, url: '/api/recoil/speed_control' }
+            ];
+            sliders.forEach(s => {
+                const el = document.querySelector(`[name="${s.name}"]`);
+                if (el) { el.value = s.val; el.nextElementSibling.textContent = s.val; fetch(s.url, { method: 'POST', body: new URLSearchParams({ [s.name]: s.val }) }); }
+            });
+            if (typeof visRefresh === 'function') visRefresh();
+        }
+
+        // Support Dropdown Logic
+        function toggleSupportDropdown() {
+            const menu = document.getElementById('support-dropdown');
+            const arrow = document.getElementById('support-arrow');
+            const isHidden = menu.classList.contains('hidden');
+            
+            if (!isHidden) {
+                // Close crypto sub-dropdown if closing parent
+                const cryptoSubMenu = document.getElementById('crypto-sub-dropdown');
+                if (cryptoSubMenu && !cryptoSubMenu.classList.contains('hidden')) {
+                    cryptoSubMenu.classList.add('hidden');
+                    document.getElementById('crypto-sub-arrow').style.transform = 'rotate(0deg)';
+                }
+            }
+            menu.classList.toggle('hidden', !isHidden);
+            if (arrow) arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        function toggleCryptoSubDropdown(event) {
+            event.stopPropagation(); // Prevent closing parent dropdown
+            const menu = document.getElementById('crypto-sub-dropdown');
+            const arrow = document.getElementById('crypto-sub-arrow');
+            const isHidden = menu.classList.contains('hidden');
+            
+            menu.classList.toggle('hidden');
+            if (arrow) arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+        }
+
+        // Close dropdowns when clicking outside
+        window.addEventListener('click', (e) => {
+            const supportContainer = document.getElementById('support-dropdown-container');
+            const cryptoSubDropdown = document.getElementById('crypto-sub-dropdown');
+            const cryptoDonateButton = document.getElementById('crypto-donate-button');
+
+            if (supportContainer && !supportContainer.contains(e.target)) {
+                document.getElementById('support-dropdown').classList.add('hidden');
+                const supportArrow = document.getElementById('support-arrow');
+                if (supportArrow) supportArrow.style.transform = 'rotate(0deg)';
+                
+                // Also close crypto sub-dropdown if parent is closed
+                if (!cryptoSubDropdown.classList.contains('hidden')) {
+                    cryptoSubDropdown.classList.add('hidden');
+                    document.getElementById('crypto-sub-arrow').style.transform = 'rotate(0deg)';
+                }
+            } else if (cryptoSubDropdown && !cryptoSubDropdown.contains(e.target) && cryptoDonateButton && !cryptoDonateButton.contains(e.target)) {
+                 // If clicked outside crypto sub-dropdown but inside support dropdown, close sub-dropdown
+                 if (!cryptoSubDropdown.classList.contains('hidden')) {
+                    cryptoSubDropdown.classList.add('hidden');
+                    document.getElementById('crypto-sub-arrow').style.transform = 'rotate(0deg)';
+                }
+            }
+        });
+
+        function copyWalletAddress(address, coinSymbol) {
+            navigator.clipboard.writeText(address).then(() => {
+                const textEl = document.getElementById(`${coinSymbol.toLowerCase()}-text`);
+                const originalText = textEl.innerText;
+                
+                textEl.innerText = 'Address Copied!';
+                textEl.classList.add('text-green-400');
+                
+                setTimeout(() => {
+                    textEl.innerText = originalText;
+                    textEl.classList.remove('text-green-400');
+                }, 2000);
+            });
+        }
+
+        // Poll for weapon changes (when cycling via hotkey)
+        let lastKnownWeapon = document.getElementById('game-weapon')?.value || '';
+        setInterval(() => {
+            const weaponSelect = document.getElementById('game-weapon');
+            if (!weaponSelect) return;
+            
+            fetch('/api/recoil/current_weapon')
+                .then(r => r.text())
+                .then(weapon => {
+                    weapon = weapon.trim();
+                    if (weapon !== lastKnownWeapon && weapon) {
+                        lastKnownWeapon = weapon;
+                        weaponSelect.value = weapon;
+                        // Visual feedback - flash the select briefly
+                        weaponSelect.style.borderColor = '#3b82f6';
+                        weaponSelect.style.boxShadow = '0 0 8px rgba(59,130,246,0.4)';
+                        setTimeout(() => {
+                            weaponSelect.style.borderColor = '';
+                            weaponSelect.style.boxShadow = '';
+                        }, 500);
+                    }
+                })
+                .catch(() => {});
+        }, 500); // Check every 500ms for responsive updates
+
+        // Feedback Logic
+        function toggleFeedbackModal() {
+            const modal = document.getElementById('feedback-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function sendFeedback() {
+            const message = document.getElementById('feedback-message-input').value;
+            const contact = document.getElementById('contact-info-input').value;
+            const bugType = document.getElementById('feedback-type-input').value;
+            const btn = event.currentTarget;
+
+            const COOLDOWN_MINUTES = 2;
+            const lastSubmissionTime = localStorage.getItem('lastFeedbackSubmission');
+            const now = new Date().getTime();
+
+            if (lastSubmissionTime) {
+                const timeElapsed = now - parseInt(lastSubmissionTime);
+                const timeLeft = (COOLDOWN_MINUTES * 60 * 1000) - timeElapsed;
+                if (timeLeft > 0) {
+                    alert(`Please wait ${Math.ceil(timeLeft / 1000 / 60)} minutes before sending another feedback.`);
+                    return;
+                }
+            }
+
+            if (!message.trim()) {
+                alert('Please enter a message before sending.');
+                return;
+            }
+
+            btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerText = 'Sending...';
+
+            const formData = new FormData();
+            formData.append('feedback_message', message);
+            formData.append('contact_info', contact);
+            formData.append('bug_type', bugType);
+
+            fetch('/api/feedback', { method: 'POST', body: formData })
+                .then(r => {
+                    if (!r.ok) {
+                        return r.json().then(err => { throw new Error(err.message || 'Server error'); });
+                    }
+                    return r.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Thank you! Your feedback has been sent.');
+                        localStorage.setItem('lastFeedbackSubmission', now.toString());
+                        toggleFeedbackModal();
+                        document.getElementById('feedback-message-input').value = '';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(() => alert('Failed to send feedback. Check your connection.'))
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                });
+        }
+
+        // Custom Tooltip Logic for In-Game Sensitivity
+        const sensitivityInfoIcon = document.getElementById('sensitivity-info-icon');
+        const sensitivityTooltip = document.getElementById('sensitivity-tooltip');
+
+        if (sensitivityInfoIcon && sensitivityTooltip) {
+            let tooltipTimeout;
+
+            sensitivityInfoIcon.addEventListener('mouseenter', () => {
+                clearTimeout(tooltipTimeout);
+                sensitivityTooltip.classList.remove('hidden');
+                // Use a timeout to allow CSS transition for opacity
+                setTimeout(() => {
+                    sensitivityTooltip.classList.add('opacity-100');
+                }, 10);
+            });
+
+            sensitivityInfoIcon.addEventListener('mouseleave', () => {
+                sensitivityTooltip.classList.remove('opacity-100');
+                // Hide after transition
+                tooltipTimeout = setTimeout(() => {
+                    sensitivityTooltip.classList.add('hidden');
+                }, 200); // Match CSS transition duration
+            });
+        }
+
+        // Trial countdown — updates every second; re-inits after HTMX swaps license-status
+        function formatTrialLabel(seconds) {
+            const s = Math.max(0, parseInt(seconds, 10) || 0);
+            const mins = Math.floor(s / 60);
+            const secs = s % 60;
+            return `Free Trial: ${mins}m ${secs.toString().padStart(2, '0')}s left`;
+        }
+
+        function paintTrialCountdown(el) {
+            if (!el || el.dataset.timer === undefined) return;
+            el.innerText = formatTrialLabel(el.dataset.timer);
+        }
+
+        function initTrialCountdown() {
+            paintTrialCountdown(document.getElementById('license-display'));
+        }
+
+        setInterval(() => {
+            const el = document.getElementById('license-display');
+            if (!el || el.dataset.timer === undefined) return;
+            let seconds = parseInt(el.dataset.timer, 10);
+            if (seconds <= 0) return;
+            seconds--;
+            el.dataset.timer = String(seconds);
+            paintTrialCountdown(el);
+        }, 1000);
+
+        document.addEventListener('DOMContentLoaded', initTrialCountdown);
+        document.body.addEventListener('htmx:afterSwap', (evt) => {
+            const t = evt.detail.target;
+            if (t && (t.id === 'license-status' || t.querySelector?.('#license-display'))) {
+                initTrialCountdown();
+            }
+        });
+    </script>
+
+</body>
+</html>

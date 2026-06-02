@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AimSync Pattern Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-neutral-950 text-white font-sans">
+    <main class="max-w-[1500px] mx-auto px-4 lg:px-8 py-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold">Pattern Generator</h1>
+                <p class="text-sm text-white/50">Create weapon spray data from image/GIF and append directly to game files.</p>
+            </div>
+            <button type="button" onclick="closePatternGeneratorTab()" class="text-xs text-blue-300 hover:text-blue-200">Back to AimSync</button>
+        </div>
+
+        <div class="mb-4 rounded-lg border border-white/10 bg-neutral-900/60 px-3 py-2 text-xs text-white/60">
+            External workspace mode: optimized for large spray captures and long point-edit sessions.
+        </div>
+
+        {% set embedded = false %}
+        {% include "_pattern_generator_panel.html" %}
+    </main>
+
+    <script src="{{ url_for('static', filename='pattern_generator.js') }}"></script>
+    <script>
+        function closePatternGeneratorTab() {
+            window.close();
+            setTimeout(() => {
+                if (!document.hidden) {
+                    window.location.href = '/';
+                }
+            }, 120);
+        }
+    </script>
+</body>
+</html>

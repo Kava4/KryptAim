@@ -75,34 +75,27 @@ saved_patterns/
 **/.env.local
 Cloud/.env*
 .vercel/
-Recoil/*
-PatternExtractor/
 
 # --- Maintainer-only / scratch (not for public tree) ---
 temp_*.py
-temp_*.bat
-world.lua
+*.bat
 protect_sync.py
 coordinate_mapper.py
 recorder.py
 visualizer.py
-Cloud
+Cloud/
+*.ps1
 
 # Release packaging (maintainer machine only)
 build_app.py
 build_app.bat
 build_generator.bat
 AimSync.spec
-
+Recoil/games/*
+Recoil/games/*.py
 # --- Optional local drafts (pattern only; may not exist on disk) ---
 **/*_source.py
-**/*.bat
-**/*.ps1
-Server/app.py
-Server/cloud_manager.py
-Server/templates/index.html
-Server/static/pattern_visualiser.js
-Server/logo
+
 
 # =============================================================================
 # PROTECTED CORE — do not remove
@@ -113,7 +106,8 @@ Recoil/recoil.py
 Makcu/makcu_manager.py
 Makcu/software_manager.py
 Server/cloud_manager.py
-Server/routes/
+dist
+build
 
 # Optional / removed trees (ignore if recreated locally)
 PatternExtractor/

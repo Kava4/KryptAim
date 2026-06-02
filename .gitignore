@@ -108,6 +108,8 @@ Makcu/software_manager.py
 Server/cloud_manager.py
 dist
 build
+build_beta.py
+build_helper.py
 
 # Optional / removed trees (ignore if recreated locally)
 PatternExtractor/

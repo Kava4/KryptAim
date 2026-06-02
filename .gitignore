@@ -1,0 +1,123 @@
+# =============================================================================
+# AimSync .gitignore
+# Public repo = UI, docs, game profiles, Cloud API, Pattern Generator.
+# Core engine / hardware / license client stay local (see "Protected core").
+# =============================================================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+*.so
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# --- Test / tooling caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+*.egg-info/
+.eggs/
+
+# --- Build & release artifacts ---
+build/
+dist/
+*.spec
+*.exe
+*.msi
+*.zip
+
+# --- PyInstaller / obfuscation ---
+*.manifest
+*.pkg
+
+# --- IDE & OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# --- Cursor / local tooling ---
+.cursor/
+*.code-workspace
+
+# --- Logs & debug ---
+*.log
+aimsyc_debug.log
+
+# --- User / machine-local data (never commit) ---
+config.json
+Config/config.json
+patterns/
+patterns/*.json
+Config/saved_patterns/
+saved_patterns/
+*.local.json
+
+# --- Secrets (cloud & payments) ---
+**/secrets.*
+**/*_secret*
+**/.env.local
+Cloud/.env*
+.vercel/
+Recoil/*
+PatternExtractor/
+
+# --- Maintainer-only / scratch (not for public tree) ---
+temp_*.py
+temp_*.bat
+world.lua
+protect_sync.py
+coordinate_mapper.py
+recorder.py
+visualizer.py
+Cloud
+
+# Release packaging (maintainer machine only)
+build_app.py
+build_app.bat
+build_generator.bat
+AimSync.spec
+
+# --- Optional local drafts (pattern only; may not exist on disk) ---
+**/*_source.py
+**/*.bat
+**/*.ps1
+Server/app.py
+Server/cloud_manager.py
+Server/templates/index.html
+Server/static/pattern_visualiser.js
+Server/logo
+
+# =============================================================================
+# PROTECTED CORE — do not remove
+# Bundled in release builds only. Ignored even when absent locally.
+# =============================================================================
+
+Recoil/recoil.py
+Makcu/makcu_manager.py
+Makcu/software_manager.py
+Server/cloud_manager.py
+Server/routes/
+
+# Optional / removed trees (ignore if recreated locally)
+PatternExtractor/
+Menu/
+AimSync.spec
+
+

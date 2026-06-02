@@ -95,7 +95,14 @@ Recoil/games/*
 Recoil/games/*.py
 # --- Optional local drafts (pattern only; may not exist on disk) ---
 **/*_source.py
-
+build-helper/*
+build-helper/AimSyncHelper/*
+build-helper/AimSyncHelper/PYZ-00.toc
+build-helper/AimSyncHelper/PYZ-00.pyz
+build-helper/AimSyncHelper/PYZ-00.pyz.d
+build-helper/AimSyncHelper/PYZ-00.pyz.d/
+build-helper/AimSyncHelper/PYZ-00.pyz.d/__init__.py
+build-helper/AimSyncHelper/PYZ-00.pyz.d/__init__.pyc
 
 # =============================================================================
 # PROTECTED CORE — do not remove

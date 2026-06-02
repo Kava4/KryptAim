@@ -1,5 +1,11 @@
 <div align="center">
-  <img src="Server/static/AimSync_logo.png" alt="AimSync Logo" width="160" height="160" />
+
+  <img
+    src="https://raw.githubusercontent.com/Kava4/AimSync/main/Server/static/AimSync_logo.png"
+    alt="AimSync Logo"
+    width="160"
+    height="160"
+  />
 
   # AimSync
   ### High-Integrity Hardware Input Framework

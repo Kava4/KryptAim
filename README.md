@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="https://github.com/Kava4/AimSync/stargazers"><img src="https://img.shields.io/github/stars/Kava4/AimSync?style=for-the-badge&amp;color=00CFFF" alt="GitHub stars" /></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/github/license/Kava4/AimSync?style=for-the-badge" alt="License" /></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-green?style=flat" alt="License" /></a>
   <a href="https://ko-fi.com/kava4"><img src="https://img.shields.io/badge/Support-Ko--fi-F16061?style=for-the-badge&amp;logo=ko-fi&amp;logoColor=white" alt="Support on Ko-fi" /></a>
   <a href="https://paypal.me/kava4"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal&amp;logoColor=white" alt="Donate via PayPal" /></a>
 </p>

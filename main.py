@@ -3,6 +3,7 @@ from Server.app import run_flask, stop_flask
 from Recoil.recoil import run_recoil
 from Recoil.weapon_data import WeaponData
 from Config.config_manager import load_config, save_config
+from Config.version import APP_VERSION
 from Makcu.software_manager import software_manager
 
 from tkinter import messagebox
@@ -169,7 +170,7 @@ def main():
     root = tk.Tk()
     _apply_window_icon(root)
     root.withdraw()
-    root.title("AimSync")
+    root.title(f"AimSync {APP_VERSION}")
 
     def on_close():
         shutdown(root)

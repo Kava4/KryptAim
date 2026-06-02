@@ -2,6 +2,11 @@
 
 All notable user-facing changes to AimSync documentation and product behavior. Version numbers follow [GitHub Releases](https://github.com/Kava4/AimSync/releases) when tagged.
 
+## v0.1.0 — Early Access
+
+- Dashboard shows **v0.1.0 · Early Access** in navbar and boot screen
+- First public Windows release (`AimSync.exe`)
+
 ## Unreleased (documentation & trial)
 
 ### Added

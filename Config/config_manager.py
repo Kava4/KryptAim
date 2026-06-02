@@ -1,17 +1,25 @@
+import copy
 import json
 import os
 import sys
 from pathlib import Path
 
+from Config.app_identity import get_app_storage_dirname
+
 
 def get_base_dir() -> Path:
     # Persistent storage: Use the executable's directory instead of the temporary extraction folder
     if getattr(sys, 'frozen', False):
-        # Move persistent data to AppData/Roaming/AimSync to keep the EXE folder clean
-        app_data = Path(os.environ.get('APPDATA', Path.home())) / 'AimSync'
+        # Move persistent data to AppData/Roaming/<channel specific app dir> to keep EXE folders clean
+        app_data = Path(os.environ.get('APPDATA', Path.home())) / get_app_storage_dirname()
         app_data.mkdir(parents=True, exist_ok=True)
         return app_data
     # Dev mode: Root directory
+    channel = os.environ.get('AIMSYNC_CHANNEL', '').strip().lower()
+    if channel == 'beta':
+        beta_dir = Path(__file__).resolve().parent.parent / '.beta-data'
+        beta_dir.mkdir(parents=True, exist_ok=True)
+        return beta_dir
     return Path(__file__).resolve().parent.parent
 
 
@@ -20,18 +28,37 @@ CONFIG_FILE = get_base_dir() / 'config.json'
 DEFAULTS = {
     'recoil_enabled': False,
     'recoil_keybind': 'M4',
+    'global_toggle_hotkey': 'M4',
     'recoil_mode': 'simple',
     'recoil_require_rmb': False,
     'recoil_randomisation': False,
     'recoil_random_strength': 5.0,
     'recoil_cycle_keybind': 'None',
+    'weapon_cycle_hotkey': 'None',
+    'weapon_direct_binds': {},
     'recoil_x_control': 100,
     'recoil_safety_features_enabled': True,
     'recoil_y_control': 100,
+    'recoil_speed_control': 100,
+    'recoil_input_method': 'hardware',
+    'recoil_return_crosshair': False,
     'shutdown_on_app_stop': False,
     'active_game': 'cs2',
     'license_key': '',
     'is_premium': False,
+    'cloud_username': 'Anonymous',
+    'ocr_enabled': False,
+    'ocr_poll_ms': 250,
+    'ocr_roi_cs2': {
+        'x': 0,
+        'y': 0,
+        'width': 0,
+        'height': 0,
+    },
+    'ocr_confidence_threshold': 0.7,
+    'ocr_helper_ws_url': 'ws://0.0.0.0:8765/ws/ocr',
+    'ocr_helper_token': '',
+    'ocr_debug_log': False,
     'recoil_simple_settings': {
         'recoil_x': 0,
         'recoil_y': 0,
@@ -64,8 +91,14 @@ def load_config():
                 for subkey, subvalue in value.items():
                     if subkey not in data[key]:
                         data[key][subkey] = subvalue
+        if not data.get('global_toggle_hotkey'):
+            data['global_toggle_hotkey'] = data.get('recoil_keybind', DEFAULTS['global_toggle_hotkey'])
+        if not data.get('weapon_cycle_hotkey'):
+            data['weapon_cycle_hotkey'] = data.get('recoil_cycle_keybind', DEFAULTS['weapon_cycle_hotkey'])
+        if not isinstance(data.get('weapon_direct_binds'), dict):
+            data['weapon_direct_binds'] = copy.deepcopy(DEFAULTS['weapon_direct_binds'])
         return data
-    return DEFAULTS.copy()
+    return copy.deepcopy(DEFAULTS)
 
 
 def save_config(config):

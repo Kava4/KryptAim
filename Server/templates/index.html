@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AimSync</title>
+    <title>{{ app_name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,12 @@
         <div class="flex flex-col items-center gap-4 text-center">
                     <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="Logo" class="w-9 h-9 rounded-lg">
             <div>
-                <p class="text-2xl font-semibold tracking-wide text-white">AimSync</p>
+                <div class="flex items-center justify-center gap-2">
+                    <p class="text-2xl font-semibold tracking-wide text-white">{{ app_name }}</p>
+                    {% if is_beta_channel %}
+                    <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-200">Beta</span>
+                    {% endif %}
+                </div>
                 <p class="text-xs font-medium text-blue-300/90 tracking-wide">{{ app_version }} · {{ app_version_label }}</p>
                 <p class="text-sm text-white/60">Loading your interface...</p>
             </div>
@@ -40,11 +45,16 @@
     <nav class="bg-neutral-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-6">
             <div class="flex items-center justify-between h-16">
-                <a href="#" class="flex items-center gap-2.5 flex-shrink-0" title="AimSync {{ app_version }}">
+                <a href="#" class="flex items-center gap-2.5 flex-shrink-0" title="{{ app_name }} {{ app_version }}">
                     <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="AimSync Logo" class="h-12 w-auto">
                     <span class="sm:hidden text-[10px] font-semibold text-blue-300/90">{{ app_version }}</span>
                     <span class="hidden sm:inline-flex flex-col leading-tight">
-                        <span class="text-sm font-semibold text-white">AimSync</span>
+                        <span class="flex items-center gap-2 text-sm font-semibold text-white">
+                            <span>{{ app_name }}</span>
+                            {% if is_beta_channel %}
+                            <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-200">Beta</span>
+                            {% endif %}
+                        </span>
                         <span class="text-[10px] font-medium uppercase tracking-wider text-blue-300/80">{{ app_version }} · {{ app_version_label }}</span>
                     </span>
                 </a>
@@ -196,7 +206,12 @@
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-2">
                 <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="Logo" class="h-8 w-auto">
-                <span class="text-white font-semibold">Menu</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-white font-semibold">{{ app_name }}</span>
+                    {% if is_beta_channel %}
+                    <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-200">Beta</span>
+                    {% endif %}
+                </div>
             </div>
             <button onclick="toggleMobileMenu()" class="text-white/40 hover:text-white">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,6 +354,33 @@
                     </div>
                     {% endif %}
                 </div>
+                {% if is_beta_channel %}
+                <div class="mt-6 border-t border-white/5 pt-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-white">Custom Hotkeys</p>
+                            <p class="text-xs text-white/40">Use single keys or combos like <span class="text-white/60">home</span> or <span class="text-white/60">ctrl+f1</span>.</p>
+                        </div>
+                        <button type="button" onclick="saveHotkeySettings()" class="text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 hover:bg-blue-500/15 transition-colors">Save Hotkeys</button>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Global Toggle</span>
+                            <input id="global-toggle-hotkey" type="text" value="{{ config.global_toggle_hotkey or config.recoil_keybind }}" placeholder="m4" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Weapon Cycle</span>
+                            <input id="weapon-cycle-hotkey" type="text" value="{{ config.weapon_cycle_hotkey or config.recoil_cycle_keybind }}" placeholder="none" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-[11px] uppercase tracking-widest text-white/35">Direct Weapon Binds</span>
+                        <p class="text-xs text-white/40 mt-2">One binding per line using <span class="text-white/60">hotkey=weapon</span>, for example <span class="text-white/60">ctrl+f1=ak47</span>.</p>
+                        <textarea id="weapon-direct-binds" rows="4" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">{{ weapon_direct_binds_text }}</textarea>
+                    </div>
+                    <p id="hotkey-settings-status" class="mt-3 text-xs text-white/35">Saved values remain backward compatible with the legacy mouse button settings.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -1040,6 +1082,61 @@
                         </select>
                     </div>
                 </div>
+                {% if is_beta_channel %}
+                <div class="mt-6 border-t border-white/5 pt-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-white">OCR Helper</p>
+                            <p class="text-xs text-white/40">Receive CS2 weapon updates from a helper app over WebSocket.</p>
+                        </div>
+                        <label class="flex items-center gap-2 text-xs text-white/70">
+                            <input id="ocr-enabled" type="checkbox" {{ 'checked' if config.ocr_enabled else '' }} class="w-4 h-4 accent-blue-500 cursor-pointer">
+                            Enabled
+                        </label>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Helper Endpoint</span>
+                            <input id="ocr-helper-ws-url" type="text" value="{{ config.ocr_helper_ws_url or default_ocr_helper_ws_url }}" placeholder="{{ default_ocr_helper_ws_url }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                            <p class="mt-2 text-[11px] text-white/35">Auto-filled from this AimSync host. Leave as-is unless you want a custom target.</p>
+                        </label>
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Shared Token</span>
+                            <input id="ocr-helper-token" type="text" value="{{ config.ocr_helper_token }}" placeholder="optional token" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Confidence Threshold</span>
+                            <input id="ocr-confidence-threshold" type="number" min="0" max="1" step="0.05" value="{{ config.ocr_confidence_threshold }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Poll Interval (ms)</span>
+                            <input id="ocr-poll-ms" type="number" min="50" step="10" value="{{ config.ocr_poll_ms }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                    </div>
+                    <div class="grid md:grid-cols-4 gap-4 mt-4">
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI X</span>
+                            <input id="ocr-roi-x" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.x }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI Y</span>
+                            <input id="ocr-roi-y" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.y }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI Width</span>
+                            <input id="ocr-roi-width" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.width }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI Height</span>
+                            <input id="ocr-roi-height" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.height }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between gap-4 mt-4">
+                        <p id="ocr-helper-status" class="text-xs text-white/35">Helper status: checking...</p>
+                        <button type="button" onclick="saveOcrSettings()" class="text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 hover:bg-blue-500/15 transition-colors">Save OCR Settings</button>
+                    </div>
+                </div>
+                {% endif %}
 
             </div>
         </div> <!-- cs2-recoil-card -->
@@ -1060,7 +1157,12 @@
                     <span class="text-white/20 text-[10px] animate-pulse uppercase tracking-widest">Analyzing Integrity...</span>
                 </div>
             </div>
-            <p class="text-white/20 text-[11px] uppercase tracking-widest font-medium">© 2026 AimSync Utility</p>
+            <div class="flex items-center gap-2">
+                <p class="text-white/20 text-[11px] uppercase tracking-widest font-medium">© 2026 {{ app_name }}</p>
+                {% if is_beta_channel %}
+                <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-200">Experimental</span>
+                {% endif %}
+            </div>
         </div>
     </footer>
 
@@ -1369,6 +1471,89 @@
             });
         }
 
+        function parseWeaponDirectBinds() {
+            const raw = document.getElementById('weapon-direct-binds')?.value || '';
+            return raw
+                .split('\n')
+                .map(line => line.trim())
+                .filter(Boolean)
+                .map(line => {
+                    const separator = line.indexOf('=');
+                    if (separator === -1) return null;
+                    return {
+                        hotkey: line.slice(0, separator).trim(),
+                        weapon: line.slice(separator + 1).trim()
+                    };
+                })
+                .filter(Boolean);
+        }
+
+        function setStatusText(id, message, isError = false) {
+            const element = document.getElementById(id);
+            if (!element) return;
+            element.textContent = message;
+            element.classList.toggle('text-red-300', isError);
+            element.classList.toggle('text-white/35', !isError);
+        }
+
+        function saveHotkeySettings() {
+            if (!document.getElementById('global-toggle-hotkey')) return;
+            const formData = new FormData();
+            formData.append('global_toggle_hotkey', document.getElementById('global-toggle-hotkey')?.value || 'none');
+            formData.append('weapon_cycle_hotkey', document.getElementById('weapon-cycle-hotkey')?.value || 'none');
+            formData.append('weapon_direct_binds', JSON.stringify(parseWeaponDirectBinds()));
+
+            fetch('/api/recoil/hotkeys', { method: 'POST', body: formData })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok || !data.success) throw new Error(data.message || 'Failed to save hotkeys.');
+                    document.getElementById('global-toggle-hotkey').value = data.global_toggle_hotkey;
+                    document.getElementById('weapon-cycle-hotkey').value = data.weapon_cycle_hotkey;
+                    document.getElementById('weapon-direct-binds').value = Object.entries(data.weapon_direct_binds || {}).map(([hotkey, weapon]) => `${hotkey}=${weapon}`).join('\n');
+                    setStatusText('hotkey-settings-status', 'Hotkeys saved.');
+                })
+                .catch(error => setStatusText('hotkey-settings-status', error.message, true));
+        }
+
+        function saveOcrSettings() {
+            if (!document.getElementById('ocr-helper-ws-url')) return;
+            const formData = new FormData();
+            formData.append('ocr_enabled', document.getElementById('ocr-enabled')?.checked ? 'on' : 'off');
+            formData.append('ocr_helper_ws_url', document.getElementById('ocr-helper-ws-url')?.value || '');
+            formData.append('ocr_helper_token', document.getElementById('ocr-helper-token')?.value || '');
+            formData.append('ocr_confidence_threshold', document.getElementById('ocr-confidence-threshold')?.value || '0.7');
+            formData.append('ocr_poll_ms', document.getElementById('ocr-poll-ms')?.value || '250');
+            formData.append('ocr_roi_x', document.getElementById('ocr-roi-x')?.value || '0');
+            formData.append('ocr_roi_y', document.getElementById('ocr-roi-y')?.value || '0');
+            formData.append('ocr_roi_width', document.getElementById('ocr-roi-width')?.value || '0');
+            formData.append('ocr_roi_height', document.getElementById('ocr-roi-height')?.value || '0');
+
+            fetch('/api/recoil/ocr_settings', { method: 'POST', body: formData })
+                .then(async response => {
+                    const data = await response.json();
+                    if (!response.ok || !data.success) throw new Error(data.message || 'Failed to save OCR settings.');
+                    setStatusText('ocr-helper-status', 'OCR settings saved. Waiting for helper...');
+                })
+                .catch(error => setStatusText('ocr-helper-status', error.message, true));
+        }
+
+        function pollOcrStatus() {
+            if (!document.getElementById('ocr-helper-status')) return;
+            fetch('/api/recoil/ocr_status')
+                .then(response => response.json())
+                .then(status => {
+                    const parts = [
+                        `Helper ${status.connected ? 'connected' : 'disconnected'}`,
+                        status.last_weapon ? `weapon: ${status.last_weapon}` : null,
+                        status.confidence ? `confidence: ${Number(status.confidence).toFixed(2)}` : null,
+                        status.client ? `client: ${status.client}` : null,
+                        status.status && status.status !== 'connected' && status.status !== 'disconnected' ? `status: ${status.status}` : null
+                    ].filter(Boolean);
+                    setStatusText('ocr-helper-status', parts.join(' | '));
+                })
+                .catch(() => setStatusText('ocr-helper-status', 'Helper status unavailable.', true));
+        }
+
         // Poll for weapon changes (when cycling via hotkey)
         let lastKnownWeapon = document.getElementById('game-weapon')?.value || '';
         setInterval(() => {
@@ -1393,6 +1578,9 @@
                 })
                 .catch(() => {});
         }, 500); // Check every 500ms for responsive updates
+        {% if is_beta_channel %}
+        setInterval(pollOcrStatus, 1000);
+        {% endif %}
 
         // Feedback Logic
         function toggleFeedbackModal() {

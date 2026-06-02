@@ -1,9 +1,11 @@
 from Makcu.makcu_manager import makcu_manager
 from Server.app import run_flask, stop_flask
+from Server.ocr_ws_server import start_ocr_ws_server_thread
 from Recoil.recoil import run_recoil
+from Recoil.hotkeys import HotkeyStateTracker, get_bound_weapon
 from Recoil.weapon_data import WeaponData
+from Config.app_identity import get_app_name, get_app_version, is_beta_channel
 from Config.config_manager import load_config, save_config
-from Config.version import APP_VERSION
 from Makcu.software_manager import software_manager
 
 from tkinter import messagebox
@@ -26,6 +28,7 @@ logging.basicConfig(
     filemode='w'  # Overwrite log file on each run
 )
 logger = logging.getLogger('AimSync')
+hotkey_tracker = HotkeyStateTracker()
 
 
 def _app_icon_path() -> Path:
@@ -103,10 +106,30 @@ def shutdown(root):
         os._exit(0)
 
 
+def _get_available_weapons(game_id):
+    wd = WeaponData.get_game_data(game_id)
+    weapons = [attr for attr in dir(wd) if not attr.startswith('_') and isinstance(getattr(wd, attr), list)]
+    weapons.sort()
+    return weapons
+
+
+def _set_active_weapon(config, weapon_name, available_weapons):
+    if weapon_name not in available_weapons:
+        return False
+    current_weapon = config.get('recoil_game_settings', {}).get('weapon')
+    if current_weapon == weapon_name:
+        return False
+    config['recoil_game_settings']['weapon'] = weapon_name
+    save_config(config)
+    logger.info("Weapon hotkey selected %s", weapon_name)
+    return True
+
+
 def monitor_hotkeys():
-    """Independent thread to monitor for weapon cycling hotkeys without blocking the recoil engine."""
+    """Independent thread to monitor weapon cycle and direct-select hotkeys."""
+    if not is_beta_channel():
+        return
     logger.info("Hotkey monitor started.")
-    last_cycle_state = False
     last_game_id = None
     available_weapons = []
 
@@ -117,40 +140,26 @@ def monitor_hotkeys():
 
             # Refresh weapon list if the game has changed
             if game_id != last_game_id:
-                wd = WeaponData.get_game_data(game_id)
-                available_weapons = [attr for attr in dir(wd) if not attr.startswith('_') and isinstance(getattr(wd, attr), list)]
-                available_weapons.sort()
+                available_weapons = _get_available_weapons(game_id)
                 last_game_id = game_id
                 logger.info(f"Game changed to {game_id}. Available weapons: {available_weapons}")
-            cycle_key = config.get('recoil_cycle_keybind', 'None')
-            
-            # Debug: Log cycle_key every 50 iterations to avoid spam
-            if monitor_hotkeys._iter_count % 50 == 0:
-                logger.debug(f"cycle_key={cycle_key}, current weapon={config.get('recoil_game_settings', {}).get('weapon', 'unknown')}")
-            
-            if cycle_key and cycle_key != 'None':
-                current_state = software_manager.get_button_state(cycle_key)
-                logger.debug(f"Key: {cycle_key}, current_state: {current_state}, last_state: {last_cycle_state}")
-                if current_state and not last_cycle_state:
-                    # Button pressed: cycle to next weapon
-                    current_wep = config.get('recoil_game_settings', {}).get('weapon', '')
-                    idx = available_weapons.index(current_wep) if current_wep in available_weapons else -1
-                    next_wep = available_weapons[(idx + 1) % len(available_weapons)]
-                    
-                    config['recoil_game_settings']['weapon'] = next_wep
-                    save_config(config)
-                    logger.info(f"Change Weapon Key: Switched from {current_wep} to {next_wep}")
-                last_cycle_state = current_state
-            else:
-                last_cycle_state = False
+
+            cycle_key = config.get('weapon_cycle_hotkey') or config.get('recoil_cycle_keybind', 'None')
+            if available_weapons and hotkey_tracker.is_pressed_once('weapon_cycle', cycle_key):
+                current_wep = config.get('recoil_game_settings', {}).get('weapon', '')
+                idx = available_weapons.index(current_wep) if current_wep in available_weapons else -1
+                next_wep = available_weapons[(idx + 1) % len(available_weapons)]
+                config['recoil_game_settings']['weapon'] = next_wep
+                save_config(config)
+                logger.info(f"Change Weapon Key: Switched from {current_wep} to {next_wep}")
+
+            direct_weapon = get_bound_weapon(config, hotkey_tracker)
+            if direct_weapon and available_weapons:
+                _set_active_weapon(config, direct_weapon, available_weapons)
         except Exception as e:
             logger.error(f"Hotkey Monitor Error: {e}")
-        
-        monitor_hotkeys._iter_count += 1
-        time.sleep(0.01) # 100Hz polling rate
 
-# Initialize iteration counter for debug logging
-monitor_hotkeys._iter_count = 0
+        time.sleep(0.01) # 100Hz polling rate
 
 def run_recoil_loop():
     print("[AimSync] Recoil engine initialized.")
@@ -165,12 +174,14 @@ def main():
     if makcu_manager.connect() is None:
         print("[AimSync] Warning: Makcu hardware not detected. Running in management-only mode.")
 
+    if is_beta_channel():
+        start_ocr_ws_server_thread()
     startup()
 
     root = tk.Tk()
     _apply_window_icon(root)
     root.withdraw()
-    root.title(f"AimSync {APP_VERSION}")
+    root.title(f"{get_app_name()} {get_app_version()}")
 
     def on_close():
         shutdown(root)

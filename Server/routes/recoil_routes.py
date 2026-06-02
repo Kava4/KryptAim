@@ -1,5 +1,6 @@
+import json
 from functools import wraps
-from flask import Blueprint, render_template_string, request, make_response
+from flask import Blueprint, render_template_string, request, make_response, jsonify
 from Makcu.makcu_manager import makcu_manager
 from Server import cloud_manager
 
@@ -11,6 +12,8 @@ from Config.config_manager import (
     save_config,
     save_pattern_file,
 )
+from Config.app_identity import is_beta_channel
+from Recoil.hotkeys import HotkeyValidationError, normalize_hotkey_string, validate_hotkey_bindings
 
 recoil_bp = Blueprint('recoil_bp', __name__, url_prefix='/api/recoil')
 
@@ -143,14 +146,90 @@ def toggle():
 
 @recoil_bp.route('/keybind', methods=['POST'])
 def keybind():
-    _update_config(['recoil_keybind'], request.form.get('recoil_keybind', 'M4'))
+    try:
+        normalized = normalize_hotkey_string(request.form.get('recoil_keybind', 'M4'))
+    except HotkeyValidationError as exc:
+        return str(exc), 400
+    config = _update_config(['recoil_keybind'], normalized)
+    config['global_toggle_hotkey'] = normalized
+    save_config(config)
     return '', 204
 
 
 @recoil_bp.route('/cycle_keybind', methods=['POST'])
 def cycle_keybind():
-    _update_config(['recoil_cycle_keybind'], request.form.get('recoil_cycle_keybind', 'None'))
+    hotkey_value = request.form.get('recoil_cycle_keybind', 'None')
+    try:
+        normalized = normalize_hotkey_string(hotkey_value)
+    except HotkeyValidationError as exc:
+        return str(exc), 400
+    config = _update_config(['recoil_cycle_keybind'], normalized)
+    config['weapon_cycle_hotkey'] = normalized
+    save_config(config)
     return '', 204
+
+
+@recoil_bp.route('/hotkeys', methods=['POST'])
+def hotkeys():
+    if not is_beta_channel():
+        return jsonify({'success': False, 'message': 'Custom hotkeys are available only in beta.'}), 404
+    config = load_config()
+    global_toggle = request.form.get('global_toggle_hotkey', config.get('global_toggle_hotkey', 'M4'))
+    cycle_hotkey = request.form.get('weapon_cycle_hotkey', config.get('weapon_cycle_hotkey', 'None'))
+
+    raw_direct_binds = request.form.get('weapon_direct_binds', '')
+    direct_binds = config.get('weapon_direct_binds', {})
+    if raw_direct_binds:
+        try:
+            parsed = json.loads(raw_direct_binds)
+        except json.JSONDecodeError:
+            return jsonify({'success': False, 'message': 'Weapon binds must be valid JSON.'}), 400
+
+        direct_binds = {}
+        for item in parsed:
+            hotkey_value = str(item.get('hotkey', '')).strip()
+            weapon = str(item.get('weapon', '')).strip()
+            if hotkey_value and weapon:
+                direct_binds[normalize_hotkey_string(hotkey_value)] = weapon
+
+    try:
+        global_toggle = normalize_hotkey_string(global_toggle)
+        cycle_hotkey = normalize_hotkey_string(cycle_hotkey)
+        validate_hotkey_bindings(global_toggle, cycle_hotkey, direct_binds)
+    except HotkeyValidationError as exc:
+        return jsonify({'success': False, 'message': str(exc)}), 400
+
+    config['global_toggle_hotkey'] = global_toggle
+    config['recoil_keybind'] = global_toggle
+    config['weapon_cycle_hotkey'] = cycle_hotkey
+    config['recoil_cycle_keybind'] = cycle_hotkey
+    config['weapon_direct_binds'] = direct_binds
+    save_config(config)
+    return jsonify({'success': True, 'global_toggle_hotkey': global_toggle, 'weapon_cycle_hotkey': cycle_hotkey, 'weapon_direct_binds': direct_binds})
+
+
+@recoil_bp.route('/hotkeys/validate', methods=['POST'])
+def validate_hotkeys_route():
+    if not is_beta_channel():
+        return jsonify({'success': False, 'message': 'Custom hotkeys are available only in beta.'}), 404
+    payload = request.get_json(silent=True) or {}
+    try:
+        global_toggle = normalize_hotkey_string(payload.get('global_toggle_hotkey'))
+        cycle_hotkey = normalize_hotkey_string(payload.get('weapon_cycle_hotkey'))
+        direct_binds = {
+            normalize_hotkey_string(entry.get('hotkey')): str(entry.get('weapon', '')).strip()
+            for entry in payload.get('weapon_direct_binds', [])
+            if str(entry.get('hotkey', '')).strip() and str(entry.get('weapon', '')).strip()
+        }
+        validate_hotkey_bindings(global_toggle, cycle_hotkey, direct_binds)
+        return jsonify({
+            'success': True,
+            'global_toggle_hotkey': global_toggle,
+            'weapon_cycle_hotkey': cycle_hotkey,
+            'weapon_direct_binds': direct_binds,
+        })
+    except HotkeyValidationError as exc:
+        return jsonify({'success': False, 'message': str(exc)}), 400
 
 
 @recoil_bp.route('/require_rmb', methods=['POST'])

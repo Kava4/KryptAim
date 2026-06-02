@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Config/logo.jpg" alt="AimSync Logo" width="160" height="160" />
+  <img src="https://i.ibb.co/LhHngKZF/Aim-Sync-logo.png" alt="AimSync Logo" width="160" height="160" />
 </p>
 
 <h1 align="center">AimSync</h1>

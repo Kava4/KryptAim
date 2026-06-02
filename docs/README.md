@@ -63,7 +63,7 @@ Welcome to the AimSync knowledge base. This wiki covers installation, daily use,
 
 ## Quick links
 
-- [Project README](../readme.md) — feature summary and badges
+- [Project README](../README.md) — feature summary and badges
 - [GitHub repository](https://github.com/Kava4/AimSync)
 - [Ko-fi support](https://ko-fi.com/kava4)
 - [Latest release](https://github.com/Kava4/AimSync/releases/latest)

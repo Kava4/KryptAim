@@ -63,4 +63,4 @@ The API uses one premium flag for all paid/trial access; the UI shows trial time
 **Can I use this in matchmaking?**  
 Many games prohibit automation. You are responsible for compliance with publisher terms.
 
-See [README legal notice](../../readme.md).
+See [README legal notice](../../README.md).

@@ -1,22 +1,20 @@
-<div align="center">
+<p align="center">
+  <img src="Server/static/AimSync_logo.png" alt="AimSync Logo" width="160" height="160" />
+</p>
 
-  <img
-    src="https://raw.githubusercontent.com/Kava4/AimSync/main/Server/static/AimSync_logo.png"
-    alt="AimSync Logo"
-    width="160"
-    height="160"
-  />
+<h1 align="center">AimSync</h1>
+<h3 align="center">High-Integrity Hardware Input Framework</h3>
 
-  # AimSync
-  ### High-Integrity Hardware Input Framework
+<p align="center">
+  <a href="https://github.com/Kava4/AimSync/stargazers"><img src="https://img.shields.io/github/stars/Kava4/AimSync?style=for-the-badge&amp;color=00CFFF" alt="GitHub stars" /></a>
+  <a href="LICENSE.md"><img src="https://img.shields.io/github/license/Kava4/AimSync?style=for-the-badge" alt="License" /></a>
+  <a href="https://ko-fi.com/kava4"><img src="https://img.shields.io/badge/Support-Ko--fi-F16061?style=for-the-badge&amp;logo=ko-fi&amp;logoColor=white" alt="Support on Ko-fi" /></a>
+  <a href="https://paypal.me/kava4"><img src="https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&amp;logo=paypal&amp;logoColor=white" alt="Donate via PayPal" /></a>
+</p>
 
-  [![GitHub stars](https://img.shields.io/github/stars/Kava4/AimSync?style=for-the-badge&color=00CFFF)](https://github.com/Kava4/AimSync/stargazers)
-  [![License](https://img.shields.io/github/license/Kava4/AimSync?style=for-the-badge)](LICENSE.md)
-  [![Support on Ko-fi](https://img.shields.io/badge/Support-Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/kava4)
-  [![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/kava4)
-
-  **AimSync** is a modern, high-performance utility designed specifically for the **Makcu HID hardware**. It provides a seamless web interface to create, visualize, and manage recoil compensation patterns for CS2 and other shooters.
-</div>
+<p align="center">
+  <strong>AimSync</strong> is a modern, high-performance utility designed specifically for the <strong>Makcu HID hardware</strong>. It provides a seamless web interface to create, visualize, and manage recoil compensation patterns for CS2 and other shooters.
+</p>
 
 ---
 
@@ -87,6 +85,3 @@ See [docs/project/roadmap.md](docs/project/roadmap.md) (also [dev_roadmap.md](de
 ## ⚖️ Disclaimer
 
 *This software is intended for educational and hardware testing purposes. Use of automation tools in online multiplayer games may violate terms of service. Use responsibly.*
-
-
-<!--

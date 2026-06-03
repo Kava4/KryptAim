@@ -5,6 +5,7 @@ from Recoil.recoil import run_recoil
 from Recoil.hotkeys import HotkeyStateTracker, get_bound_weapon
 from Recoil.weapon_data import WeaponData
 from Config.app_identity import get_app_name, get_app_version, is_beta_channel
+from AI.Engine.engine import start_ai_engine_thread, stop_ai_engine
 from Config.config_manager import load_config, save_config
 from Makcu.software_manager import software_manager
 
@@ -95,6 +96,7 @@ def startup():
 def shutdown(root):
     """Handles the application shutdown when the window is closed."""
     try:
+        stop_ai_engine()
         makcu_manager.disconnect()
         stop_flask()
     finally:
@@ -156,6 +158,12 @@ def monitor_hotkeys():
             direct_weapon = get_bound_weapon(config, hotkey_tracker)
             if direct_weapon and available_weapons:
                 _set_active_weapon(config, direct_weapon, available_weapons)
+
+            ai_toggle = config.get('ai_engine_toggle_hotkey', 'None')
+            if hotkey_tracker.is_pressed_once('ai_engine_toggle', ai_toggle):
+                config['ai_engine_enabled'] = not bool(config.get('ai_engine_enabled'))
+                save_config(config)
+                logger.info("AI engine toggled via hotkey: %s", config['ai_engine_enabled'])
         except Exception as e:
             logger.error(f"Hotkey Monitor Error: {e}")
 
@@ -164,9 +172,11 @@ def monitor_hotkeys():
 def run_recoil_loop():
     print("[AimSync] Recoil engine initialized.")
     while True:
-
-
-        run_recoil()
+        try:
+            run_recoil()
+        except Exception as exc:
+            logger.exception('Recoil loop error: %s', exc)
+            time.sleep(0.1)
 
 
 def main():
@@ -176,6 +186,7 @@ def main():
 
     if is_beta_channel():
         start_ocr_ws_server_thread()
+        start_ai_engine_thread()
     startup()
 
     root = tk.Tk()

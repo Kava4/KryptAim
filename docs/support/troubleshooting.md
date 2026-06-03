@@ -24,6 +24,18 @@ Manually visit `http://127.0.0.1:5000` or the LAN IP printed in the console.
 
 Message `Running in management-only mode` means no hardware at startup; reconnect and restart.
 
+## AI Engine (beta only)
+
+| Symptom | Action |
+|---------|--------|
+| AI tab not visible | Run **AimSync Beta** (`AIMSYNC_CHANNEL=beta` or `AimSyncBeta.exe`) |
+| `AI engine is available only in beta` | Same as above — stable build intentionally returns 404 |
+| Makcu in use | Close **Aimmy** and any other tool using the device; only AimSync Beta may hold the COM port |
+| Model fails to load | `pip install -r requirements-beta.txt`; use Aimmy-compatible YOLOv8 `.onnx` |
+| No detections | Lower **AI Minimum Confidence**; verify model matches your game |
+
+See [Beta AI engine](../project/beta-release-ai-engine.md).
+
 ## Trial / license issues
 
 | Symptom | Fix |

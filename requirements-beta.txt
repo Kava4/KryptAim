@@ -1,0 +1,7 @@
+# Beta-only dependencies (AI / trigger engine). Install with:
+# pip install -r requirements.txt -r requirements-beta.txt
+
+-r requirements.txt
+onnxruntime-directml>=1.17.0
+numpy>=1.26.0
+mss>=9.0.0

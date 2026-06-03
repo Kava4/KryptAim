@@ -103,6 +103,7 @@ build-helper/AimSyncHelper/PYZ-00.pyz.d
 build-helper/AimSyncHelper/PYZ-00.pyz.d/
 build-helper/AimSyncHelper/PYZ-00.pyz.d/__init__.py
 build-helper/AimSyncHelper/PYZ-00.pyz.d/__init__.pyc
+Aimmy-Makcu/
 
 # =============================================================================
 # PROTECTED CORE — do not remove
@@ -117,7 +118,7 @@ dist
 build
 build_beta.py
 build_helper.py
-
+posts.md
 # Optional / removed trees (ignore if recreated locally)
 PatternExtractor/
 Menu/

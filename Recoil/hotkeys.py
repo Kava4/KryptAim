@@ -17,6 +17,11 @@ SPECIAL_KEY_ALIASES = {
     'rmb': 'RMB',
     'mmb': 'MMB',
     'none': 'None',
+    'lmenu': 'alt',
+    'rmenu': 'alt',
+    'lalt': 'alt',
+    'ralt': 'alt',
+    'menu': 'alt',
     'mouse1': 'LMB',
     'mouse2': 'RMB',
     'mouse3': 'MMB',
@@ -47,7 +52,13 @@ VK_CODES = {
     'right': 0x27,
     'ctrl': 0x11,
     'alt': 0x12,
+    'lalt': 0xA4,
+    'ralt': 0xA5,
     'shift': 0x10,
+    'lshift': 0xA0,
+    'rshift': 0xA1,
+    'lctrl': 0xA2,
+    'rctrl': 0xA3,
 }
 
 for index in range(1, 13):
@@ -121,7 +132,11 @@ def parse_hotkey(hotkey_value: str | None) -> HotkeySpec:
         primary_key = candidate
 
     if primary_key is None:
-        raise HotkeyValidationError('Hotkey must include one primary key.')
+        if len(modifiers) == 1:
+            primary_key = modifiers[0]
+            modifiers = []
+        else:
+            raise HotkeyValidationError('Hotkey must include one primary key.')
     if len(modifiers) > 2:
         raise HotkeyValidationError('Use at most two modifiers per hotkey.')
 
@@ -131,10 +146,21 @@ def parse_hotkey(hotkey_value: str | None) -> HotkeySpec:
     return HotkeySpec(raw=raw_value, normalized=normalized, primary_key=primary_key, modifiers=ordered_modifiers)
 
 
-def validate_hotkey_bindings(global_toggle: str | None, cycle_hotkey: str | None, direct_binds: dict[str, str] | None) -> None:
+def validate_hotkey_bindings(
+    global_toggle: str | None,
+    cycle_hotkey: str | None,
+    direct_binds: dict[str, str] | None,
+    *,
+    ai_aim_keybind: str | None = None,
+    ai_second_aim_keybind: str | None = None,
+    ai_engine_toggle_hotkey: str | None = None,
+) -> None:
     claimed: dict[str, str] = {}
     _claim_binding(claimed, global_toggle, 'Global toggle')
     _claim_binding(claimed, cycle_hotkey, 'Weapon cycle')
+    _claim_binding(claimed, ai_aim_keybind, 'AI aim hold (primary)')
+    _claim_binding(claimed, ai_second_aim_keybind, 'AI aim hold (secondary)')
+    _claim_binding(claimed, ai_engine_toggle_hotkey, 'AI engine toggle')
 
     for hotkey_value, weapon in (direct_binds or {}).items():
         if not weapon:

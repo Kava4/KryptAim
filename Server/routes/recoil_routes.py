@@ -110,22 +110,33 @@ def status():
 @recoil_bp.route('/hardware-check', methods=['GET'])
 def hardware_check():
     """Endpoint for the UI to verify hardware connection status."""
-    connected = makcu_manager.is_connected()
+    hardware = makcu_manager.is_hardware()
+    connected = hardware and makcu_manager.is_connected()
     config = load_config()
     method = config.get('recoil_input_method', 'hardware')
-    # Mark integrity as low if software is selected or hardware is missing
     is_unsafe = (method == 'software') or (not connected)
     integrity_level = "High (Safe)" if not is_unsafe else "Low (Unsafe)"
     integrity_color = "bg-blue-500/10 border-blue-500/50 text-blue-400" if integrity_level == "High (Safe)" else ("bg-amber-500/10 border-amber-500/50 text-amber-400" if integrity_level == "Medium" else "bg-red-500/10 border-red-500/50 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.1)]")
     dot_color = "bg-blue-500" if integrity_level == "High (Safe)" else ("bg-amber-500" if integrity_level == "Medium" else "bg-red-500")
+    if connected:
+        makcu_label = 'Connected'
+        makcu_style = 'bg-green-500/10 border-green-500/50 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
+        makcu_dot = 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse'
+    elif hardware:
+        makcu_label = 'Disconnected'
+        makcu_style = 'bg-red-500/10 border-red-500/50 text-red-400'
+        makcu_dot = 'bg-red-500'
+    else:
+        makcu_label = 'Not connected'
+        makcu_style = 'bg-red-500/10 border-red-500/50 text-red-400'
+        makcu_dot = 'bg-red-500'
 
-    # This returns an HTMX component that auto-polls every 5 seconds
     return render_template_string(
         """
         <div id="hardware-status" hx-get="/api/recoil/hardware-check" hx-trigger="every 10s" hx-swap="outerHTML" class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-300 {{ 'bg-green-500/10 border-green-500/50 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]' if connected else 'bg-red-500/10 border-red-500/50 text-red-400' }}">
-                <div class="w-2 h-2 rounded-full {{ 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse' if connected else 'bg-red-500' }}"></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Makcu: {{ 'Connected' if connected else 'Disconnected' }}</span>
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-300 {{ makcu_style }}">
+                <div class="w-2 h-2 rounded-full {{ makcu_dot }}"></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest">Makcu: {{ makcu_label }}</span>
             </div>
             
             <div class="flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-300 {{ integrity_color }}">
@@ -134,7 +145,14 @@ def hardware_check():
             </div>
         </div>
         """,
-        connected=connected, is_unsafe=is_unsafe, integrity_level=integrity_level, integrity_color=integrity_color, dot_color=dot_color
+        connected=connected,
+        makcu_label=makcu_label,
+        makcu_style=makcu_style,
+        makcu_dot=makcu_dot,
+        is_unsafe=is_unsafe,
+        integrity_level=integrity_level,
+        integrity_color=integrity_color,
+        dot_color=dot_color,
     )
 
 
@@ -144,14 +162,58 @@ def toggle():
     return '', 204
 
 
+def _validate_all_hotkeys(config: dict) -> None:
+    validate_hotkey_bindings(
+        config.get('global_toggle_hotkey') or config.get('recoil_keybind'),
+        config.get('weapon_cycle_hotkey') or config.get('recoil_cycle_keybind'),
+        config.get('weapon_direct_binds'),
+        ai_aim_keybind=config.get('ai_aim_keybind'),
+        ai_second_aim_keybind=config.get('ai_second_aim_keybind'),
+        ai_engine_toggle_hotkey=config.get('ai_engine_toggle_hotkey'),
+    )
+
+
+def _apply_hotkey_field(config: dict, field: str, normalized: str) -> None:
+    ai_fields = {'ai_aim_keybind', 'ai_second_aim_keybind', 'ai_engine_toggle_hotkey'}
+    if field in ai_fields and not is_beta_channel():
+        raise HotkeyValidationError('AI hotkeys are available only in beta.')
+
+    if field in {'recoil_keybind', 'global_toggle_hotkey'}:
+        config['recoil_keybind'] = normalized
+        config['global_toggle_hotkey'] = normalized
+    elif field in {'recoil_cycle_keybind', 'weapon_cycle_hotkey'}:
+        config['recoil_cycle_keybind'] = normalized
+        config['weapon_cycle_hotkey'] = normalized
+    elif field in ai_fields:
+        config[field] = normalized
+    else:
+        raise HotkeyValidationError(f'Unknown hotkey field "{field}".')
+
+    _validate_all_hotkeys(config)
+
+
+@recoil_bp.route('/hotkey', methods=['POST'])
+def set_hotkey():
+    field = (request.form.get('field') or '').strip()
+    raw_value = request.form.get('value', 'None')
+    config = load_config()
+    try:
+        normalized = normalize_hotkey_string(raw_value)
+        _apply_hotkey_field(config, field, normalized)
+    except HotkeyValidationError as exc:
+        return jsonify({'success': False, 'message': str(exc)}), 400
+    save_config(config)
+    return jsonify({'success': True, 'field': field, 'value': normalized})
+
+
 @recoil_bp.route('/keybind', methods=['POST'])
 def keybind():
     try:
         normalized = normalize_hotkey_string(request.form.get('recoil_keybind', 'M4'))
+        config = load_config()
+        _apply_hotkey_field(config, 'recoil_keybind', normalized)
     except HotkeyValidationError as exc:
         return str(exc), 400
-    config = _update_config(['recoil_keybind'], normalized)
-    config['global_toggle_hotkey'] = normalized
     save_config(config)
     return '', 204
 
@@ -161,10 +223,10 @@ def cycle_keybind():
     hotkey_value = request.form.get('recoil_cycle_keybind', 'None')
     try:
         normalized = normalize_hotkey_string(hotkey_value)
+        config = load_config()
+        _apply_hotkey_field(config, 'recoil_cycle_keybind', normalized)
     except HotkeyValidationError as exc:
         return str(exc), 400
-    config = _update_config(['recoil_cycle_keybind'], normalized)
-    config['weapon_cycle_hotkey'] = normalized
     save_config(config)
     return '', 204
 
@@ -176,6 +238,9 @@ def hotkeys():
     config = load_config()
     global_toggle = request.form.get('global_toggle_hotkey', config.get('global_toggle_hotkey', 'M4'))
     cycle_hotkey = request.form.get('weapon_cycle_hotkey', config.get('weapon_cycle_hotkey', 'None'))
+    ai_aim = request.form.get('ai_aim_keybind', config.get('ai_aim_keybind', 'rmb'))
+    ai_second = request.form.get('ai_second_aim_keybind', config.get('ai_second_aim_keybind', 'alt'))
+    ai_toggle = request.form.get('ai_engine_toggle_hotkey', config.get('ai_engine_toggle_hotkey', 'None'))
 
     raw_direct_binds = request.form.get('weapon_direct_binds', '')
     direct_binds = config.get('weapon_direct_binds', {})
@@ -195,7 +260,17 @@ def hotkeys():
     try:
         global_toggle = normalize_hotkey_string(global_toggle)
         cycle_hotkey = normalize_hotkey_string(cycle_hotkey)
-        validate_hotkey_bindings(global_toggle, cycle_hotkey, direct_binds)
+        ai_aim = normalize_hotkey_string(ai_aim)
+        ai_second = normalize_hotkey_string(ai_second)
+        ai_toggle = normalize_hotkey_string(ai_toggle)
+        validate_hotkey_bindings(
+            global_toggle,
+            cycle_hotkey,
+            direct_binds,
+            ai_aim_keybind=ai_aim,
+            ai_second_aim_keybind=ai_second,
+            ai_engine_toggle_hotkey=ai_toggle,
+        )
     except HotkeyValidationError as exc:
         return jsonify({'success': False, 'message': str(exc)}), 400
 
@@ -204,8 +279,19 @@ def hotkeys():
     config['weapon_cycle_hotkey'] = cycle_hotkey
     config['recoil_cycle_keybind'] = cycle_hotkey
     config['weapon_direct_binds'] = direct_binds
+    config['ai_aim_keybind'] = ai_aim
+    config['ai_second_aim_keybind'] = ai_second
+    config['ai_engine_toggle_hotkey'] = ai_toggle
     save_config(config)
-    return jsonify({'success': True, 'global_toggle_hotkey': global_toggle, 'weapon_cycle_hotkey': cycle_hotkey, 'weapon_direct_binds': direct_binds})
+    return jsonify({
+        'success': True,
+        'global_toggle_hotkey': global_toggle,
+        'weapon_cycle_hotkey': cycle_hotkey,
+        'weapon_direct_binds': direct_binds,
+        'ai_aim_keybind': ai_aim,
+        'ai_second_aim_keybind': ai_second,
+        'ai_engine_toggle_hotkey': ai_toggle,
+    })
 
 
 @recoil_bp.route('/hotkeys/validate', methods=['POST'])
@@ -221,12 +307,25 @@ def validate_hotkeys_route():
             for entry in payload.get('weapon_direct_binds', [])
             if str(entry.get('hotkey', '')).strip() and str(entry.get('weapon', '')).strip()
         }
-        validate_hotkey_bindings(global_toggle, cycle_hotkey, direct_binds)
+        ai_aim = normalize_hotkey_string(payload.get('ai_aim_keybind'))
+        ai_second = normalize_hotkey_string(payload.get('ai_second_aim_keybind'))
+        ai_toggle = normalize_hotkey_string(payload.get('ai_engine_toggle_hotkey'))
+        validate_hotkey_bindings(
+            global_toggle,
+            cycle_hotkey,
+            direct_binds,
+            ai_aim_keybind=ai_aim,
+            ai_second_aim_keybind=ai_second,
+            ai_engine_toggle_hotkey=ai_toggle,
+        )
         return jsonify({
             'success': True,
             'global_toggle_hotkey': global_toggle,
             'weapon_cycle_hotkey': cycle_hotkey,
             'weapon_direct_binds': direct_binds,
+            'ai_aim_keybind': ai_aim,
+            'ai_second_aim_keybind': ai_second,
+            'ai_engine_toggle_hotkey': ai_toggle,
         })
     except HotkeyValidationError as exc:
         return jsonify({'success': False, 'message': str(exc)}), 400
@@ -291,6 +390,21 @@ def y_setting():
 def delay_setting():
     _update_config(['recoil_simple_settings', 'recoil_delay'], _parse_number(request.form.get('recoil_delay', 50), 50))
     return '', 204
+
+
+SIMPLE_RECOIL_DEFAULTS = {
+    'recoil_x': 0,
+    'recoil_y': 0,
+    'recoil_delay': 50,
+}
+
+
+@recoil_bp.route('/simple/reset', methods=['POST'])
+def reset_simple_recoil():
+    config = load_config()
+    config['recoil_simple_settings'] = dict(SIMPLE_RECOIL_DEFAULTS)
+    save_config(config)
+    return jsonify({'success': True, **config['recoil_simple_settings']})
 
 
 @recoil_bp.route('/advanced_pattern', methods=['POST'])

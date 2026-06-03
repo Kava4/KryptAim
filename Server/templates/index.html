@@ -226,6 +226,9 @@
             <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="simple">Simple Recoil</button>
             <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="advanced">Recoil Lab</button>
             <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="CS2">Game Engine</button>
+            {% if is_beta_channel %}
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="ai-engine">AI Engine</button>
+            {% endif %}
         </div>
         <div class="mt-auto pt-8 border-t border-white/5 space-y-4">
             <div class="grid grid-cols-3 gap-2">
@@ -258,6 +261,9 @@
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="simple">Simple Recoil</button>
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="advanced">Recoil Lab</button>
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="CS2">Game Engine</button>
+            {% if is_beta_channel %}
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-amber-200/90 hover:text-amber-100 border-b-2 border-transparent hover:border-amber-500 transition-colors" data-tab="ai-engine">AI Engine</button>
+            {% endif %}
         </div>
 
         <!-- Global Settings Tab -->
@@ -273,18 +279,17 @@
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-white">Global Control</p>
-                            <p class="text-xs text-white/40">Master switch and hardware binding.</p>
+                            <p class="text-xs text-white/40">Master switch and toggle hotkey (click button, then press a key).</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3">
-                        <select id="recoil-keybind" name="recoil_keybind" hx-post="/api/recoil/keybind" hx-trigger="change" hx-swap="none" class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
-                            <option value="LMB" {{ 'selected' if config.recoil_keybind == 'LMB' }}>LMB (Mouse 1)</option>
-                            <option value="RMB" {{ 'selected' if config.recoil_keybind == 'RMB' }}>RMB (Mouse 2)</option>
-                            <option value="MB3" {{ 'selected' if config.recoil_keybind == 'MB3' }}>MB3 (Mouse 3)</option>
-                            <option value="MMB" {{ 'selected' if config.recoil_keybind == 'MMB' }}>MMB (Middle Mouse)</option>
-                            <option value="M4" {{ 'selected' if config.recoil_keybind == 'M4' }}>M4</option>
-                            <option value="M5" {{ 'selected' if config.recoil_keybind == 'M5' }}>M5</option>
-                        </select>
+                        <button type="button"
+                                id="recoil-keybind-btn"
+                                class="hotkey-bind-btn text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none hover:border-white/20 transition-colors min-w-[6.5rem] text-left"
+                                data-hotkey-field="recoil_keybind"
+                                data-hotkey-value="{{ config.global_toggle_hotkey or config.recoil_keybind or 'M4' }}">
+                            <span class="hotkey-bind-label">M4</span>
+                        </button>
                         <span id="recoil-toggle-wrapper"> <!-- Removed hx-get and hx-trigger from here to prevent UI conflicts -->
                             <input id="recoil-toggle" type="checkbox" name="recoil_enabled"
                                    hx-post="/api/recoil/toggle"
@@ -354,33 +359,6 @@
                     </div>
                     {% endif %}
                 </div>
-                {% if is_beta_channel %}
-                <div class="mt-6 border-t border-white/5 pt-6">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-white">Custom Hotkeys</p>
-                            <p class="text-xs text-white/40">Use single keys or combos like <span class="text-white/60">home</span> or <span class="text-white/60">ctrl+f1</span>.</p>
-                        </div>
-                        <button type="button" onclick="saveHotkeySettings()" class="text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 hover:bg-blue-500/15 transition-colors">Save Hotkeys</button>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-4 mt-4">
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">Global Toggle</span>
-                            <input id="global-toggle-hotkey" type="text" value="{{ config.global_toggle_hotkey or config.recoil_keybind }}" placeholder="m4" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">Weapon Cycle</span>
-                            <input id="weapon-cycle-hotkey" type="text" value="{{ config.weapon_cycle_hotkey or config.recoil_cycle_keybind }}" placeholder="none" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                    </div>
-                    <div class="mt-4">
-                        <span class="text-[11px] uppercase tracking-widest text-white/35">Direct Weapon Binds</span>
-                        <p class="text-xs text-white/40 mt-2">One binding per line using <span class="text-white/60">hotkey=weapon</span>, for example <span class="text-white/60">ctrl+f1=ak47</span>.</p>
-                        <textarea id="weapon-direct-binds" rows="4" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">{{ weapon_direct_binds_text }}</textarea>
-                    </div>
-                    <p id="hotkey-settings-status" class="mt-3 text-xs text-white/35">Saved values remain backward compatible with the legacy mouse button settings.</p>
-                </div>
-                {% endif %}
             </div>
         </div>
 
@@ -462,7 +440,8 @@
         <!-- Simple Recoil -->
         <div id="tab-content-simple" class="tab-content mt-5 hidden">
             <div id="simple-recoil-card" class="bg-neutral-900 border border-white/10 rounded-xl p-6">
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
                     <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
                         <path d="M4 8h16M4 16h16" stroke-linecap="round"/>
@@ -472,8 +451,13 @@
                 </div>
                 <div>
                     <p class="text-sm font-medium text-white">Simple Recoil</p>
-                    <p class="text-xs text-white/40">Adjust recoil using X & Y sliders.</p>
+                    <p class="text-xs text-white/40">X/Y sliders — <span class="text-white/55">+Y down</span>, <span class="text-white/55">−Y up</span>.</p>
                 </div>
+                </div>
+                <button type="button" onclick="resetSimpleRecoil()"
+                        class="text-xs font-semibold text-white/70 bg-white/5 border border-white/10 rounded-lg px-3 py-2 hover:bg-white/10 hover:text-white transition-colors">
+                    Reset to defaults
+                </button>
             </div>
 
             <div class="border-t border-white/10 mt-5 pt-5 space-y-4">
@@ -503,7 +487,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-white">Y</p>
-                        <p class="text-xs text-white/40">Vertical recoil.</p>
+                        <p class="text-xs text-white/40">Vertical recoil (+ down, − up).</p>
                     </div>
                     <div class="flex items-center gap-3 w-1/2">
                         <input
@@ -1063,23 +1047,21 @@
                         class="w-4 h-4 accent-blue-500 cursor-pointer">
                 </div>
 
-                <!-- Cycle Weapon Key -->
-                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
+                <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6" data-hotkey-row>
                     <div>
                         <p class="text-sm font-medium text-white">Change Weapon Key</p>
-                        <p class="text-xs text-white/40">Cycle through CS2 weapon profiles using a mouse button.</p>
+                        <p class="text-xs text-white/40">Cycle through weapon profiles. Click the button, then press a key or mouse button.</p>
+                        <p class="hotkey-bind-error hidden mt-1 text-[11px] text-red-300"></p>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <select name="recoil_cycle_keybind" 
-                                hx-post="/api/recoil/cycle_keybind" 
-                                hx-trigger="change" 
-                                hx-swap="none" 
-                                class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
-                            <option value="None" {{ 'selected' if config.recoil_cycle_keybind == 'None' }}>None</option>
-                            <option value="MMB" {{ 'selected' if config.recoil_cycle_keybind == 'MMB' }}>MMB (Middle Mouse)</option>
-                            <option value="M4" {{ 'selected' if config.recoil_cycle_keybind == 'M4' }}>M4</option>
-                            <option value="M5" {{ 'selected' if config.recoil_cycle_keybind == 'M5' }}>M5</option>
-                        </select>
+                    <div class="flex items-center gap-2">
+                        <button type="button"
+                                id="weapon-cycle-keybind-btn"
+                                class="hotkey-bind-btn text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none hover:border-white/20 transition-colors min-w-[6.5rem] text-left"
+                                data-hotkey-field="recoil_cycle_keybind"
+                                data-hotkey-value="{{ config.weapon_cycle_hotkey or config.recoil_cycle_keybind or 'None' }}">
+                            <span class="hotkey-bind-label">None</span>
+                        </button>
+                        <button type="button" data-hotkey-clear="weapon-cycle-keybind-btn" class="text-[10px] text-white/35 hover:text-white/60 px-1" title="Clear binding">Clear</button>
                     </div>
                 </div>
                 {% if is_beta_channel %}
@@ -1142,6 +1124,10 @@
         </div> <!-- cs2-recoil-card -->
     </div> <!-- tab-content-CS2 -->
 
+    {% if is_beta_channel %}
+    {% include '_ai_engine_panel.html' %}
+    {% endif %}
+
 </main>
 
     <!-- Footer -->
@@ -1169,6 +1155,7 @@
     <script src="{{ url_for('static', filename='navigation.js') }}"></script>
     <script src="{{ url_for('static', filename='pattern_config.js') }}"></script>
     <script src="{{ url_for('static', filename='pattern_visualiser.js') }}"></script>
+    <script src="{{ url_for('static', filename='hotkey_bind.js') }}"></script>
     <script>
         // Mobile Menu Logic
         function toggleMobileMenu() {
@@ -1403,6 +1390,27 @@
             if (typeof visRefresh === 'function') visRefresh();
         }
 
+        function resetSimpleRecoil() {
+            fetch('/api/recoil/simple/reset', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) return;
+                    const fields = [
+                        { name: 'x', key: 'recoil_x' },
+                        { name: 'y', key: 'recoil_y' },
+                        { name: 'recoil_delay', key: 'recoil_delay' },
+                    ];
+                    fields.forEach(f => {
+                        const el = document.querySelector(`#simple-recoil-card [name="${f.name}"]`);
+                        if (!el) return;
+                        const val = data[f.key];
+                        el.value = val;
+                        if (el.nextElementSibling) el.nextElementSibling.textContent = val;
+                    });
+                    if (typeof visRefresh === 'function') visRefresh('simple');
+                });
+        }
+
         // Support Dropdown Logic
         function toggleSupportDropdown() {
             const menu = document.getElementById('support-dropdown');
@@ -1471,48 +1479,12 @@
             });
         }
 
-        function parseWeaponDirectBinds() {
-            const raw = document.getElementById('weapon-direct-binds')?.value || '';
-            return raw
-                .split('\n')
-                .map(line => line.trim())
-                .filter(Boolean)
-                .map(line => {
-                    const separator = line.indexOf('=');
-                    if (separator === -1) return null;
-                    return {
-                        hotkey: line.slice(0, separator).trim(),
-                        weapon: line.slice(separator + 1).trim()
-                    };
-                })
-                .filter(Boolean);
-        }
-
         function setStatusText(id, message, isError = false) {
             const element = document.getElementById(id);
             if (!element) return;
             element.textContent = message;
             element.classList.toggle('text-red-300', isError);
             element.classList.toggle('text-white/35', !isError);
-        }
-
-        function saveHotkeySettings() {
-            if (!document.getElementById('global-toggle-hotkey')) return;
-            const formData = new FormData();
-            formData.append('global_toggle_hotkey', document.getElementById('global-toggle-hotkey')?.value || 'none');
-            formData.append('weapon_cycle_hotkey', document.getElementById('weapon-cycle-hotkey')?.value || 'none');
-            formData.append('weapon_direct_binds', JSON.stringify(parseWeaponDirectBinds()));
-
-            fetch('/api/recoil/hotkeys', { method: 'POST', body: formData })
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok || !data.success) throw new Error(data.message || 'Failed to save hotkeys.');
-                    document.getElementById('global-toggle-hotkey').value = data.global_toggle_hotkey;
-                    document.getElementById('weapon-cycle-hotkey').value = data.weapon_cycle_hotkey;
-                    document.getElementById('weapon-direct-binds').value = Object.entries(data.weapon_direct_binds || {}).map(([hotkey, weapon]) => `${hotkey}=${weapon}`).join('\n');
-                    setStatusText('hotkey-settings-status', 'Hotkeys saved.');
-                })
-                .catch(error => setStatusText('hotkey-settings-status', error.message, true));
         }
 
         function saveOcrSettings() {
@@ -1580,6 +1552,303 @@
         }, 500); // Check every 500ms for responsive updates
         {% if is_beta_channel %}
         setInterval(pollOcrStatus, 1000);
+        initAiEnginePanel();
+        {% endif %}
+
+        {% if is_beta_channel %}
+        function isAiEngineTabVisible() {
+            const panel = document.getElementById('tab-content-ai-engine');
+            return panel && !panel.classList.contains('hidden');
+        }
+
+        function pollAiEngineStatus() {
+            fetch('/api/ai/status')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) return;
+                    const model = data.configured_model || data.active_model || 'None';
+                    const loaded = data.model_loaded;
+                    setText('ai-stat-model', loaded ? model : `${model} ✗`);
+                    setText('ai-stat-config', data.active_config || 'Default.cfg');
+                    setText('ai-stat-engine', data.enabled ? 'On' : 'Off');
+                    setText('ai-stat-fps', `${data.fps || 0} fps · conf ${data.last_confidence || 0}`);
+                    setText('ai-stat-makcu', data.makcu_connected ? 'Connected' : 'Not connected');
+                    const makcuEl = document.getElementById('ai-stat-makcu');
+                    if (makcuEl) {
+                        makcuEl.classList.toggle('text-green-400', !!data.makcu_connected);
+                        makcuEl.classList.toggle('text-red-300', !data.makcu_connected);
+                    }
+                    setText('ai-stat-onnx', data.onnx_ready ? 'Ready' : 'Missing');
+
+                    const alert = document.getElementById('ai-engine-alert');
+                    if (alert) {
+                        const messages = [];
+                        if (!data.onnx_ready) {
+                            messages.push('Install AI dependencies: pip install -r requirements-beta.txt (then restart AimSync Beta).');
+                        }
+                        if (data.last_error) messages.push(data.last_error);
+                        if (messages.length) {
+                            alert.textContent = messages.join(' ');
+                            alert.classList.remove('hidden');
+                        } else {
+                            alert.classList.add('hidden');
+                            alert.textContent = '';
+                        }
+                    }
+
+                    syncAiModelSelect(data.models || [], data.configured_model || data.active_model);
+                    syncAiConfigSelect(data.configs || [], data.active_config);
+                })
+                .catch(() => {
+                    setText('ai-stat-model', 'API error');
+                });
+        }
+
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
+        function syncAiConfigSelect(configs, active) {
+            const sel = document.getElementById('ai-active-config');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '';
+            (configs.length ? configs : ['Default.cfg']).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                if (name === active) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (!active && current) sel.value = current;
+        }
+
+        function loadAiSettings() {
+            fetch('/api/ai/settings')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) return;
+                    syncAiToggles(data.toggles || {});
+                    syncAiSliders(data.sliders || {});
+                    syncAiDropdowns(data.dropdowns || {});
+                });
+        }
+
+        function selectAiConfig(filename) {
+            const body = new FormData();
+            body.append('ai_active_config', filename || 'Default.cfg');
+            fetch('/api/ai/config/select', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) return;
+                    syncAiToggles(data.toggles || {});
+                    syncAiSliders(data.sliders || {});
+                    syncAiDropdowns(data.dropdowns || {});
+                    pollAiEngineStatus();
+                });
+        }
+
+        function uploadAiConfig(input) {
+            if (!input.files || !input.files[0]) return;
+            const body = new FormData();
+            body.append('config_file', input.files[0]);
+            fetch('/api/ai/config/upload', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        pollAiEngineStatus();
+                        loadAiSettings();
+                    } else alert(data.message || 'Upload failed');
+                });
+        }
+
+        function syncAiModelSelect(models, active) {
+            const sel = document.getElementById('ai-active-model');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">— Select model —</option>';
+            models.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                if (name === active) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (!active && current) sel.value = current;
+        }
+
+        function syncAiToggles(toggles) {
+            document.querySelectorAll('.ai-toggle').forEach(input => {
+                const name = input.getAttribute('data-ai-toggle');
+                if (name && toggles[name] !== undefined) input.checked = !!toggles[name];
+            });
+        }
+
+        function syncAiSliders(sliders) {
+            document.querySelectorAll('[data-ai-slider]').forEach(input => {
+                const name = input.getAttribute('data-ai-slider');
+                if (name && sliders[name] !== undefined) {
+                    input.value = sliders[name];
+                    const label = document.querySelector(`.ai-val-label[data-ai-val="${CSS.escape(name)}"]`);
+                    if (label) label.textContent = sliders[name];
+                }
+            });
+        }
+
+        function syncAiDropdowns(dropdowns) {
+            document.querySelectorAll('.ai-dropdown').forEach(select => {
+                const name = select.getAttribute('data-ai-dropdown');
+                const value = dropdowns[name];
+                if (value === undefined) return;
+                if (!Array.from(select.options).some(opt => opt.value === value)) {
+                    const opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = value;
+                    select.appendChild(opt);
+                }
+                select.value = value;
+            });
+        }
+
+        function initAiEnginePanel() {
+            document.querySelectorAll('.ai-toggle').forEach(input => {
+                input.addEventListener('change', () => {
+                    const body = new FormData();
+                    body.append('toggle_name', input.getAttribute('data-ai-toggle'));
+                    body.append('enabled', input.checked ? 'on' : 'off');
+                    fetch('/api/ai/toggle', { method: 'POST', body });
+                });
+            });
+            document.querySelectorAll('[data-ai-slider]').forEach(input => {
+                const updateLabel = () => {
+                    const name = input.getAttribute('data-ai-slider');
+                    const label = document.querySelector(`.ai-val-label[data-ai-val="${CSS.escape(name)}"]`);
+                    if (label) label.textContent = input.value;
+                };
+                input.addEventListener('input', updateLabel);
+                input.addEventListener('change', () => {
+                    updateLabel();
+                    const body = new FormData();
+                    body.append('slider_name', input.getAttribute('data-ai-slider'));
+                    body.append('value', input.value);
+                    fetch('/api/ai/slider', { method: 'POST', body });
+                });
+            });
+            document.querySelectorAll('.ai-dropdown').forEach(select => {
+                select.addEventListener('change', () => {
+                    const body = new FormData();
+                    body.append('dropdown_name', select.getAttribute('data-ai-dropdown'));
+                    body.append('value', select.value);
+                    fetch('/api/ai/dropdown', { method: 'POST', body })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (!data.success) alert(data.message || 'Could not save setting.');
+                            else if (select.getAttribute('data-ai-dropdown') === 'Image Size') pollAiEngineStatus();
+                        });
+                });
+            });
+            pollAiEngineStatus();
+            loadAiSettings();
+            if (window.HotkeyBind) HotkeyBind.init(document.getElementById('tab-content-ai-engine'));
+            document.querySelectorAll('.tab-button[data-tab="ai-engine"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setTimeout(() => {
+                        pollAiEngineStatus();
+                        loadAiSettings();
+                    }, 100);
+                });
+            });
+            setInterval(() => {
+                if (isAiEngineTabVisible()) pollAiEngineStatus();
+            }, 10000);
+        }
+
+        function selectAiModel(filename) {
+            const body = new FormData();
+            body.append('ai_active_model', filename || '');
+            fetch('/api/ai/model/select', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert(data.message || 'Could not select model.');
+                        return;
+                    }
+                    pollAiEngineStatus();
+                    if (data.last_error) alert(data.last_error);
+                });
+        }
+
+        function saveAiKeybind(field, value) {
+            void field;
+            void value;
+        }
+
+        function uploadAiModel(input) {
+            if (!input.files || !input.files[0]) return;
+            const body = new FormData();
+            body.append('model_file', input.files[0]);
+            fetch('/api/ai/models/upload', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) pollAiEngineStatus();
+                    else alert(data.message || 'Upload failed');
+                });
+        }
+
+        function refreshAiStore(folder) {
+            fetch(`/api/ai/store/list?folder=${folder}`)
+                .then(r => r.json())
+                .then(data => {
+                    const boxId = folder === 'configs' ? 'ai-store-configs' : 'ai-store-models';
+                    const box = document.getElementById(boxId);
+                    if (!box || !data.success) return;
+                    box.innerHTML = '';
+                    if (!(data.available || []).length) {
+                        box.innerHTML = '<span class="text-white/30">No new items in store (or all downloaded).</span>';
+                        return;
+                    }
+                    (data.available || []).slice(0, 16).forEach(name => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'text-[10px] px-2 py-1 rounded border border-white/10 bg-white/5 text-white/70 hover:text-white hover:border-blue-500/30';
+                        btn.textContent = `↓ ${name}`;
+                        btn.onclick = () => downloadAiStore(folder, name);
+                        box.appendChild(btn);
+                    });
+                });
+        }
+
+        function downloadAiStore(folder, filename) {
+            const body = new FormData();
+            body.append('folder', folder);
+            body.append('filename', filename);
+            fetch('/api/ai/store/download', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        pollAiEngineStatus();
+                        if (folder === 'configs') loadAiSettings();
+                    } else alert(data.message || 'Download failed');
+                });
+        }
+
+        function createDefaultAiConfig() {
+            fetch('/api/ai/config/create-default', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        pollAiEngineStatus();
+                        loadAiSettings();
+                    }
+                });
+        }
+
+        document.getElementById('ai-engine-enabled')?.addEventListener('change', function() {
+            const body = new FormData();
+            body.append('ai_engine_enabled', this.checked ? 'on' : 'off');
+            fetch('/api/ai/enable', { method: 'POST', body });
+        });
         {% endif %}
 
         // Feedback Logic

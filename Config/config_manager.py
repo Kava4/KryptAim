@@ -1,10 +1,15 @@
 import copy
 import json
+import logging
 import os
 import sys
+import threading
 from pathlib import Path
 
-from Config.app_identity import get_app_storage_dirname
+from Config.app_identity import get_app_storage_dirname, is_beta_channel
+
+logger = logging.getLogger('AimSync.Config')
+_config_lock = threading.RLock()
 
 
 def get_base_dir() -> Path:
@@ -76,35 +81,148 @@ DEFAULTS = {
     }
 }
 
+BETA_DEFAULTS = {
+    'ai_engine_enabled': False,
+    'ai_active_model': '',
+    'ai_active_config': 'Default.cfg',
+    'ai_phase': 1,
+    'ai_aim_keybind': 'rmb',
+    'ai_second_aim_keybind': 'alt',
+    'ai_engine_toggle_hotkey': 'None',
+}
+
 SAVED_PATTERNS_DIR = get_base_dir() / 'saved_patterns'
 os.makedirs(SAVED_PATTERNS_DIR, exist_ok=True)
 
 
-def load_config():
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, encoding='utf-8') as f:
-            data = json.load(f)
-        for key, value in DEFAULTS.items():
+def get_bin_dir() -> Path:
+    return get_base_dir() / 'bin'
+
+
+def get_models_dir() -> Path:
+    path = get_bin_dir() / 'models'
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def get_ai_configs_dir() -> Path:
+    path = get_bin_dir() / 'configs'
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def ensure_ai_bin_dirs() -> None:
+    for name in ('models', 'configs', 'images', 'labels'):
+        (get_bin_dir() / name).mkdir(parents=True, exist_ok=True)
+
+
+def _merge_defaults(data: dict) -> dict:
+    for key, value in DEFAULTS.items():
+        if key not in data:
+            data[key] = copy.deepcopy(value) if isinstance(value, dict) else value
+        elif isinstance(value, dict):
+            for subkey, subvalue in value.items():
+                if subkey not in data[key]:
+                    data[key][subkey] = subvalue
+    if is_beta_channel():
+        for key, value in BETA_DEFAULTS.items():
             if key not in data:
-                data[key] = value
-            elif isinstance(value, dict):
-                for subkey, subvalue in value.items():
-                    if subkey not in data[key]:
-                        data[key][subkey] = subvalue
-        if not data.get('global_toggle_hotkey'):
-            data['global_toggle_hotkey'] = data.get('recoil_keybind', DEFAULTS['global_toggle_hotkey'])
-        if not data.get('weapon_cycle_hotkey'):
-            data['weapon_cycle_hotkey'] = data.get('recoil_cycle_keybind', DEFAULTS['weapon_cycle_hotkey'])
-        if not isinstance(data.get('weapon_direct_binds'), dict):
-            data['weapon_direct_binds'] = copy.deepcopy(DEFAULTS['weapon_direct_binds'])
-        return data
-    return copy.deepcopy(DEFAULTS)
+                data[key] = copy.deepcopy(value) if isinstance(value, dict) else value
+    return data
+
+
+def _strip_beta_keys_for_save(config: dict) -> dict:
+    if is_beta_channel():
+        return config
+    return {k: v for k, v in config.items() if k not in BETA_DEFAULTS}
+
+
+def _default_config() -> dict:
+    base = copy.deepcopy(DEFAULTS)
+    if is_beta_channel():
+        base.update(copy.deepcopy(BETA_DEFAULTS))
+    return base
+
+
+def _normalize_loaded_config(data: dict) -> dict:
+    data = _merge_defaults(data)
+    if not data.get('global_toggle_hotkey'):
+        data['global_toggle_hotkey'] = data.get('recoil_keybind', DEFAULTS['global_toggle_hotkey'])
+    if not data.get('weapon_cycle_hotkey'):
+        data['weapon_cycle_hotkey'] = data.get('recoil_cycle_keybind', DEFAULTS['weapon_cycle_hotkey'])
+    if not isinstance(data.get('weapon_direct_binds'), dict):
+        data['weapon_direct_binds'] = copy.deepcopy(DEFAULTS['weapon_direct_binds'])
+    return data
+
+
+def _read_config_file() -> dict:
+    if not CONFIG_FILE.is_file():
+        return _default_config()
+
+    raw = CONFIG_FILE.read_text(encoding='utf-8').strip()
+    if not raw:
+        raise json.JSONDecodeError('Config file is empty.', raw, 0)
+
+    data = json.loads(raw)
+    if not isinstance(data, dict):
+        raise json.JSONDecodeError('Config root must be an object.', raw, 0)
+    return _normalize_loaded_config(data)
+
+
+def _recover_config_from_backup() -> dict | None:
+    backup = CONFIG_FILE.with_suffix('.json.bak')
+    if not backup.is_file():
+        return None
+    try:
+        raw = backup.read_text(encoding='utf-8').strip()
+        if not raw:
+            return None
+        data = json.loads(raw)
+        if isinstance(data, dict):
+            return _normalize_loaded_config(data)
+    except (OSError, json.JSONDecodeError):
+        return None
+    return None
+
+
+def load_config():
+    with _config_lock:
+        try:
+            return _read_config_file()
+        except (OSError, json.JSONDecodeError) as exc:
+            logger.warning('Config load failed (%s); attempting recovery.', exc)
+            recovered = _recover_config_from_backup()
+            if recovered is not None:
+                logger.warning('Restored config from backup.')
+                _write_config_file(recovered)
+                return copy.deepcopy(recovered)
+
+            logger.warning('Using default config after load failure.')
+            defaults = _default_config()
+            _write_config_file(defaults)
+            return copy.deepcopy(defaults)
+
+
+def _write_config_file(config: dict) -> None:
+    os.makedirs(get_base_dir(), exist_ok=True)
+    payload = _strip_beta_keys_for_save(config)
+    tmp_path = CONFIG_FILE.with_suffix('.json.tmp')
+    with open(tmp_path, 'w', encoding='utf-8') as f:
+        json.dump(payload, f, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
+    if CONFIG_FILE.is_file():
+        backup = CONFIG_FILE.with_suffix('.json.bak')
+        try:
+            os.replace(CONFIG_FILE, backup)
+        except OSError:
+            pass
+    os.replace(tmp_path, CONFIG_FILE)
 
 
 def save_config(config):
-    os.makedirs(get_base_dir(), exist_ok=True)
-    with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-        json.dump(config, f, indent=2)
+    with _config_lock:
+        _write_config_file(config)
 
 
 def get_pattern_names():

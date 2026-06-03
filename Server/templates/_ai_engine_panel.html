@@ -1,0 +1,212 @@
+        <div id="tab-content-ai-engine" class="tab-content mt-5 hidden">
+            <div class="bg-neutral-900 border border-amber-400/20 rounded-xl p-6 space-y-8">
+
+                <!-- Header -->
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <p class="text-lg font-semibold text-white">AI Engine</p>
+                        <p class="text-xs text-white/40 mt-1 max-w-xl">Built into AimSync Beta — Aimmy-compatible models and configs. No separate Aimmy app needed.</p>
+                    </div>
+                    <label class="flex items-center gap-2 text-xs text-white/70 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                        <input id="ai-engine-enabled" type="checkbox" {{ 'checked' if config.get('ai_engine_enabled') else '' }}
+                               class="w-4 h-4 accent-amber-500 cursor-pointer">
+                        Engine enabled
+                    </label>
+                </div>
+
+                <!-- Status cards -->
+                <div id="ai-engine-status" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 p-3">
+                        <p class="text-[10px] uppercase tracking-widest text-white/35">Model</p>
+                        <p id="ai-stat-model" class="text-xs font-medium text-white mt-1 truncate">—</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 p-3">
+                        <p class="text-[10px] uppercase tracking-widest text-white/35">Config</p>
+                        <p id="ai-stat-config" class="text-xs font-medium text-white mt-1 truncate">—</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 p-3">
+                        <p class="text-[10px] uppercase tracking-widest text-white/35">Engine</p>
+                        <p id="ai-stat-engine" class="text-xs font-medium text-white mt-1">—</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 p-3">
+                        <p class="text-[10px] uppercase tracking-widest text-white/35">Runtime</p>
+                        <p id="ai-stat-fps" class="text-xs font-medium text-white mt-1">—</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 p-3">
+                        <p class="text-[10px] uppercase tracking-widest text-white/35">Makcu</p>
+                        <p id="ai-stat-makcu" class="text-xs font-medium text-white mt-1">—</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 p-3">
+                        <p class="text-[10px] uppercase tracking-widest text-white/35">ONNX</p>
+                        <p id="ai-stat-onnx" class="text-xs font-medium text-white mt-1">—</p>
+                    </div>
+                </div>
+                <div id="ai-engine-alert" class="hidden rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-xs text-red-200"></div>
+                <button type="button" onclick="pollAiEngineStatus()" class="text-[10px] text-white/40 hover:text-white/70">↻ Refresh status</button>
+
+                <!-- Models -->
+                <section class="space-y-4 border-t border-white/5 pt-6">
+                    <p class="text-sm font-medium text-white">Models</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Active model (.onnx)</span>
+                            <select id="ai-active-model" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2"
+                                    onchange="selectAiModel(this.value)">
+                                <option value="">— Select model —</option>
+                            </select>
+                        </label>
+                        <div class="flex flex-wrap items-end gap-2">
+                            <label class="text-xs font-semibold text-amber-200 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 cursor-pointer hover:bg-amber-500/15">
+                                Upload .onnx
+                                <input type="file" accept=".onnx" class="hidden" onchange="uploadAiModel(this)">
+                            </label>
+                            <button type="button" onclick="refreshAiStore('models')" class="text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2">Browse model store</button>
+                        </div>
+                    </div>
+                    <div id="ai-store-models" class="flex flex-wrap gap-2 text-xs"></div>
+                </section>
+
+                <!-- Config editor + store -->
+                <section class="space-y-4 border-t border-white/5 pt-6">
+                    <p class="text-sm font-medium text-white">Config (.cfg)</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <label class="block">
+                            <span class="text-[11px] uppercase tracking-widest text-white/35">Active config</span>
+                            <select id="ai-active-config" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2"
+                                    onchange="selectAiConfig(this.value)">
+                                <option value="Default.cfg">Default.cfg</option>
+                            </select>
+                        </label>
+                        <div class="flex flex-wrap items-end gap-2">
+                            <label class="text-xs font-semibold text-emerald-200 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2 cursor-pointer hover:bg-emerald-500/15">
+                                Upload .cfg
+                                <input type="file" accept=".cfg" class="hidden" onchange="uploadAiConfig(this)">
+                            </label>
+                            <button type="button" onclick="refreshAiStore('configs')" class="text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2">Browse config store</button>
+                            <button type="button" onclick="createDefaultAiConfig()" class="text-xs font-semibold text-white/70 bg-white/5 border border-white/10 rounded-lg px-3 py-2">New Default.cfg</button>
+                        </div>
+                    </div>
+                    <div id="ai-store-configs" class="flex flex-wrap gap-2 text-xs"></div>
+
+                </section>
+
+                <section class="space-y-6 border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Settings</p>
+                        <p class="text-[11px] text-white/35 mt-1">Changes save automatically to the active <span class="text-white/50">.cfg</span> file.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-[11px] uppercase tracking-widest text-white/35">Aim &amp; tracking</p>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Aim Assist</span><input type="checkbox" data-ai-toggle="Aim Assist" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Sticky Aim</span><input type="checkbox" data-ai-toggle="Sticky Aim" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Constant AI Tracking</span><input type="checkbox" data-ai-toggle="Constant AI Tracking" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Predictions</span><input type="checkbox" data-ai-toggle="Predictions" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Cursor Check</span><input type="checkbox" data-ai-toggle="Cursor Check" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-[11px] uppercase tracking-widest text-white/35">Trigger</p>
+                        <div class="grid sm:grid-cols-2 gap-3">
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Auto Trigger</span><input type="checkbox" data-ai-toggle="Auto Trigger" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Spray Mode</span><input type="checkbox" data-ai-toggle="Spray Mode" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                        </div>
+                        <label class="block text-xs text-white/70 max-w-md">
+                            <span class="flex justify-between"><span>Auto Trigger Delay (s)</span><span class="ai-val-label text-white/50" data-ai-val="Auto Trigger Delay"></span></span>
+                            <input type="range" min="0" max="1" step="0.01" data-ai-slider="Auto Trigger Delay" class="w-full mt-1 accent-blue-500">
+                        </label>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-[11px] uppercase tracking-widest text-white/35">Detection</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>FOV Size</span><span class="ai-val-label text-white/50" data-ai-val="FOV Size"></span></span><input type="range" min="50" max="640" step="1" data-ai-slider="FOV Size" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>Dynamic FOV Size</span><span class="ai-val-label text-white/50" data-ai-val="Dynamic FOV Size"></span></span><input type="range" min="50" max="640" step="1" data-ai-slider="Dynamic FOV Size" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>AI Minimum Confidence</span><span class="ai-val-label text-white/50" data-ai-val="AI Minimum Confidence"></span></span><input type="range" min="1" max="100" step="1" data-ai-slider="AI Minimum Confidence" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="text-[11px] uppercase tracking-widest text-white/35">Detection area</span><select data-ai-dropdown="Detection Area Type" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 ai-dropdown"><option value="Closest to Center Screen">Closest to center</option><option value="Closest to Mouse">Closest to mouse</option></select></label>
+                            <label class="block text-xs text-white/70"><span class="text-[11px] uppercase tracking-widest text-white/35">Image size</span><select data-ai-dropdown="Image Size" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 ai-dropdown"><option value="320">320</option><option value="416">416</option><option value="640">640</option><option value="1280">1280</option></select></label>
+                            <label class="block text-xs text-white/70"><span class="text-[11px] uppercase tracking-widest text-white/35">Target class</span><select data-ai-dropdown="Target Class" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 ai-dropdown"><option value="Best Confidence">Best confidence</option></select></label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-[11px] uppercase tracking-widest text-white/35">Aim tuning</p>
+                        <div class="grid sm:grid-cols-2 gap-3 mb-1">
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>X axis % mode</span><input type="checkbox" data-ai-toggle="X Axis Percentage Adjustment" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                            <label class="flex items-center justify-between gap-2 text-xs text-white/70 bg-white/5 rounded-lg px-3 py-2"><span>Y axis % mode</span><input type="checkbox" data-ai-toggle="Y Axis Percentage Adjustment" class="w-4 h-4 accent-blue-500 ai-toggle"></label>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>Mouse Sensitivity</span><span class="ai-val-label text-white/50" data-ai-val="Mouse Sensitivity (+/-)"></span></span><input type="range" min="0" max="1" step="0.01" data-ai-slider="Mouse Sensitivity (+/-)" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>Mouse Jitter</span><span class="ai-val-label text-white/50" data-ai-val="Mouse Jitter"></span></span><input type="range" min="0" max="20" step="1" data-ai-slider="Mouse Jitter" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>Sticky Aim Threshold</span><span class="ai-val-label text-white/50" data-ai-val="Sticky Aim Threshold"></span></span><input type="range" min="0" max="100" step="1" data-ai-slider="Sticky Aim Threshold" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="text-[11px] uppercase tracking-widest text-white/35">Aim point</span><select data-ai-dropdown="Aiming Boundaries Alignment" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 ai-dropdown"><option value="Center">Center</option><option value="Top">Top</option><option value="Bottom">Bottom</option></select></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>X Offset</span><span class="ai-val-label text-white/50" data-ai-val="X Offset (Left/Right)"></span></span><input type="range" min="-100" max="100" step="1" data-ai-slider="X Offset (Left/Right)" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>Y Offset</span><span class="ai-val-label text-white/50" data-ai-val="Y Offset (Up/Down)"></span></span><input type="range" min="-100" max="100" step="1" data-ai-slider="Y Offset (Up/Down)" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>X Offset %</span><span class="ai-val-label text-white/50" data-ai-val="X Offset (%)"></span></span><input type="range" min="0" max="100" step="1" data-ai-slider="X Offset (%)" class="w-full mt-1 accent-blue-500"></label>
+                            <label class="block text-xs text-white/70"><span class="flex justify-between"><span>Y Offset %</span><span class="ai-val-label text-white/50" data-ai-val="Y Offset (%)"></span></span><input type="range" min="0" max="100" step="1" data-ai-slider="Y Offset (%)" class="w-full mt-1 accent-blue-500"></label>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <p class="text-[11px] uppercase tracking-widest text-white/35">Advanced</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <label class="block text-xs text-white/70"><span class="text-[11px] uppercase tracking-widest text-white/35">Prediction method</span><select data-ai-dropdown="Prediction Method" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 ai-dropdown"><option value="Kalman Filter">Kalman Filter</option><option value="Shall0e's Prediction">Shall0e's Prediction</option><option value="Linear">Linear</option></select></label>
+                            <label class="block text-xs text-white/70"><span class="text-[11px] uppercase tracking-widest text-white/35">Movement path</span><select data-ai-dropdown="Movement Path" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 ai-dropdown"><option value="Linear">Linear</option><option value="Cubic Bezier">Cubic Bezier</option><option value="Exponential">Exponential</option><option value="Adaptive">Adaptive</option></select></label>
+                        </div>
+                    </div>
+
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/50 px-4 py-3 space-y-3">
+                        <p class="text-xs font-medium text-white/80">Aim keybinds</p>
+                        <p class="text-[10px] text-white/30">Click a button, then press any key or mouse button. Esc cancels.</p>
+                        <div class="grid sm:grid-cols-2 gap-3">
+                            <div class="space-y-1" data-hotkey-row>
+                                <span class="text-[10px] uppercase tracking-widest text-white/35">Aim hold (primary)</span>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <button type="button" id="ai-aim-keybind-btn"
+                                            class="hotkey-bind-btn flex-1 text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 text-left hover:border-white/20 transition-colors"
+                                            data-hotkey-field="ai_aim_keybind"
+                                            data-hotkey-value="{{ config.get('ai_aim_keybind', 'rmb') }}">
+                                        <span class="hotkey-bind-label">RMB</span>
+                                    </button>
+                                </div>
+                                <p class="hotkey-bind-error hidden text-[10px] text-red-300"></p>
+                            </div>
+                            <div class="space-y-1" data-hotkey-row>
+                                <span class="text-[10px] uppercase tracking-widest text-white/35">Aim hold (secondary)</span>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <button type="button" id="ai-second-aim-keybind-btn"
+                                            class="hotkey-bind-btn flex-1 text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 text-left hover:border-white/20 transition-colors"
+                                            data-hotkey-field="ai_second_aim_keybind"
+                                            data-hotkey-value="{{ config.get('ai_second_aim_keybind', 'alt') }}">
+                                        <span class="hotkey-bind-label">Alt</span>
+                                    </button>
+                                    <button type="button" data-hotkey-clear="ai-second-aim-keybind-btn" class="text-[10px] text-white/35 hover:text-white/60 px-1" title="Clear binding">Clear</button>
+                                </div>
+                                <p class="hotkey-bind-error hidden text-[10px] text-red-300"></p>
+                            </div>
+                            <div class="space-y-1 sm:col-span-2" data-hotkey-row>
+                                <span class="text-[10px] uppercase tracking-widest text-white/35">Engine toggle</span>
+                                <div class="flex items-center gap-2 mt-1 max-w-xs">
+                                    <button type="button" id="ai-engine-toggle-keybind-btn"
+                                            class="hotkey-bind-btn flex-1 text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 text-left hover:border-white/20 transition-colors"
+                                            data-hotkey-field="ai_engine_toggle_hotkey"
+                                            data-hotkey-value="{{ config.get('ai_engine_toggle_hotkey', 'None') }}">
+                                        <span class="hotkey-bind-label">None</span>
+                                    </button>
+                                    <button type="button" data-hotkey-clear="ai-engine-toggle-keybind-btn" class="text-[10px] text-white/35 hover:text-white/60 px-1" title="Clear binding">Clear</button>
+                                </div>
+                                <p class="hotkey-bind-error hidden text-[10px] text-red-300"></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <p class="text-[11px] text-white/30 border-t border-white/5 pt-4">
+                    AI runs inside AimSync Beta — you do not need the separate Aimmy app.
+                    If the standalone Aimmy app is still open, close it so only AimSync uses Makcu.
+                    Models and configs live in <code class="text-white/50">.beta-data/bin/</code> (dev) or <code class="text-white/50">%APPDATA%\AimSyncBeta\bin\</code>.
+                </p>
+            </div>
+        </div>

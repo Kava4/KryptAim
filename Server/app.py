@@ -17,6 +17,7 @@ from Recoil.weapon_data import WeaponData
 from flask import jsonify # Ensure jsonify is imported
 from Server.routes.recoil_routes import recoil_bp
 from Server.routes.pattern_generator_routes import pattern_generator_bp
+from Server.routes.ai_routes import ai_bp
 from Server.ocr_state import get_ocr_state
 
 
@@ -78,6 +79,7 @@ SUPPORTED_GAMES = {
 
 app.register_blueprint(recoil_bp)
 app.register_blueprint(pattern_generator_bp)
+app.register_blueprint(ai_bp)
 
 
 @app.context_processor

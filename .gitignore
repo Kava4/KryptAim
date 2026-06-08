@@ -76,6 +76,7 @@ temp_*.py
 **/*.bak
 posts.md
 *.ps1
+!scripts/sync_github_wiki.ps1
 
 # --- IDE & OS ---
 .vscode/

@@ -21,6 +21,13 @@ jobs:
         uses: Andrew-Chen-Wang/github-wiki-action@v4
         with:
           path: wiki
-          strategy: init
-          exclude: WIKI-UPLOAD.md
+          strategy: clone
+          ignore: WIKI-UPLOAD.md
           commit-message: "Sync wiki from repo wiki/ folder"
+
+      - name: Wiki not initialized hint
+        if: failure()
+        run: |
+          echo "::error::GitHub Wiki git repo does not exist yet."
+          echo "Open https://github.com/${{ github.repository }}/wiki"
+          echo "Click 'Create the first page', title Home, save once, then re-run this workflow."

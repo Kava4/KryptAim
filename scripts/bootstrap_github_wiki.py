@@ -20,9 +20,9 @@ REPO = "AimSync"
 def main() -> int:
     token = subprocess.check_output(["gh", "auth", "token"], text=True).strip()
     session = requests.Session()
+    session.auth = (token, "x-oauth-basic")
     session.headers.update(
         {
-            "Authorization": f"token {token}",
             "Accept": "text/html,application/xhtml+xml",
             "User-Agent": "AimSync-wiki-bootstrap",
         }

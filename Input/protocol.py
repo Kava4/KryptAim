@@ -1,0 +1,26 @@
+"""Protocol for alternative mouse input backends."""
+
+from __future__ import annotations
+
+from typing import Protocol, runtime_checkable
+
+
+@runtime_checkable
+class MouseInputBackend(Protocol):
+    name: str
+
+    def is_open(self) -> bool: ...
+
+    def connect(self) -> bool: ...
+
+    def disconnect(self) -> None: ...
+
+    def move(self, dx: int, dy: int) -> None: ...
+
+    def press(self, button: str = 'LMB') -> None: ...
+
+    def release(self, button: str = 'LMB') -> None: ...
+
+    def click(self, button: str = 'LMB', hold_ms: int = 20) -> None: ...
+
+    def get_button_state(self, key_name: str) -> bool: ...

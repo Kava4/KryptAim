@@ -1,4 +1,29 @@
 (function () {
+  const CS2PULSE_PRESETS = {
+    famas: {
+      label: "FAMAS",
+      media_url: "https://cs2pulse.com/wp-content/uploads/2024/10/Famas.gif",
+      weapon: "famas",
+      reference_weapon: "m4a1s",
+      horizontal_strength: 0.45,
+      delay_ms: 100,
+    },
+    ak47: {
+      label: "AK-47",
+      media_url: "https://cs2pulse.com/wp-content/uploads/2024/10/Ak47.gif",
+      weapon: "ak47",
+      reference_weapon: "ak47",
+      delay_ms: 100,
+    },
+    m4a1s: {
+      label: "M4A1-S",
+      media_url: "https://cs2pulse.com/wp-content/uploads/2024/02/M4A1-S-Spray-Pattern.gif",
+      weapon: "m4a1s",
+      reference_weapon: "m4a1s",
+      delay_ms: 100,
+    },
+  };
+
   function q(root, selector) {
     return root.querySelector(selector);
   }
@@ -20,6 +45,9 @@
   function initGenerator(root) {
     const canvas = q(root, '[data-pg="canvas"]');
     const ctx = canvas.getContext("2d");
+    const presetSelect = q(root, '[data-pg="preset-select"]');
+    const loadPresetBtn = q(root, '[data-pg="load-preset-btn"]');
+    const detectStyleInput = q(root, '[data-pg="detect-style"]');
     const fileInput = q(root, '[data-pg="file-input"]');
     const urlInput = q(root, '[data-pg="url-input"]');
     const loadUrlBtn = q(root, '[data-pg="load-url-btn"]');
@@ -32,6 +60,15 @@
     const invertXInput = q(root, '[data-pg="invert-x"]');
     const invertYInput = q(root, '[data-pg="invert-y"]');
     const exportModeInput = q(root, '[data-pg="export-mode"]');
+    const referenceWeaponInput = q(root, '[data-pg="reference-weapon"]');
+    const horizontalStrengthInput = q(root, '[data-pg="horizontal-strength"]');
+    const referenceWrap = q(root, '[data-pg="reference-wrap"]');
+    const horizontalWrap = q(root, '[data-pg="horizontal-wrap"]');
+    const exportHint = q(root, '[data-pg="export-hint"]');
+    const autoGenerateInput = q(root, '[data-pg="auto-generate"]');
+    const gameIdInput = q(root, '[data-pg="game-id"]');
+    const weaponNameInput = q(root, '[data-pg="weapon-name"]');
+    const applyGameBtn = q(root, '[data-pg="apply-game-btn"]');
     const generateBtn = q(root, '[data-pg="generate-btn"]');
     const copyBtn = q(root, '[data-pg="copy-btn"]');
     const sendLabBtn = q(root, '[data-pg="send-lab-btn"]');
@@ -49,10 +86,68 @@
     let activeFrameIndex = 0;
     let canvasDisplayWidth = 0;
     let canvasDisplayHeight = 0;
+    let generateTimer = null;
 
     function setStatus(text, isError) {
       status.textContent = text;
       status.className = `text-xs ${isError ? "text-red-300" : "text-white/40"}`;
+    }
+
+    function detectStyle() {
+      return detectStyleInput ? detectStyleInput.value : "generic";
+    }
+
+    function shouldAutoGenerate() {
+      return autoGenerateInput ? autoGenerateInput.checked : false;
+    }
+
+    function patternPayload() {
+      const exportMode = exportModeInput ? exportModeInput.value : "laser_fit";
+      const payload = {
+        points,
+        game_id: gameIdInput ? gameIdInput.value || "cs2" : "cs2",
+        delay_ms: Math.round(toNumber(delayMsInput, 100)),
+        scale_x: toNumber(scaleXInput, 1),
+        scale_y: toNumber(scaleYInput, 1),
+        invert_x: invertXInput.checked,
+        invert_y: invertYInput.checked,
+        export_mode: exportMode,
+      };
+      if (exportMode === "laser_fit" && referenceWeaponInput) {
+        payload.reference_weapon = referenceWeaponInput.value || weaponNameInput.value || "m4a1s";
+        payload.horizontal_strength = toNumber(horizontalStrengthInput, 1);
+      }
+      return payload;
+    }
+
+    function updateExportUi() {
+      const laserMode = exportModeInput && exportModeInput.value === "laser_fit";
+      if (referenceWrap) referenceWrap.classList.toggle("opacity-50", !laserMode);
+      if (horizontalWrap) horizontalWrap.classList.toggle("opacity-50", !laserMode);
+      if (referenceWeaponInput) referenceWeaponInput.disabled = !laserMode;
+      if (horizontalStrengthInput) horizontalStrengthInput.disabled = !laserMode;
+      if (exportHint) {
+        exportHint.textContent = laserMode
+          ? "Laser fit: lower Horizontal strength (try 0.5–0.7) if bullets drift left at end of spray."
+          : "Raw deltas: manual Scale X/Y tuning required. Use Laser fit for CS2 Pulse GIFs.";
+      }
+    }
+
+    async function loadReferenceWeapons() {
+      if (!referenceWeaponInput || !gameIdInput) return;
+      const gameId = gameIdInput.value || "cs2";
+      const data = await jsonFetch(`/api/pattern-generator/weapons/${gameId}`);
+      const current = referenceWeaponInput.value;
+      referenceWeaponInput.innerHTML = "";
+      data.weapons.forEach((weapon) => {
+        const opt = document.createElement("option");
+        opt.value = weapon;
+        opt.textContent = weapon;
+        referenceWeaponInput.appendChild(opt);
+      });
+      if (current && data.weapons.includes(current)) {
+        referenceWeaponInput.value = current;
+      }
     }
 
     async function copyText(text) {
@@ -174,6 +269,15 @@
         pointsList.appendChild(row);
       });
       draw();
+      scheduleAutoGenerate();
+    }
+
+    function scheduleAutoGenerate() {
+      if (!shouldAutoGenerate() || points.length < 2) return;
+      clearTimeout(generateTimer);
+      generateTimer = setTimeout(() => {
+        generatePattern().catch((err) => setStatus(err.message, true));
+      }, 250);
     }
 
     pointsList.addEventListener("click", (evt) => {
@@ -207,15 +311,42 @@
       output.value = "";
     });
 
+    function applyPresetFields(presetId) {
+      const preset = CS2PULSE_PRESETS[presetId];
+      if (!preset) return;
+      urlInput.value = preset.media_url;
+      weaponNameInput.value = preset.weapon;
+      delayMsInput.value = String(preset.delay_ms);
+      scaleXInput.value = "1";
+      scaleYInput.value = "1";
+      if (detectStyleInput) detectStyleInput.value = "cs2pulse";
+      if (exportModeInput) exportModeInput.value = "laser_fit";
+      if (referenceWeaponInput && preset.reference_weapon) {
+        referenceWeaponInput.value = preset.reference_weapon;
+      }
+      if (horizontalStrengthInput && preset.horizontal_strength != null) {
+        horizontalStrengthInput.value = String(preset.horizontal_strength);
+      }
+      updateExportUi();
+    }
+
     function applyDetectedPayload(data, sourceLabel, includeSuggested) {
       frameDataUrls = Array.isArray(data.frame_data_urls) && data.frame_data_urls.length
         ? data.frame_data_urls
         : [data.preview_data_url];
-      activeFrameIndex = 0;
+      activeFrameIndex = Number.isInteger(data.recommended_frame_index)
+        ? data.recommended_frame_index
+        : Math.max(0, frameDataUrls.length - 1);
       if (includeSuggested) points = data.suggested_points || [];
-      showFrame(0);
+      showFrame(activeFrameIndex);
       renderPointsList();
-      setStatus(`Loaded ${sourceLabel}. ${includeSuggested ? "Suggested points applied." : "Ready for manual marking."}`, false);
+      const pointMsg = includeSuggested
+        ? `${points.length} bullet points detected.`
+        : "Ready for manual marking.";
+      setStatus(`Loaded ${sourceLabel}. ${pointMsg}`, false);
+      if (includeSuggested && shouldAutoGenerate() && points.length >= 2) {
+        generatePattern().catch((err) => setStatus(err.message, true));
+      }
     }
 
     async function loadFromFile(includeSuggested) {
@@ -224,6 +355,7 @@
 
       const form = new FormData();
       form.append("spray_file", file);
+      form.append("detect_style", detectStyle());
       const data = await jsonFetch("/api/pattern-generator/detect", { method: "POST", body: form });
       applyDetectedPayload(data, file.name, includeSuggested);
     }
@@ -234,10 +366,25 @@
       const data = await jsonFetch("/api/pattern-generator/detect-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ media_url: mediaUrl }),
+        body: JSON.stringify({ media_url: mediaUrl, detect_style: detectStyle() }),
       });
       applyDetectedPayload(data, mediaUrl, includeSuggested);
     }
+
+    presetSelect.addEventListener("change", () => {
+      applyPresetFields(presetSelect.value);
+    });
+
+    loadPresetBtn.addEventListener("click", async () => {
+      try {
+        const presetId = presetSelect.value;
+        if (!presetId) throw new Error("Select a CS2 Pulse preset first.");
+        applyPresetFields(presetId);
+        await loadFromUrl(true);
+      } catch (err) {
+        setStatus(err.message, true);
+      }
+    });
 
     fileInput.addEventListener("change", async () => {
       try {
@@ -249,7 +396,11 @@
 
     detectBtn.addEventListener("click", async () => {
       try {
-        await loadFromFile(true);
+        if (fileInput.files && fileInput.files[0]) {
+          await loadFromFile(true);
+          return;
+        }
+        await loadFromUrl(true);
       } catch (err) {
         setStatus(err.message, true);
       }
@@ -269,21 +420,15 @@
     });
 
     async function generatePattern() {
+      if (points.length < 2) throw new Error("Add at least 2 bullet points.");
       const data = await jsonFetch("/api/pattern-generator/preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          points,
-          delay_ms: Math.round(toNumber(delayMsInput, 90)),
-          scale_x: toNumber(scaleXInput, 1),
-          scale_y: toNumber(scaleYInput, 1),
-          invert_x: invertXInput.checked,
-          invert_y: invertYInput.checked,
-            export_mode: exportModeInput ? exportModeInput.value : "canonical",
-        }),
+        body: JSON.stringify(patternPayload()),
       });
       output.value = data.pattern_text;
-      setStatus(`Generated ${data.steps_ms.length} recoil steps.`, false);
+      const modeLabel = data.export_mode === "laser_fit" ? "laser fit" : data.export_mode;
+      setStatus(`Generated ${data.steps_ms.length} ${modeLabel} steps. Fine-tune X/Y if needed.`, false);
       return data;
     }
 
@@ -301,9 +446,33 @@
           await generatePattern();
         }
         await copyText(output.value);
-        setStatus("Pattern copied. Paste it in Recoil Lab Pattern field.", false);
+        setStatus("Pattern copied.", false);
       } catch (err) {
         setStatus(err.message || "Clipboard copy failed.", true);
+      }
+    });
+
+    applyGameBtn.addEventListener("click", async () => {
+      try {
+        if (points.length < 2) throw new Error("Add at least 2 bullet points.");
+        const weaponName = (weaponNameInput.value || "").trim();
+        if (!weaponName) throw new Error("Weapon name is required.");
+        const data = await jsonFetch("/api/pattern-generator/append", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...patternPayload(),
+            game_id: gameIdInput.value || "cs2",
+            weapon_name: weaponName,
+            overwrite: true,
+          }),
+        });
+        setStatus(
+          `Updated ${weaponName} in cs2.py (${data.steps} steps). Backup: ${data.backup_path}`,
+          false,
+        );
+      } catch (err) {
+        setStatus(err.message, true);
       }
     });
 
@@ -333,6 +502,19 @@
       }
     });
 
+    if (exportModeInput) {
+      exportModeInput.addEventListener("change", () => {
+        updateExportUi();
+        scheduleAutoGenerate();
+      });
+    }
+
+    applyPresetFields("famas");
+    presetSelect.value = "famas";
+    loadReferenceWeapons()
+      .then(() => applyPresetFields("famas"))
+      .catch((err) => setStatus(err.message, true));
+    updateExportUi();
     updateFrameUi();
     draw();
   }

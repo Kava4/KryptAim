@@ -26,9 +26,6 @@
             <div>
                 <div class="flex items-center justify-center gap-2">
                     <p class="text-2xl font-semibold tracking-wide text-white">{{ app_name }}</p>
-                    {% if is_beta_channel %}
-                    <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-amber-200">Beta</span>
-                    {% endif %}
                 </div>
                 <p class="text-xs font-medium text-blue-300/90 tracking-wide">{{ app_version }} · {{ app_version_label }}</p>
                 <p class="text-sm text-white/60">Loading your interface...</p>
@@ -51,9 +48,6 @@
                     <span class="hidden sm:inline-flex flex-col leading-tight">
                         <span class="flex items-center gap-2 text-sm font-semibold text-white">
                             <span>{{ app_name }}</span>
-                            {% if is_beta_channel %}
-                            <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-200">Beta</span>
-                            {% endif %}
                         </span>
                         <span class="text-[10px] font-medium uppercase tracking-wider text-blue-300/80">{{ app_version }} · {{ app_version_label }}</span>
                     </span>
@@ -75,13 +69,6 @@
 
                     <!-- External Links -->
                     <div class="flex items-center gap-4 lg:border-r lg:border-white/10 lg:pr-3">
-                        <a href="https://github.com/Kava4/AimSync" target="_blank" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all" title="GitHub Repository">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/>
-                            </svg>
-                            <span class="text-xs font-semibold hidden lg:inline">GitHub</span>
-                        </a>
-                        
                         <!-- Feedback Button -->
                         <button onclick="toggleFeedbackModal()" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all" title="Send Feedback">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -113,19 +100,19 @@
                                         <svg class="w-3 h-3 opacity-40 transition-transform duration-200 ml-auto" id="crypto-sub-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     </button>
                                     <div id="crypto-sub-dropdown" class="hidden absolute left-full top-0 ml-2 w-48 rounded-xl bg-neutral-800 border border-white/10 shadow-lg py-1 z-51 overflow-hidden">
-                                        <button onclick="copyWalletAddress('bc1qd27qdj08nr8ce4lwp72yzf4j2gs93hfgx9chsv', 'btc')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                        <button type="button" onclick="copyWalletAddress(event, 'bc1qd27qdj08nr8ce4lwp72yzf4j2gs93hfgx9chsv', 'btc')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
                                             <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
                                             <span id="btc-text">Copy Bitcoin (BTC)</span>
                                         </button>
-                                        <button onclick="copyWalletAddress('0x50e665731aa32b2e255762669deEdf1a8d0B7423', 'eth')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                        <button type="button" onclick="copyWalletAddress(event, '0x50e665731aa32b2e255762669deEdf1a8d0B7423', 'eth')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
                                             <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
                                             <span id="eth-text">Copy Ethereum (ETH)</span>
                                         </button>
-                                        <button onclick="copyWalletAddress('3KCAuktD3Jh9jfDuk4WPhxGYNbGJPprUzbfsH82dWMAp', 'sol')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                        <button type="button" onclick="copyWalletAddress(event, '3KCAuktD3Jh9jfDuk4WPhxGYNbGJPprUzbfsH82dWMAp', 'sol')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
                                             <svg class="w-4 h-4 text-teal-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
                                             <span id="sol-text">Copy Solana (SOL)</span>
                                         </button>
-                                        <button onclick="copyWalletAddress('0x50e665731aa32b2e255762669deEdf1a8d0B7423', 'base')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                        <button type="button" onclick="copyWalletAddress(event, '0x50e665731aa32b2e255762669deEdf1a8d0B7423', 'base')" class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
                                             <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 16c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v2h-2V9zm0 3h2v3h-2v-3z"/></svg>
                                             <span id="base-text">Copy Base</span>
                                         </button>
@@ -208,9 +195,6 @@
                 <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="Logo" class="h-8 w-auto">
                 <div class="flex items-center gap-2">
                     <span class="text-white font-semibold">{{ app_name }}</span>
-                    {% if is_beta_channel %}
-                    <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-200">Beta</span>
-                    {% endif %}
                 </div>
             </div>
             <button onclick="toggleMobileMenu()" class="text-white/40 hover:text-white">
@@ -226,15 +210,10 @@
             <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="simple">Simple Recoil</button>
             <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="advanced">Recoil Lab</button>
             <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="CS2">Game Engine</button>
-            {% if is_beta_channel %}
-            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="ai-engine">AI Engine</button>
-            {% endif %}
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5 transition-all" data-tab="ai-engine">AimSync AI</button>
         </div>
         <div class="mt-auto pt-8 border-t border-white/5 space-y-4">
-            <div class="grid grid-cols-3 gap-2">
-                <a href="https://github.com/Kava4/AimSync" target="_blank" class="flex items-center justify-center p-3 rounded-xl bg-white/5 text-white/40 hover:text-white transition-colors" title="GitHub">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
-                </a>
+            <div class="grid grid-cols-2 gap-2">
                 <a href="https://ko-fi.com/kava4" target="_blank" class="flex items-center justify-center p-3 rounded-xl bg-white/5 text-white/40 hover:text-white transition-colors" title="Ko-fi">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/></svg>
                 </a>
@@ -261,9 +240,7 @@
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="simple">Simple Recoil</button>
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="advanced">Recoil Lab</button>
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent hover:border-blue-500 transition-colors" data-tab="CS2">Game Engine</button>
-            {% if is_beta_channel %}
-            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-amber-200/90 hover:text-amber-100 border-b-2 border-transparent hover:border-amber-500 transition-colors" data-tab="ai-engine">AI Engine</button>
-            {% endif %}
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-amber-200/90 hover:text-amber-100 border-b-2 border-transparent hover:border-amber-500 transition-colors" data-tab="ai-engine">AimSync AI</button>
         </div>
 
         <!-- Global Settings Tab -->
@@ -317,17 +294,50 @@
                 <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
                     <div>
                         <p class="text-sm font-medium text-white">Input Method</p>
-                        <p class="text-xs text-white/40">Hardware (HID) for security or Software (SendInput) for ease.</p>
+                        <p class="text-xs text-white/40">Makcu for dual-PC hardware, or Sunone-style GHUB / Arduino / KMBOX / Win32.</p>
                     </div>
+                    {% set active_input = config.mouse_input_method if config.mouse_input_method else ('makcu' if config.recoil_input_method == 'hardware' else 'win32') %}
                     <select name="recoil_input_method" 
                             hx-post="/api/recoil/input_method" 
                             hx-trigger="change" 
                             hx-target="#input-method-warning" 
                             hx-swap="innerHTML"
-                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors">
-                        <option value="hardware" {{ 'selected' if config.recoil_input_method == 'hardware' }}>Hardware (Makcu)</option>
-                        <option value="software" {{ 'selected' if config.recoil_input_method == 'software' }}>Software (SendInput)</option>
+                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 outline-none cursor-pointer hover:border-white/20 transition-colors max-w-[14rem]">
+                        <option value="hardware" {{ 'selected' if active_input == 'makcu' }}>Hardware (Makcu)</option>
+                        <option value="software" {{ 'selected' if active_input == 'win32' }}>Win32 (SendInput)</option>
+                        <option value="ghub" {{ 'selected' if active_input == 'ghub' }}>Logitech G Hub</option>
+                        <option value="arduino" {{ 'selected' if active_input == 'arduino' }}>Arduino (serial)</option>
+                        <option value="teensy41" {{ 'selected' if active_input == 'teensy41' }}>Teensy 4.1</option>
+                        <option value="rp2350" {{ 'selected' if active_input == 'rp2350' }}>RP2350</option>
+                        <option value="kmbox_net" {{ 'selected' if active_input == 'kmbox_net' }}>KMBOX Net</option>
+                        <option value="razer" {{ 'selected' if active_input == 'razer' }}>Razer (rzctl)</option>
                     </select>
+                </div>
+                <div id="alt-input-settings" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs {% if active_input in ['makcu', 'win32'] %}hidden{% endif %}">
+                    <label class="flex flex-col gap-1">
+                        <span class="text-white/50">Arduino / Teensy COM port</span>
+                        <input type="text" name="arduino_port" value="{{ config.arduino_port or 'COM0' }}"
+                               hx-post="/api/recoil/alt_input_settings" hx-trigger="change" hx-swap="none"
+                               class="bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5 text-white/80">
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-white/50">KMBOX Net IP</span>
+                        <input type="text" name="kmbox_net_ip" value="{{ config.kmbox_net_ip or '10.42.42.42' }}"
+                               hx-post="/api/recoil/alt_input_settings" hx-trigger="change" hx-swap="none"
+                               class="bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5 text-white/80">
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-white/50">G Hub DLL path (optional)</span>
+                        <input type="text" name="ghub_dll_path" value="{{ config.ghub_dll_path or '' }}"
+                               hx-post="/api/recoil/alt_input_settings" hx-trigger="change" hx-swap="none"
+                               class="bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5 text-white/80">
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-white/50">Razer rzctl DLL path (optional)</span>
+                        <input type="text" name="razer_dll_path" value="{{ config.razer_dll_path or '' }}"
+                               hx-post="/api/recoil/alt_input_settings" hx-trigger="change" hx-swap="none"
+                               class="bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5 text-white/80">
+                    </label>
                 </div>
                 <div class="flex items-center justify-between mt-6 border-t border-white/5 pt-6">
                     <div>
@@ -350,12 +360,12 @@
                     </div>
                 </div>
                 <div id="input-method-warning" class="mt-4">
-                    {% if config.recoil_input_method == 'software' %}
+                    {% if active_input != 'makcu' %}
                     <div class="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200/80 text-xs">
                         <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
                         </svg>
-                        <p><strong class="text-amber-400 block mb-0.5 uppercase tracking-wide">Security Warning</strong> Software input (SendInput) is significantly easier to detect. Physical hardware is highly recommended for competitive play.</p>
+                        <p><strong class="text-amber-400 block mb-0.5 uppercase tracking-wide">Dual-PC warning</strong> Non-Makcu input moves the mouse on <em>this</em> PC only. For gaming-PC recoil via Makcu, select <strong>Hardware (Makcu)</strong>.</p>
                     </div>
                     {% endif %}
                 </div>
@@ -630,10 +640,10 @@
                 <div class="mt-6 pt-6 border-t border-white/5">
                     <div class="flex items-center justify-between mb-4">
                         <p class="text-xs font-bold text-white/30 uppercase tracking-widest">Cloud Repository</p>
-                        <button hx-get="/api/recoil/cloud/list" hx-target="#cloud-pattern-list" class="text-[10px] text-blue-500 hover:underline">Refresh Community</button>
+                        <button type="button" onclick="refreshCloudPatterns()" class="text-[10px] text-blue-500 hover:underline">Refresh Community</button>
                     </div>
-                    <div id="cloud-pattern-list" hx-get="/api/recoil/cloud/list" hx-trigger="load" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div class="animate-pulse text-white/10 text-[10px]">Connecting to repository...</div>
+                    <div id="cloud-pattern-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div class="col-span-2 text-white/25 text-[10px]">Open this tab or click Refresh Community to load patterns.</div>
                     </div>
                 </div>
 
@@ -655,9 +665,8 @@
                 </div>
                         </div>
         </div> <!-- advanced-recoil-card -->
-    </div> <!-- tab-content-advanced -->
 
-    <!-- Pattern Visualiser -->
+    <!-- Pattern Visualiser (inside Recoil Lab tab) -->
         <div id="pattern-visualiser-card" class="vis-card mt-5 hidden">
             <div class="vis-header">
                 <div class="vis-header-left">
@@ -922,6 +931,7 @@
                 Delete step
             </button>
         </div>
+    </div> <!-- tab-content-advanced -->
 
         <!-- Game Engine -->
         <div id="tab-content-CS2" class="tab-content mt-5 hidden">
@@ -1064,69 +1074,11 @@
                         <button type="button" data-hotkey-clear="weapon-cycle-keybind-btn" class="text-[10px] text-white/35 hover:text-white/60 px-1" title="Clear binding">Clear</button>
                     </div>
                 </div>
-                {% if is_beta_channel %}
-                <div class="mt-6 border-t border-white/5 pt-6">
-                    <div class="flex items-center justify-between gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-white">OCR Helper</p>
-                            <p class="text-xs text-white/40">Receive CS2 weapon updates from a helper app over WebSocket.</p>
-                        </div>
-                        <label class="flex items-center gap-2 text-xs text-white/70">
-                            <input id="ocr-enabled" type="checkbox" {{ 'checked' if config.ocr_enabled else '' }} class="w-4 h-4 accent-blue-500 cursor-pointer">
-                            Enabled
-                        </label>
-                    </div>
-                    <div class="grid md:grid-cols-2 gap-4 mt-4">
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">Helper Endpoint</span>
-                            <input id="ocr-helper-ws-url" type="text" value="{{ config.ocr_helper_ws_url or default_ocr_helper_ws_url }}" placeholder="{{ default_ocr_helper_ws_url }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                            <p class="mt-2 text-[11px] text-white/35">Auto-filled from this AimSync host. Leave as-is unless you want a custom target.</p>
-                        </label>
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">Shared Token</span>
-                            <input id="ocr-helper-token" type="text" value="{{ config.ocr_helper_token }}" placeholder="optional token" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">Confidence Threshold</span>
-                            <input id="ocr-confidence-threshold" type="number" min="0" max="1" step="0.05" value="{{ config.ocr_confidence_threshold }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">Poll Interval (ms)</span>
-                            <input id="ocr-poll-ms" type="number" min="50" step="10" value="{{ config.ocr_poll_ms }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                    </div>
-                    <div class="grid md:grid-cols-4 gap-4 mt-4">
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI X</span>
-                            <input id="ocr-roi-x" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.x }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI Y</span>
-                            <input id="ocr-roi-y" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.y }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI Width</span>
-                            <input id="ocr-roi-width" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.width }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                        <label class="block">
-                            <span class="text-[11px] uppercase tracking-widest text-white/35">ROI Height</span>
-                            <input id="ocr-roi-height" type="number" min="0" step="1" value="{{ config.ocr_roi_cs2.height }}" class="mt-2 w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none hover:border-white/20 focus:border-white/30 transition-colors">
-                        </label>
-                    </div>
-                    <div class="flex items-center justify-between gap-4 mt-4">
-                        <p id="ocr-helper-status" class="text-xs text-white/35">Helper status: checking...</p>
-                        <button type="button" onclick="saveOcrSettings()" class="text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2 hover:bg-blue-500/15 transition-colors">Save OCR Settings</button>
-                    </div>
-                </div>
-                {% endif %}
-
             </div>
         </div> <!-- cs2-recoil-card -->
     </div> <!-- tab-content-CS2 -->
 
-    {% if is_beta_channel %}
     {% include '_ai_engine_panel.html' %}
-    {% endif %}
 
 </main>
 
@@ -1145,9 +1097,6 @@
             </div>
             <div class="flex items-center gap-2">
                 <p class="text-white/20 text-[11px] uppercase tracking-widest font-medium">© 2026 {{ app_name }}</p>
-                {% if is_beta_channel %}
-                <span class="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-amber-200">Experimental</span>
-                {% endif %}
             </div>
         </div>
     </footer>
@@ -1208,15 +1157,28 @@
 
         // Tab switching logic
         function importPatternIntoRecoilLab(patternText) {
-            if (!patternText) return;
+            if (!patternText) return Promise.resolve();
+            const normalized = String(patternText).replace(/\r\n/g, '\n').trim();
             const advancedBtn = document.querySelector('.tab-button[data-tab="advanced"]');
             if (advancedBtn) advancedBtn.click();
 
             const textarea = document.getElementById('pattern-textarea');
-            if (!textarea) return;
-            textarea.value = patternText;
+            if (!textarea) return Promise.resolve();
+            textarea.value = normalized;
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
             textarea.dispatchEvent(new Event('change', { bubbles: true }));
+
+            const persist = fetch('/api/recoil/advanced_pattern', {
+                method: 'POST',
+                body: new URLSearchParams({ advanced_pattern: normalized }),
+            });
+            const mode = fetch('/api/recoil/mode', {
+                method: 'POST',
+                body: new URLSearchParams({ recoil_mode: 'advanced' }),
+            });
+            return Promise.all([persist, mode]).then(() => {
+                if (typeof visRefresh === 'function') visRefresh('advanced');
+            });
         }
 
         window.addEventListener('message', (event) => {
@@ -1261,6 +1223,10 @@
                 const vis = document.getElementById('pattern-visualiser-card');
                 if (vis) vis.classList.toggle('hidden', selectedTab !== 'advanced');
                 
+                if (selectedTab === 'advanced') {
+                    refreshCloudPatterns();
+                }
+
                 if (modeTabs.includes(selectedTab)) {
                     if (typeof visRefresh === 'function') visRefresh(selectedTab);
                     
@@ -1356,16 +1322,46 @@
         }
 
         function loadCloudPattern(name) {
-            if(!confirm(`Import community pattern "${name}"? This will overwrite your current unsaved editor content.`)) return;
-            
+            if (!confirm(`Import community pattern "${name}"? This will overwrite your current unsaved editor content.`)) return;
+
             fetch(`/api/recoil/cloud/load?name=${encodeURIComponent(name)}`)
-                .then(r => r.text())
+                .then(r => {
+                    if (!r.ok) {
+                        return r.text().then(msg => { throw new Error(msg || `HTTP ${r.status}`); });
+                    }
+                    return r.text();
+                })
                 .then(content => {
-                    const ta = document.getElementById('pattern-textarea');
-                    ta.value = content;
-                    // Trigger the visualiser and backend sync
-                    ta.dispatchEvent(new Event('input', { bubbles: true }));
-                    alert(`Successfully imported: ${name}`);
+                    if (!content || !content.trim()) {
+                        alert('Pattern empty or not found on cloud.');
+                        return;
+                    }
+                    return importPatternIntoRecoilLab(content).then(() => {
+                        alert(`Successfully imported: ${name}\nRecoil Lab (Advanced) mode is now active.`);
+                    });
+                })
+                .catch(err => alert(`Import failed: ${err.message}`));
+        }
+
+        document.addEventListener('click', (event) => {
+            const btn = event.target.closest('.cloud-import-btn');
+            if (!btn) return;
+            const name = btn.getAttribute('data-cloud-name');
+            if (name) loadCloudPattern(name);
+        });
+
+        function refreshCloudPatterns() {
+            const list = document.getElementById('cloud-pattern-list');
+            if (!list) return;
+            list.innerHTML = '<div class="col-span-2 animate-pulse text-white/25 text-[10px]">Loading community patterns…</div>';
+            fetch('/api/recoil/cloud/list')
+                .then(r => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.text();
+                })
+                .then(html => { list.innerHTML = html; })
+                .catch(err => {
+                    list.innerHTML = `<div class="col-span-2 text-[11px] text-red-300/90">Could not load list: ${err.message}</div>`;
                 });
         }
 
@@ -1464,19 +1460,45 @@
             }
         });
 
-        function copyWalletAddress(address, coinSymbol) {
-            navigator.clipboard.writeText(address).then(() => {
-                const textEl = document.getElementById(`${coinSymbol.toLowerCase()}-text`);
-                const originalText = textEl.innerText;
-                
+        async function copyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(text);
+                return;
+            }
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            const ok = document.execCommand('copy');
+            document.body.removeChild(ta);
+            if (!ok) throw new Error('Clipboard copy failed');
+        }
+
+        async function copyWalletAddress(event, address, coinSymbol) {
+            if (event) event.stopPropagation();
+            const textEl = document.getElementById(`${coinSymbol.toLowerCase()}-text`);
+            if (!textEl) return;
+            const originalText = textEl.innerText;
+            try {
+                await copyTextToClipboard(address);
                 textEl.innerText = 'Address Copied!';
                 textEl.classList.add('text-green-400');
-                
                 setTimeout(() => {
                     textEl.innerText = originalText;
                     textEl.classList.remove('text-green-400');
                 }, 2000);
-            });
+            } catch (_) {
+                window.prompt('Copy wallet address (Ctrl+C):', address);
+                textEl.innerText = 'Select & copy in dialog';
+                textEl.classList.add('text-amber-300');
+                setTimeout(() => {
+                    textEl.innerText = originalText;
+                    textEl.classList.remove('text-amber-300');
+                }, 2500);
+            }
         }
 
         function setStatusText(id, message, isError = false) {
@@ -1487,75 +1509,52 @@
             element.classList.toggle('text-white/35', !isError);
         }
 
-        function saveOcrSettings() {
-            if (!document.getElementById('ocr-helper-ws-url')) return;
-            const formData = new FormData();
-            formData.append('ocr_enabled', document.getElementById('ocr-enabled')?.checked ? 'on' : 'off');
-            formData.append('ocr_helper_ws_url', document.getElementById('ocr-helper-ws-url')?.value || '');
-            formData.append('ocr_helper_token', document.getElementById('ocr-helper-token')?.value || '');
-            formData.append('ocr_confidence_threshold', document.getElementById('ocr-confidence-threshold')?.value || '0.7');
-            formData.append('ocr_poll_ms', document.getElementById('ocr-poll-ms')?.value || '250');
-            formData.append('ocr_roi_x', document.getElementById('ocr-roi-x')?.value || '0');
-            formData.append('ocr_roi_y', document.getElementById('ocr-roi-y')?.value || '0');
-            formData.append('ocr_roi_width', document.getElementById('ocr-roi-width')?.value || '0');
-            formData.append('ocr_roi_height', document.getElementById('ocr-roi-height')?.value || '0');
-
-            fetch('/api/recoil/ocr_settings', { method: 'POST', body: formData })
-                .then(async response => {
-                    const data = await response.json();
-                    if (!response.ok || !data.success) throw new Error(data.message || 'Failed to save OCR settings.');
-                    setStatusText('ocr-helper-status', 'OCR settings saved. Waiting for helper...');
-                })
-                .catch(error => setStatusText('ocr-helper-status', error.message, true));
-        }
-
-        function pollOcrStatus() {
-            if (!document.getElementById('ocr-helper-status')) return;
-            fetch('/api/recoil/ocr_status')
-                .then(response => response.json())
-                .then(status => {
-                    const parts = [
-                        `Helper ${status.connected ? 'connected' : 'disconnected'}`,
-                        status.last_weapon ? `weapon: ${status.last_weapon}` : null,
-                        status.confidence ? `confidence: ${Number(status.confidence).toFixed(2)}` : null,
-                        status.client ? `client: ${status.client}` : null,
-                        status.status && status.status !== 'connected' && status.status !== 'disconnected' ? `status: ${status.status}` : null
-                    ].filter(Boolean);
-                    setStatusText('ocr-helper-status', parts.join(' | '));
-                })
-                .catch(() => setStatusText('ocr-helper-status', 'Helper status unavailable.', true));
-        }
-
-        // Poll for weapon changes (when cycling via hotkey)
+        // Sync weapon dropdown when changed via AimSync PC hotkeys (not helper — main.py hotkey loop).
         let lastKnownWeapon = document.getElementById('game-weapon')?.value || '';
-        setInterval(() => {
+        let weaponPollTimer = null;
+
+        function syncWeaponFromServer() {
             const weaponSelect = document.getElementById('game-weapon');
             if (!weaponSelect) return;
-            
             fetch('/api/recoil/current_weapon')
                 .then(r => r.text())
                 .then(weapon => {
                     weapon = weapon.trim();
                     if (weapon !== lastKnownWeapon && weapon) {
                         lastKnownWeapon = weapon;
-                        weaponSelect.value = weapon;
-                        // Visual feedback - flash the select briefly
-                        weaponSelect.style.borderColor = '#3b82f6';
-                        weaponSelect.style.boxShadow = '0 0 8px rgba(59,130,246,0.4)';
-                        setTimeout(() => {
-                            weaponSelect.style.borderColor = '';
-                            weaponSelect.style.boxShadow = '';
-                        }, 500);
+                        if (Array.from(weaponSelect.options).some(opt => opt.value === weapon)) {
+                            weaponSelect.value = weapon;
+                            weaponSelect.style.borderColor = '#3b82f6';
+                            weaponSelect.style.boxShadow = '0 0 8px rgba(59,130,246,0.4)';
+                            setTimeout(() => {
+                                weaponSelect.style.borderColor = '';
+                                weaponSelect.style.boxShadow = '';
+                            }, 500);
+                        }
                     }
                 })
                 .catch(() => {});
-        }, 500); // Check every 500ms for responsive updates
-        {% if is_beta_channel %}
-        setInterval(pollOcrStatus, 1000);
-        initAiEnginePanel();
-        {% endif %}
+        }
 
-        {% if is_beta_channel %}
+        function startWeaponPoll() {
+            if (weaponPollTimer) return;
+            syncWeaponFromServer();
+            weaponPollTimer = setInterval(syncWeaponFromServer, 2500);
+        }
+
+        function stopWeaponPoll() {
+            if (!weaponPollTimer) return;
+            clearInterval(weaponPollTimer);
+            weaponPollTimer = null;
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopWeaponPoll();
+            else if (document.getElementById('game-weapon')) startWeaponPoll();
+        });
+        if (document.getElementById('game-weapon') && !document.hidden) startWeaponPoll();
+        initAiEnginePanel();
+
         function isAiEngineTabVisible() {
             const panel = document.getElementById('tab-content-ai-engine');
             return panel && !panel.classList.contains('hidden');
@@ -1571,20 +1570,72 @@
                     setText('ai-stat-model', loaded ? model : `${model} ✗`);
                     setText('ai-stat-config', data.active_config || 'Default.cfg');
                     setText('ai-stat-engine', data.enabled ? 'On' : 'Off');
-                    setText('ai-stat-fps', `${data.fps || 0} fps · conf ${data.last_confidence || 0}`);
+                    const prov = (data.active_provider || data.inference_backend || '').split('/').pop();
+                    setText('ai-stat-fps', `${data.fps || 0} fps · det ${data.last_confidence ?? 0}${prov ? ' · ' + prov : ''}`);
                     setText('ai-stat-makcu', data.makcu_connected ? 'Connected' : 'Not connected');
                     const makcuEl = document.getElementById('ai-stat-makcu');
                     if (makcuEl) {
                         makcuEl.classList.toggle('text-green-400', !!data.makcu_connected);
                         makcuEl.classList.toggle('text-red-300', !data.makcu_connected);
                     }
-                    setText('ai-stat-onnx', data.onnx_ready ? 'Ready' : 'Missing');
+                    const ortProviders = data.onnx_providers || [];
+                    const hasCudaEp = ortProviders.includes('CUDAExecutionProvider');
+                    const ap = data.active_provider || '';
+                    let gpuLabel;
+                    if (data.cuda_available) {
+                        gpuLabel = `Torch CUDA · ${data.cuda_device_name || 'OK'}`;
+                    } else if (hasCudaEp) {
+                        gpuLabel = `ORT has CUDA (torch.cuda=false)`;
+                    } else if (ap.includes('CPU') || ap === 'CPUExecutionProvider') {
+                        gpuLabel = 'CPU only — run repair_ai_deps.bat';
+                    } else {
+                        gpuLabel = ap || data.inference_backend || '—';
+                    }
+                    setText('ai-stat-gpu', gpuLabel);
+                    const moveLabel = data.movement_mode
+                        ? `${data.movement_mode}${data.movement_path ? ' · ' + data.movement_path : ''}`
+                        : (data.movement_path || '—');
+                    setText('ai-stat-movement', moveLabel);
+                    const aimKey = data.aim_key_active ? 'yes' : 'no';
+                    const makcuIn = data.makcu_buttons_live ? 'Makcu mouse' : 'no Makcu';
+                    const keys = (data.makcu_buttons_pressed || []).join('+') || '—';
+                    setText('ai-stat-aimkey', `${aimKey} · ${makcuIn} · ${keys}`);
 
                     const alert = document.getElementById('ai-engine-alert');
                     if (alert) {
                         const messages = [];
-                        if (!data.onnx_ready) {
-                            messages.push('Install AI dependencies: pip install -r requirements-beta.txt (then restart AimSync Beta).');
+                        if (!data.onnx_ready && !data.portable_build && data.inference_backend !== 'cuda_ultralytics') {
+                            messages.push('Install AI dependencies: scripts\\install_aimsync_pc.bat');
+                        }
+                        if (data.inference_backend === 'cuda_ultralytics' && !data.cuda_available) {
+                            messages.push('CUDA Ultralytics selected but torch.cuda is false. Run scripts\\repair_ai_deps.bat (close AimSync first).');
+                        }
+                        if ((data.active_provider || '').includes('CPUExecutionProvider') || (!(data.onnx_providers || []).includes('CUDAExecutionProvider') && data.inference_backend !== 'directml')) {
+                            messages.push('Inference on CPU (~8 fps). Need CUDAExecutionProvider: scripts\\repair_ai_deps.bat then verify CUDAExecutionProvider in log.');
+                        }
+                        if (data.inference_backend === 'directml' && data.cuda_available) {
+                            messages.push('GPU detected — set Inference backend to CUDA Ultralytics for higher FPS.');
+                        }
+                        if (data.inference_backend === 'cuda_ultralytics' && !data.cuda_available) {
+                            messages.push('CUDA Ultralytics selected but CUDA not available. Run scripts\\install_aimsync_pc.bat and install CUDA 12.6.');
+                        }
+                        if (data.capture_mode === 'ndi' && !data.makcu_buttons_live && data.model_loaded) {
+                            messages.push('Dual-PC: connect Makcu on this PC — RMB/aim keys come from the gaming mouse via Makcu.');
+                        }
+                        if (data.aim_assist_on && data.model_loaded && !data.aim_key_active && !data.trigger_always_on) {
+                            messages.push('Hold aim key on gaming mouse (RMB via Makcu), or enable Always-on aim / Trigger always on.');
+                        }
+                        if (data.model_loaded && !data.auto_trigger_on && !data.trigger_always_on) {
+                            messages.push('Turn on Triggerbot · Enabled or Triggerbot · Always on.');
+                        }
+                        if (data.auto_trigger_on && data.trigger_block_reason === 'outside_trigger_zone') {
+                            messages.push('Trigger: crosshair not on target — increase Trigger radius or aim at body in FOV.');
+                        }
+                        if (data.auto_trigger_on && data.trigger_block_reason === 'cursor_check') {
+                            messages.push('Trigger blocked by Cursor Check in profile — turn it off for NDI/dual-PC.');
+                        }
+                        if (data.auto_trigger_on && data.model_loaded && !data.trigger_key_active && !data.trigger_always_on) {
+                            messages.push('Trigger armed only while aim/trigger key is held on this PC — or enable Trigger always on.');
                         }
                         if (data.last_error) messages.push(data.last_error);
                         if (messages.length) {
@@ -1598,6 +1649,14 @@
 
                     syncAiModelSelect(data.models || [], data.configured_model || data.active_model);
                     syncAiConfigSelect(data.configs || [], data.active_config);
+                    syncAiNdiSources(data.ndi_sources || []);
+                    syncAiTargetClasses(data);
+                    syncAiModelLoading(!!data.model_loading, data.configured_model || data.active_model);
+                    syncAiNdiStatus(data);
+                    syncAiProfileSelect(data.profiles || []);
+                    syncAiReadiness(data.readiness);
+                    syncAimbotModeFromStatus(data);
+                    if (data.enabled !== undefined) syncAiEngineStartButton(data.enabled);
                 })
                 .catch(() => {
                     setText('ai-stat-model', 'API error');
@@ -1678,6 +1737,442 @@
             if (!active && current) sel.value = current;
         }
 
+        function syncAiNdiSources(sources) {
+            const sel = document.getElementById('ai-ndi-source');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">— Select source —</option>';
+            sources.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                sel.appendChild(opt);
+            });
+            if (current) sel.value = current;
+        }
+
+        function syncAiNdiBlockVisibility() {
+            const mode = document.getElementById('ai-capture-mode')?.value || 'ndi';
+            const block = document.getElementById('ai-ndi-block');
+            if (block) block.classList.toggle('hidden', mode !== 'ndi');
+        }
+
+        function syncAiEngineStartButton(enabled) {
+            const btn = document.getElementById('ai-engine-start-btn');
+            if (!btn) return;
+            const running = !!enabled;
+            btn.dataset.engineRunning = running ? '1' : '0';
+            btn.textContent = running ? 'Stop AI engine' : 'Start AI engine';
+            btn.className = running
+                ? 'text-xs font-semibold rounded-lg px-4 py-2 border transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-red-100 bg-red-500/20 border-red-400/30 hover:bg-red-500/30'
+                : 'text-xs font-semibold rounded-lg px-4 py-2 border transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-amber-950 bg-amber-400 border-amber-300 hover:bg-amber-300';
+        }
+
+        function toggleAiEngine() {
+            const btn = document.getElementById('ai-engine-start-btn');
+            if (!btn || btn.disabled) return;
+            const next = btn.dataset.engineRunning !== '1';
+            btn.disabled = true;
+            const body = new FormData();
+            body.append('ai_engine_enabled', next ? 'on' : 'off');
+            fetch('/api/ai/enable', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        syncAiEngineStartButton(data.enabled);
+                        pollAiEngineStatus();
+                    }
+                })
+                .finally(() => { btn.disabled = false; });
+        }
+
+        function syncAiNdiStatus(data) {
+            const el = document.getElementById('ai-ndi-status');
+            if (!el) return;
+            if ((document.getElementById('ai-capture-mode')?.value || '') !== 'ndi') {
+                el.textContent = 'NDI: not used (MSS mode)';
+                return;
+            }
+            const count = data.ndi_source_count ?? (data.ndi_sources || []).length;
+            if (data.ndi_connected) {
+                el.textContent = 'NDI: stream connected';
+                el.className = 'text-[10px] text-emerald-400/90 flex-1 min-w-[10rem]';
+            } else if (count > 0) {
+                el.textContent = `NDI: ${count} source(s) on LAN — pick one above (Enable AI + model to run aimbot)`;
+                el.className = 'text-[10px] text-emerald-400/80 flex-1 min-w-[10rem]';
+            } else if (data.ndi_finder_ready) {
+                el.textContent = 'NDI: scanning — 0 sources (gaming PC: NDI Runtime + OBS/NDI output, then Refresh)';
+                el.className = 'text-[10px] text-amber-300/90 flex-1 min-w-[10rem]';
+            } else if (data.ndi_cyndilib_ok === false) {
+                const imp = data.ndi_import_error ? ` (${data.ndi_import_error})` : '';
+                el.textContent = `NDI: cyndilib missing${imp} — run install_aimsync_pc.bat or rebuild exe`;
+                el.className = 'text-[10px] text-red-300/90 flex-1 min-w-[10rem]';
+            } else {
+                const err = data.ndi_last_error ? ` — ${data.ndi_last_error}` : '';
+                el.textContent = `NDI: could not start finder${err || ' — install NDI Runtime on this PC'}`;
+                el.className = 'text-[10px] text-amber-300/90 flex-1 min-w-[10rem]';
+            }
+        }
+
+        function refreshAiNdiSources() {
+            fetch('/api/ai/ndi/refresh')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) syncAiNdiSources(data.ndi_sources || []);
+                });
+        }
+
+        function saveAiCapture() {
+            syncAiNdiBlockVisibility();
+            const body = new FormData();
+            body.append('ai_capture_mode', document.getElementById('ai-capture-mode')?.value || 'ndi');
+            body.append('ai_ndi_source', document.getElementById('ai-ndi-source')?.value || '');
+            body.append('ai_main_pc_width', document.getElementById('ai-main-pc-width')?.value || '1920');
+            body.append('ai_main_pc_height', document.getElementById('ai-main-pc-height')?.value || '1080');
+            fetch('/api/ai/capture', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert(data.message || 'Could not save capture settings.');
+                        return;
+                    }
+                    syncAiNdiSources(data.ndi_sources || []);
+                    syncAiNdiStatus(data);
+                    pollAiEngineStatus();
+                });
+        }
+
+        function saveAiDebugSettings() {
+            const cv2 = !!document.getElementById('ai-debug-cv2')?.checked;
+            const body = new FormData();
+            body.append('ai_debug_preview', 'off');
+            body.append('ai_debug_cv2_window', cv2 ? 'on' : 'off');
+            fetch('/api/ai/detection', { method: 'POST', body });
+        }
+
+        function saveAiInferenceBackend() {
+            const body = new FormData();
+            body.append('ai_inference_backend', document.getElementById('ai-inference-backend')?.value || 'directml');
+            fetch('/api/ai/inference_backend', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) alert(data.message || 'Could not save backend.');
+                    else pollAiEngineStatus();
+                });
+        }
+
+        function syncAiReadiness(readiness) {
+            const list = document.getElementById('ai-readiness-list');
+            const hint = document.getElementById('ai-readiness-hint');
+            const panel = document.getElementById('ai-readiness-panel');
+            if (!list || !readiness) return;
+            list.innerHTML = '';
+            (readiness.items || []).forEach(item => {
+                const li = document.createElement('li');
+                li.className = item.ok ? 'text-emerald-300/90' : 'text-red-300/90';
+                li.textContent = (item.ok ? '✓ ' : '○ ') + item.label;
+                list.appendChild(li);
+            });
+            if (hint && readiness.hint) hint.textContent = readiness.hint;
+            if (panel) {
+                panel.classList.toggle('border-emerald-500/30', !!readiness.ready);
+                panel.classList.toggle('bg-emerald-500/5', !!readiness.ready);
+                panel.classList.toggle('border-amber-500/20', !readiness.ready);
+                panel.classList.toggle('bg-amber-500/5', !readiness.ready);
+            }
+        }
+
+        let aiQuickstartBusy = false;
+
+        function runAiQuickstart() {
+            if (aiQuickstartBusy) return;
+            const btn = document.getElementById('ai-quickstart-btn');
+            aiQuickstartBusy = true;
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Applying…';
+            }
+            fetch('/api/ai/quickstart', { method: 'POST' })
+                .then(async r => {
+                    const data = await r.json().catch(() => ({}));
+                    if (!r.ok || !data.success) {
+                        throw new Error(data.message || `Quick setup failed (${r.status})`);
+                    }
+                    return data;
+                })
+                .then(data => {
+                    const hint = document.getElementById('ai-readiness-hint');
+                    if (hint && data.message) hint.textContent = data.message;
+                    syncAiEngineStartButton(true);
+                    if (data.capture_mode) {
+                        const cap = document.getElementById('ai-capture-mode');
+                        if (cap) cap.value = data.capture_mode;
+                    }
+                    const pc = document.getElementById('ai-player-class');
+                    if (pc && data.ai_player_class !== undefined) pc.value = data.ai_player_class;
+                    syncAiNdiSources(data.ndi_sources || []);
+                    syncAiNdiBlockVisibility();
+                    loadAiSettings();
+                    pollAiEngineStatus();
+                })
+                .catch(err => alert(err.message || 'Quick setup failed'))
+                .finally(() => {
+                    aiQuickstartBusy = false;
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.textContent = 'Quick setup';
+                    }
+                });
+        }
+
+        function setAiConfPreset(value) {
+            const el = document.getElementById('ai-detection-conf');
+            const label = document.getElementById('ai-conf-label');
+            if (!el) return;
+            el.value = value;
+            if (label) label.textContent = value;
+            saveAiDetectionSettings();
+        }
+
+        const AI_BASELINE_DEFAULTS = {
+            sliders: {
+                'Mouse Sensitivity (+/-)': 0,
+                'Mouse Jitter': 0,
+                'Y Offset (Up/Down)': 0,
+                'X Offset (Left/Right)': 0,
+            },
+            toggles: {
+                'Sticky Aim': false,
+                'Predictions': false,
+                'Dynamic FOV': false,
+            },
+            aimMode: 'normal',
+        };
+
+        function aiIsExperimentalSlider(name, value) {
+            if (!(name in AI_BASELINE_DEFAULTS.sliders)) return false;
+            return Math.abs(parseFloat(value) - AI_BASELINE_DEFAULTS.sliders[name]) > 0.0001;
+        }
+
+        function aiIsExperimentalToggle(name, enabled) {
+            if (!(name in AI_BASELINE_DEFAULTS.toggles)) return false;
+            return !!enabled !== AI_BASELINE_DEFAULTS.toggles[name];
+        }
+
+        function aiConfirmExperimental(detail) {
+            return confirm(
+                'Experimental tuning\n\n' +
+                detail + '\n\n' +
+                'This differs from the default direct-aim profile and may feel different in-game.\n\nContinue?'
+            );
+        }
+
+        const AI_AIMBOT_MODE_MAP = {
+            normal: { path: 'Linear', mode: 'normal' },
+            bezier: { path: 'Cubic Bezier', mode: 'bezier' },
+            silent: { path: 'Linear', mode: 'silent' },
+            smooth: { path: 'Adaptive', mode: 'smooth' },
+        };
+
+        function syncAimbotModeFromStatus(data) {
+            const sel = document.getElementById('ai-aimbot-mode');
+            if (!sel) return;
+            const mode = (data?.ai_aim_mode || '').toLowerCase();
+            const path = data?.movement_path || '';
+            if (mode === 'silent') sel.value = 'silent';
+            else if (mode === 'smooth' || path === 'Adaptive') sel.value = 'smooth';
+            else if (mode === 'bezier' || path === 'Cubic Bezier') sel.value = 'bezier';
+            else sel.value = 'normal';
+        }
+
+        function saveAimbotMode() {
+            const sel = document.getElementById('ai-aimbot-mode');
+            const prev = sel?.dataset.prevValue || 'normal';
+            const chosen = sel?.value || 'normal';
+            if (chosen !== AI_BASELINE_DEFAULTS.aimMode) {
+                if (!aiConfirmExperimental(`Aimbot mode "${chosen}" is not the default (normal).`)) {
+                    sel.value = prev;
+                    return;
+                }
+            }
+            if (sel) sel.dataset.prevValue = chosen;
+            const map = AI_AIMBOT_MODE_MAP[chosen] || AI_AIMBOT_MODE_MAP.normal;
+            const pathSel = document.querySelector('[data-ai-dropdown="Movement Path"]');
+            const modeInput = document.getElementById('ai-aim-mode');
+            if (pathSel) pathSel.value = map.path;
+            if (modeInput) modeInput.value = map.mode;
+            if (pathSel) {
+                const body = new FormData();
+                body.append('dropdown_name', 'Movement Path');
+                body.append('value', map.path);
+                fetch('/api/ai/dropdown', { method: 'POST', body });
+            }
+            saveAiDetectionSettings();
+        }
+
+        function saveAiDetectionSettings() {
+            const body = new FormData();
+            body.append('ai_player_class', document.getElementById('ai-player-class')?.value || '');
+            body.append('ai_head_class', document.getElementById('ai-head-class')?.value || '');
+            body.append('ai_aim_keybind', document.getElementById('ai-aim-key-select')?.value || document.getElementById('ai-aim-keybind-btn')?.dataset?.hotkeyValue || 'rmb');
+            body.append('ai_trigger_keybind', document.getElementById('ai-trigger-key-select')?.value || 'rmb');
+            body.append('ai_detection_conf', document.getElementById('ai-detection-conf')?.value || '0.25');
+            body.append('ai_imgsz', document.getElementById('ai-imgsz')?.value || '640');
+            body.append('ai_max_detect', document.getElementById('ai-max-detect')?.value || '50');
+            body.append('ai_in_game_sens', document.getElementById('ai-in-game-sens')?.value || '1.3');
+            body.append('ai_aim_mode', document.getElementById('ai-aim-mode')?.value || '');
+            body.append('ai_trigger_radius_px', document.getElementById('ai-trigger-radius')?.value || '8');
+            body.append('ai_trigger_delay_ms', document.getElementById('ai-trigger-delay')?.value || '30');
+            body.append('ai_trigger_cooldown_ms', document.getElementById('ai-trigger-cooldown')?.value || '120');
+            body.append('ai_trigger_min_conf', document.getElementById('ai-trigger-min-conf')?.value || '0.35');
+            body.append('ai_trigger_linger_ms', document.getElementById('ai-trigger-linger')?.value || '30');
+            body.append('ai_region_size', document.getElementById('ai-region-size')?.value || '200');
+            body.append('ai_always_on_aim', document.getElementById('ai-always-on-aim')?.checked ? 'on' : 'off');
+            body.append('ai_trigger_always_on', document.getElementById('ai-trigger-always-on')?.checked ? 'on' : 'off');
+            body.append('ai_button_mask', document.getElementById('ai-button-mask')?.checked ? 'on' : 'off');
+            body.append('ai_mask_aim_button', document.getElementById('ai-mask-aim-button')?.value || 'RMB');
+            body.append('ai_mask_trigger_button', document.getElementById('ai-mask-trigger-button')?.value || 'RMB');
+            body.append('ai_aim_humanization', document.getElementById('ai-aim-humanization')?.value || '0');
+            body.append('ai_normal_x_speed', document.getElementById('ai-normal-x-speed')?.value || '0.5');
+            body.append('ai_normal_y_speed', document.getElementById('ai-normal-y-speed')?.value || '0.5');
+            body.append('ai_bezier_segments', document.getElementById('ai-bezier-segments')?.value || '8');
+            body.append('ai_smooth_gravity', document.getElementById('ai-smooth-gravity')?.value || '9');
+            body.append('ai_smooth_wind', document.getElementById('ai-smooth-wind')?.value || '3');
+            fetch('/api/ai/detection', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => { if (data.success) pollAiEngineStatus(); });
+        }
+
+        function setAiModelLoading(loading, message) {
+            const overlay = document.getElementById('ai-model-loading');
+            const text = document.getElementById('ai-model-loading-text');
+            const sel = document.getElementById('ai-active-model');
+            if (text && message) text.textContent = message;
+            if (overlay) overlay.classList.toggle('hidden', !loading);
+            if (sel) sel.disabled = !!loading;
+        }
+
+        function syncAiModelLoading(loading, modelName) {
+            if (loading) {
+                setAiModelLoading(true, modelName ? `Loading ${modelName}…` : 'Loading model…');
+            } else {
+                setAiModelLoading(false);
+            }
+        }
+
+        function syncAiTargetClasses(data) {
+            const box = document.getElementById('ai-available-classes');
+            const playerSel = document.getElementById('ai-player-class');
+            const headSel = document.getElementById('ai-head-class');
+            const details = data.model_class_details || [];
+            const names = data.model_classes || [];
+            const player = data.ai_player_class ?? document.getElementById('ai-player-class')?.value;
+            const head = data.ai_head_class ?? document.getElementById('ai-head-class')?.value;
+
+            if (box) {
+                if (!details.length && !names.length) {
+                    box.textContent = 'Load a model to see classes (e.g. Class 0: CT, Class 1: T).';
+                } else if (details.length) {
+                    box.textContent = details.map(c => `Class ${c.id}: ${c.name}`).join(' · ');
+                } else {
+                    box.textContent = names.map((n, i) => `Class ${i}: ${n}`).join(' · ');
+                }
+            }
+
+            const options = details.length
+                ? details.map(c => ({ value: String(c.name), label: String(c.name) }))
+                : names.map(n => ({ value: String(n), label: String(n) }));
+
+            if (playerSel) {
+                const cur = player || playerSel.value;
+                playerSel.innerHTML = '<option value="">— Select —</option>';
+                options.forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.textContent = o.label;
+                    if (o.value === cur) opt.selected = true;
+                    playerSel.appendChild(opt);
+                });
+            }
+            if (headSel) {
+                const cur = head || headSel.value;
+                headSel.innerHTML = '<option value="">None</option>';
+                options.forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.textContent = o.label;
+                    if (o.value === cur) opt.selected = true;
+                    headSel.appendChild(opt);
+                });
+            }
+        }
+
+        function reloadAiModel() {
+            const sel = document.getElementById('ai-active-model');
+            if (sel && sel.value) selectAiModel(sel.value, true);
+        }
+
+        function syncAiProfileSelect(profiles) {
+            const sel = document.getElementById('ai-profile-load');
+            if (!sel) return;
+            const cur = sel.value;
+            sel.innerHTML = '<option value="">Load profile…</option>';
+            (profiles || []).forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                sel.appendChild(opt);
+            });
+            if (cur) sel.value = cur;
+        }
+
+        function saveAiProfile() {
+            const body = new FormData();
+            body.append('name', document.getElementById('ai-profile-name')?.value || 'MySetup');
+            fetch('/api/ai/profiles/save', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        syncAiProfileSelect(data.profiles || []);
+                        pollAiEngineStatus();
+                    } else alert(data.message || 'Save failed');
+                });
+        }
+
+        function loadAiProfile(name) {
+            if (!name) return;
+            const body = new FormData();
+            body.append('name', name);
+            fetch('/api/ai/profiles/load', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert(data.message || 'Load failed');
+                        return;
+                    }
+                    pollAiEngineStatus();
+                    loadAiSettings();
+                    const cap = document.getElementById('ai-capture-mode');
+                    const ndi = document.getElementById('ai-ndi-source');
+                    const be = document.getElementById('ai-inference-backend');
+                    const pc = document.getElementById('ai-player-class');
+                    const hc = document.getElementById('ai-head-class');
+                    const dc = document.getElementById('ai-detection-conf');
+                    const iz = document.getElementById('ai-imgsz');
+                    const md = document.getElementById('ai-max-detect');
+                    if (data.capture_mode && cap) cap.value = data.capture_mode;
+                    if (data.inference_backend && be) be.value = data.inference_backend;
+                    if (ndi && data.ai_ndi_source) ndi.value = data.ai_ndi_source;
+                    if (pc && data.ai_player_class !== undefined) pc.value = data.ai_player_class;
+                    if (hc && data.ai_head_class !== undefined) hc.value = data.ai_head_class;
+                    if (dc && data.ai_detection_conf !== undefined) dc.value = data.ai_detection_conf;
+                    if (iz && data.ai_imgsz !== undefined) iz.value = data.ai_imgsz;
+                    if (md && data.ai_max_detect !== undefined) md.value = data.ai_max_detect;
+                    syncAiNdiSources(data.ndi_sources || []);
+                    syncAiTargetClasses(data);
+                });
+        }
+
         function syncAiToggles(toggles) {
             document.querySelectorAll('.ai-toggle').forEach(input => {
                 const name = input.getAttribute('data-ai-toggle');
@@ -1713,9 +2208,20 @@
 
         function initAiEnginePanel() {
             document.querySelectorAll('.ai-toggle').forEach(input => {
+                input.addEventListener('mousedown', () => {
+                    input.dataset.prevChecked = input.checked ? '1' : '0';
+                });
                 input.addEventListener('change', () => {
+                    const name = input.getAttribute('data-ai-toggle');
+                    if (name && aiIsExperimentalToggle(name, input.checked)) {
+                        const prevOn = input.dataset.prevChecked === '1';
+                        if (!aiConfirmExperimental(`"${name}" enabled — experimental vs default profile.`)) {
+                            input.checked = prevOn;
+                            return;
+                        }
+                    }
                     const body = new FormData();
-                    body.append('toggle_name', input.getAttribute('data-ai-toggle'));
+                    body.append('toggle_name', name);
                     body.append('enabled', input.checked ? 'on' : 'off');
                     fetch('/api/ai/toggle', { method: 'POST', body });
                 });
@@ -1726,19 +2232,41 @@
                     const label = document.querySelector(`.ai-val-label[data-ai-val="${CSS.escape(name)}"]`);
                     if (label) label.textContent = input.value;
                 };
+                input.addEventListener('mousedown', () => {
+                    input.dataset.prevValue = input.value;
+                });
                 input.addEventListener('input', updateLabel);
                 input.addEventListener('change', () => {
                     updateLabel();
+                    const name = input.getAttribute('data-ai-slider');
+                    if (name && aiIsExperimentalSlider(name, input.value)) {
+                        if (!aiConfirmExperimental(`"${name}" changed from default profile value.`)) {
+                            input.value = input.dataset.prevValue ?? String(AI_BASELINE_DEFAULTS.sliders[name] ?? 0);
+                            updateLabel();
+                            return;
+                        }
+                    }
                     const body = new FormData();
-                    body.append('slider_name', input.getAttribute('data-ai-slider'));
+                    body.append('slider_name', name);
                     body.append('value', input.value);
                     fetch('/api/ai/slider', { method: 'POST', body });
                 });
             });
             document.querySelectorAll('.ai-dropdown').forEach(select => {
+                select.addEventListener('mousedown', () => {
+                    select.dataset.prevValue = select.value;
+                });
                 select.addEventListener('change', () => {
+                    const name = select.getAttribute('data-ai-dropdown');
+                    const baseline = { 'Movement Path': 'Linear', 'Prediction Method': 'Linear' };
+                    if (name && baseline[name] && select.value !== baseline[name]) {
+                        if (!aiConfirmExperimental(`"${name}" set to "${select.value}" (experimental).`)) {
+                            select.value = select.dataset.prevValue || baseline[name];
+                            return;
+                        }
+                    }
                     const body = new FormData();
-                    body.append('dropdown_name', select.getAttribute('data-ai-dropdown'));
+                    body.append('dropdown_name', name);
                     body.append('value', select.value);
                     fetch('/api/ai/dropdown', { method: 'POST', body })
                         .then(r => r.json())
@@ -1748,35 +2276,51 @@
                         });
                 });
             });
+            const aimModeSel = document.getElementById('ai-aimbot-mode');
+            if (aimModeSel && !aimModeSel.dataset.prevValue) {
+                aimModeSel.dataset.prevValue = aimModeSel.value || 'normal';
+            }
             pollAiEngineStatus();
             loadAiSettings();
+            syncAiNdiBlockVisibility();
             if (window.HotkeyBind) HotkeyBind.init(document.getElementById('tab-content-ai-engine'));
             document.querySelectorAll('.tab-button[data-tab="ai-engine"]').forEach(btn => {
                 btn.addEventListener('click', () => {
                     setTimeout(() => {
                         pollAiEngineStatus();
                         loadAiSettings();
+                        refreshAiNdiSources();
                     }, 100);
                 });
             });
             setInterval(() => {
-                if (isAiEngineTabVisible()) pollAiEngineStatus();
+                if (!isAiEngineTabVisible()) return;
+                pollAiEngineStatus();
+                if ((document.getElementById('ai-capture-mode')?.value || '') === 'ndi') {
+                    refreshAiNdiSources();
+                }
             }, 10000);
         }
 
-        function selectAiModel(filename) {
+        function selectAiModel(filename, forceReload) {
+            if (!filename) return;
+            setAiModelLoading(true, `Loading ${filename}…`);
             const body = new FormData();
             body.append('ai_active_model', filename || '');
+            if (forceReload) body.append('force_reload', '1');
             fetch('/api/ai/model/select', { method: 'POST', body })
                 .then(r => r.json())
                 .then(data => {
+                    setAiModelLoading(false);
                     if (!data.success) {
                         alert(data.message || 'Could not select model.');
                         return;
                     }
+                    syncAiTargetClasses(data);
                     pollAiEngineStatus();
                     if (data.last_error) alert(data.last_error);
-                });
+                })
+                .catch(() => setAiModelLoading(false));
         }
 
         function saveAiKeybind(field, value) {
@@ -1786,14 +2330,21 @@
 
         function uploadAiModel(input) {
             if (!input.files || !input.files[0]) return;
+            setAiModelLoading(true, `Uploading ${input.files[0].name}…`);
             const body = new FormData();
             body.append('model_file', input.files[0]);
             fetch('/api/ai/models/upload', { method: 'POST', body })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) pollAiEngineStatus();
-                    else alert(data.message || 'Upload failed');
-                });
+                    setAiModelLoading(false);
+                    if (!data.success) {
+                        alert(data.message || 'Upload failed');
+                        return;
+                    }
+                    if (data.filename) selectAiModel(data.filename);
+                    else pollAiEngineStatus();
+                })
+                .catch(() => setAiModelLoading(false));
         }
 
         function refreshAiStore(folder) {
@@ -1804,6 +2355,8 @@
                     const box = document.getElementById(boxId);
                     if (!box || !data.success) return;
                     box.innerHTML = '';
+                    const hintEl = document.getElementById(folder === 'configs' ? 'ai-store-configs-hint' : 'ai-store-models-hint');
+                    if (hintEl && data.hint) hintEl.textContent = data.hint;
                     if (!(data.available || []).length) {
                         box.innerHTML = '<span class="text-white/30">No new items in store (or all downloaded).</span>';
                         return;
@@ -1843,13 +2396,6 @@
                     }
                 });
         }
-
-        document.getElementById('ai-engine-enabled')?.addEventListener('change', function() {
-            const body = new FormData();
-            body.append('ai_engine_enabled', this.checked ? 'on' : 'off');
-            fetch('/api/ai/enable', { method: 'POST', body });
-        });
-        {% endif %}
 
         // Feedback Logic
         function toggleFeedbackModal() {

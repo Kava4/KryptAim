@@ -7,16 +7,16 @@ import numpy as np
 
 
 class AiSettingsTests(unittest.TestCase):
-    def test_defaults_match_aimmy_keys(self):
+    def test_defaults_match_profile_keys(self):
         settings = AiSettings()
         self.assertIn('Auto Trigger', settings.toggles)
         self.assertIn('FOV Size', settings.sliders)
         self.assertEqual(settings.toggles['Auto Trigger'], DEFAULT_TOGGLES['Auto Trigger'])
 
-    def test_normalize_aimmy_key(self):
+    def test_normalize_hotkey(self):
         settings = AiSettings()
-        self.assertEqual(settings.normalize_aimmy_key('Right'), 'RMB')
-        self.assertEqual(settings.normalize_aimmy_key('LMenu'), 'alt')
+        self.assertEqual(settings.normalize_hotkey('Right'), 'RMB')
+        self.assertEqual(settings.normalize_hotkey('LMenu'), 'alt')
 
 
 class TargetSelectorTests(unittest.TestCase):
@@ -39,12 +39,12 @@ class TargetSelectorTests(unittest.TestCase):
         self.assertGreater(pred.confidence, 0.9)
 
 
-class BetaConfigTests(unittest.TestCase):
-    def test_beta_defaults_dict_exists(self):
-        from Config.config_manager import BETA_DEFAULTS
+class AiConfigTests(unittest.TestCase):
+    def test_ai_defaults_dict_exists(self):
+        from Config.config_manager import AI_DEFAULTS
 
-        self.assertIn('ai_engine_enabled', BETA_DEFAULTS)
-        self.assertIn('ai_active_model', BETA_DEFAULTS)
+        self.assertIn('ai_engine_enabled', AI_DEFAULTS)
+        self.assertIn('ai_active_model', AI_DEFAULTS)
 
 
 if __name__ == '__main__':

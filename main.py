@@ -1,208 +1,293 @@
-from Makcu.makcu_manager import makcu_manager
-from Server.app import run_flask, stop_flask
-from Server.ocr_ws_server import start_ocr_ws_server_thread
-from Recoil.recoil import run_recoil
-from Recoil.hotkeys import HotkeyStateTracker, get_bound_weapon
-from Recoil.weapon_data import WeaponData
-from Config.app_identity import get_app_name, get_app_version, is_beta_channel
-from AI.Engine.engine import start_ai_engine_thread, stop_ai_engine
-from Config.config_manager import load_config, save_config
-from Makcu.software_manager import software_manager
+"""AimSync desktop entry."""
 
-from tkinter import messagebox
-import threading
-import tkinter as tk
-import socket
-import webbrowser
+from __future__ import annotations
+
 import os
 import sys
-import time
-import logging
+import traceback
 from pathlib import Path
 
-# Setup logging to file for debugging when running as .exe
-LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'aimsyc_debug.log')
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filemode='w'  # Overwrite log file on each run
-)
-logger = logging.getLogger('AimSync')
-hotkey_tracker = HotkeyStateTracker()
+# Before ultralytics/torch imports anywhere in the process.
+os.environ.setdefault('YOLO_AUTOINSTALL', 'false')
 
 
-def _app_icon_path() -> Path:
-    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-        return Path(sys._MEIPASS) / "static" / "AimSync_logo.ico"
-    return Path(__file__).resolve().parent / "Server" / "static" / "AimSync_logo.ico"
+def _startup_log_path() -> Path:
+    from Config.config_manager import get_base_dir
+
+    base = get_base_dir()
+    base.mkdir(parents=True, exist_ok=True)
+    return base / 'startup.log'
 
 
-def _apply_window_icon(root: tk.Tk) -> None:
-    icon = _app_icon_path()
-    if not icon.is_file():
-        return
+def _write_startup_log(message: str) -> None:
     try:
-        root.iconbitmap(default=str(icon))
-    except tk.TclError:
+        path = _startup_log_path()
+        with open(path, 'a', encoding='utf-8') as handle:
+            handle.write(message)
+            if not message.endswith('\n'):
+                handle.write('\n')
+    except OSError:
         pass
 
 
-def get_local_ip():
+def _show_fatal_error(title: str, message: str) -> None:
+    _write_startup_log(f'FATAL: {title}\n{message}')
     try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-        s.close()
-        return ip
-    except:
-        try:
-            return socket.gethostbyname(socket.gethostname())
-        except:
-            return "0.0.0.0"
+        import tkinter as tk
+        from tkinter import messagebox
 
-def open_browser(url: str) -> None:
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror(title, message)
+        root.destroy()
+    except Exception:
+        pass
+
+
+def main() -> None:
     try:
-        if hasattr(os, "startfile"):
-            os.startfile(url)
+        _run_app()
+    except Exception:
+        tb = traceback.format_exc()
+        _write_startup_log(tb)
+        _show_fatal_error(
+            'AimSync failed to start',
+            f'{tb[:1200]}\n\nLog: {_startup_log_path()}',
+        )
+        raise SystemExit(1) from None
+
+
+def _enable_crash_logging() -> None:
+    try:
+        import faulthandler
+
+        from Config.config_manager import get_base_dir
+
+        log_dir = get_base_dir()
+        log_dir.mkdir(parents=True, exist_ok=True)
+        fault_path = log_dir / 'ai_engine_fault.log'
+        with open(fault_path, 'a', encoding='utf-8') as handle:
+            handle.write('\n--- process start ---\n')
+            faulthandler.enable(file=handle, all_threads=True)
+    except Exception:
+        pass
+
+
+def _run_app() -> None:
+    import logging
+    import socket
+    import threading
+    import time
+    import webbrowser
+
+    _enable_crash_logging()
+
+    import tkinter as tk
+    from tkinter import messagebox
+
+    from Config.app_identity import get_app_name, get_app_version
+    from Config.config_manager import get_base_dir, load_config, save_config
+    from Makcu.makcu_manager import makcu_manager
+    from Makcu.software_manager import software_manager
+    from Recoil.hotkeys import HotkeyStateTracker, get_bound_weapon
+    from Recoil.recoil import run_recoil
+    from Server.app import run_flask, stop_flask
+    from Server.weapon_actions import cycle_weapon, get_available_weapons, set_active_weapon
+
+    logger = logging.getLogger('AimSync')
+    hotkey_tracker = HotkeyStateTracker()
+    browser_opened = False
+    single_instance_mutex = None
+
+    def setup_logging() -> None:
+        log_dir = get_base_dir()
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file = log_dir / 'aimsyc_debug.log'
+        logging.basicConfig(
+            filename=str(log_file),
+            level=logging.DEBUG,
+            format='%(asctime)s - %(levelname)s - %(message)s',
+            filemode='w',
+        )
+        _write_startup_log(f'Logging to {log_file}')
+
+    def app_icon_path() -> Path:
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            return Path(sys._MEIPASS) / 'static' / 'AimSync_logo.ico'
+        return Path(__file__).resolve().parent / 'Server' / 'static' / 'AimSync_logo.ico'
+
+    def apply_window_icon(root: tk.Tk) -> None:
+        icon = app_icon_path()
+        if not icon.is_file():
             return
-    except Exception:
-        pass
-
-    try:
-        webbrowser.open_new_tab(url)
-        return
-    except Exception:
-        pass
-
-    try:
-        webbrowser.open(url, new=1, autoraise=True)
-    except Exception:
-        pass
-
-
-def startup():
-    try:
-        threading.Thread(target=run_flask, daemon=True).start()
-    except Exception as e:
-        messagebox.showinfo("AimSync", f"Failed to start Flask server: {e}")
-        return
-
-    url = f"http://{get_local_ip()}:5000"
-    open_browser(url)
-    return url
-
-
-def shutdown(root):
-    """Handles the application shutdown when the window is closed."""
-    try:
-        stop_ai_engine()
-        makcu_manager.disconnect()
-        stop_flask()
-    finally:
         try:
+            root.iconbitmap(default=str(icon))
+        except tk.TclError:
+            pass
+
+    def get_local_ip() -> str:
+        try:
+            probe = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            probe.connect(('8.8.8.8', 80))
+            ip = probe.getsockname()[0]
+            probe.close()
+            return ip
+        except Exception:
+            try:
+                return socket.gethostbyname(socket.gethostname())
+            except Exception:
+                return '0.0.0.0'
+
+    def acquire_single_instance() -> bool:
+        nonlocal single_instance_mutex
+        if sys.platform != 'win32':
+            return True
+        try:
+            import ctypes
+
+            name = 'Local\\AimSync_SingleInstance_v1'
+            single_instance_mutex = ctypes.windll.kernel32.CreateMutexW(None, False, name)
+            if ctypes.windll.kernel32.GetLastError() == 183:
+                return False
+            return True
+        except Exception as exc:
+            logger.warning('Single-instance mutex unavailable: %s', exc)
+            return True
+
+    def open_browser(url: str) -> None:
+        nonlocal browser_opened
+        if browser_opened:
+            return
+        browser_opened = True
+        try:
+            if hasattr(os, 'startfile'):
+                os.startfile(url)
+                return
+        except Exception:
+            pass
+        try:
+            webbrowser.open_new_tab(url)
+        except Exception:
+            webbrowser.open(url, new=1, autoraise=True)
+
+    def startup() -> str:
+        threading.Thread(target=run_flask, daemon=True).start()
+        url = f'http://{get_local_ip()}:5000'
+        time.sleep(0.4)
+        open_browser(url)
+        return url
+
+    def shutdown(root: tk.Tk) -> None:
+        try:
+            from AI.Engine.engine import stop_ai_engine
+
+            stop_ai_engine()
+            makcu_manager.disconnect()
+            stop_flask()
+        finally:
+            try:
+                root.destroy()
+            except Exception:
+                pass
+            os._exit(0)
+
+    def monitor_hotkeys() -> None:
+        logger.info('Hotkey monitor started.')
+        last_game_id = None
+        available_weapons: list[str] = []
+
+        while True:
+            try:
+                config = load_config()
+                game_id = config.get('active_game', 'cs2')
+
+                if game_id != last_game_id:
+                    available_weapons = get_available_weapons(game_id)
+                    last_game_id = game_id
+
+                cycle_key = config.get('weapon_cycle_hotkey') or config.get('recoil_cycle_keybind', 'None')
+                if available_weapons and hotkey_tracker.is_pressed_once('weapon_cycle', cycle_key):
+                    cycle_weapon(config)
+
+                direct_weapon = get_bound_weapon(config, hotkey_tracker)
+                if direct_weapon and available_weapons:
+                    set_active_weapon(config, direct_weapon, available_weapons)
+
+                ai_toggle = config.get('ai_engine_toggle_hotkey', 'None')
+                if hotkey_tracker.is_pressed_once('ai_engine_toggle', ai_toggle):
+                    config['ai_engine_enabled'] = not bool(config.get('ai_engine_enabled'))
+                    save_config(config)
+            except Exception as exc:
+                logger.error('Hotkey Monitor Error: %s', exc)
+            time.sleep(0.01)
+
+    def ensure_dual_pc_defaults() -> None:
+        config = load_config()
+        changed = False
+        if makcu_manager.is_hardware() and makcu_manager.is_connected():
+            if config.get('recoil_input_method') == 'software':
+                config['recoil_input_method'] = 'hardware'
+                changed = True
+        if changed:
+            save_config(config)
+
+    def run_recoil_loop() -> None:
+        while True:
+            try:
+                run_recoil()
+            except Exception as exc:
+                logger.exception('Recoil loop error: %s', exc)
+                time.sleep(0.1)
+
+    if not acquire_single_instance():
+        try:
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showwarning(
+                get_app_name(),
+                f'{get_app_name()} is already running.\n\n'
+                'Close extra copies in Task Manager, then use the existing browser tab.',
+            )
             root.destroy()
         except Exception:
             pass
-        # Ensure all background threads (recoil loop, etc.) are terminated
-        os._exit(0)
+        raise SystemExit(0)
 
+    setup_logging()
+    _write_startup_log('AimSync starting...')
 
-def _get_available_weapons(game_id):
-    wd = WeaponData.get_game_data(game_id)
-    weapons = [attr for attr in dir(wd) if not attr.startswith('_') and isinstance(getattr(wd, attr), list)]
-    weapons.sort()
-    return weapons
+    makcu_manager.connect()
+    ensure_dual_pc_defaults()
+    makcu_ready = makcu_manager.is_hardware() and makcu_manager.is_connected()
+    logger.info(
+        'Makcu startup: hardware=%s connected=%s',
+        makcu_manager.is_hardware(),
+        makcu_ready,
+    )
+    if not makcu_ready:
+        cfg = load_config()
+        if cfg.get('recoil_input_method') == 'hardware':
+            logger.info(
+                'No Makcu — recoil uses Software (SendInput). '
+                'Set Input Method to Software in settings for single-PC play.'
+            )
 
+    from AI.Engine.engine import start_ai_engine_thread
 
-def _set_active_weapon(config, weapon_name, available_weapons):
-    if weapon_name not in available_weapons:
-        return False
-    current_weapon = config.get('recoil_game_settings', {}).get('weapon')
-    if current_weapon == weapon_name:
-        return False
-    config['recoil_game_settings']['weapon'] = weapon_name
-    save_config(config)
-    logger.info("Weapon hotkey selected %s", weapon_name)
-    return True
-
-
-def monitor_hotkeys():
-    """Independent thread to monitor weapon cycle and direct-select hotkeys."""
-    if not is_beta_channel():
-        return
-    logger.info("Hotkey monitor started.")
-    last_game_id = None
-    available_weapons = []
-
-    while True:
-        try:
-            config = load_config()
-            game_id = config.get('active_game', 'cs2')
-
-            # Refresh weapon list if the game has changed
-            if game_id != last_game_id:
-                available_weapons = _get_available_weapons(game_id)
-                last_game_id = game_id
-                logger.info(f"Game changed to {game_id}. Available weapons: {available_weapons}")
-
-            cycle_key = config.get('weapon_cycle_hotkey') or config.get('recoil_cycle_keybind', 'None')
-            if available_weapons and hotkey_tracker.is_pressed_once('weapon_cycle', cycle_key):
-                current_wep = config.get('recoil_game_settings', {}).get('weapon', '')
-                idx = available_weapons.index(current_wep) if current_wep in available_weapons else -1
-                next_wep = available_weapons[(idx + 1) % len(available_weapons)]
-                config['recoil_game_settings']['weapon'] = next_wep
-                save_config(config)
-                logger.info(f"Change Weapon Key: Switched from {current_wep} to {next_wep}")
-
-            direct_weapon = get_bound_weapon(config, hotkey_tracker)
-            if direct_weapon and available_weapons:
-                _set_active_weapon(config, direct_weapon, available_weapons)
-
-            ai_toggle = config.get('ai_engine_toggle_hotkey', 'None')
-            if hotkey_tracker.is_pressed_once('ai_engine_toggle', ai_toggle):
-                config['ai_engine_enabled'] = not bool(config.get('ai_engine_enabled'))
-                save_config(config)
-                logger.info("AI engine toggled via hotkey: %s", config['ai_engine_enabled'])
-        except Exception as e:
-            logger.error(f"Hotkey Monitor Error: {e}")
-
-        time.sleep(0.01) # 100Hz polling rate
-
-def run_recoil_loop():
-    print("[AimSync] Recoil engine initialized.")
-    while True:
-        try:
-            run_recoil()
-        except Exception as exc:
-            logger.exception('Recoil loop error: %s', exc)
-            time.sleep(0.1)
-
-
-def main():
-    # Attempt to connect to hardware, but continue startup regardless
-    if makcu_manager.connect() is None:
-        print("[AimSync] Warning: Makcu hardware not detected. Running in management-only mode.")
-
-    if is_beta_channel():
-        start_ocr_ws_server_thread()
-        start_ai_engine_thread()
+    start_ai_engine_thread()
     startup()
 
     root = tk.Tk()
-    _apply_window_icon(root)
+    apply_window_icon(root)
     root.withdraw()
-    root.title(f"{get_app_name()} {get_app_version()}")
-
-    def on_close():
-        shutdown(root)
-
-    root.protocol("WM_DELETE_WINDOW", on_close)
+    root.title(f'{get_app_name()} {get_app_version()}')
+    root.protocol('WM_DELETE_WINDOW', lambda: shutdown(root))
 
     threading.Thread(target=monitor_hotkeys, daemon=True).start()
     threading.Thread(target=run_recoil_loop, daemon=True).start()
+    _write_startup_log('Entering mainloop')
     root.mainloop()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

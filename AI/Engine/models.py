@@ -1,4 +1,4 @@
-"""Model and config file management + community store."""
+"""Model and config file management (local files only)."""
 
 from __future__ import annotations
 
@@ -6,19 +6,26 @@ import logging
 import shutil
 from pathlib import Path
 
-import requests
-
 from Config.config_manager import get_ai_configs_dir, get_models_dir
 
 logger = logging.getLogger('AimSync.AI.Models')
 
-GITHUB_MODELS_API = 'https://api.github.com/repos/BabyHamsta/Aimmy/contents/models'
-GITHUB_CONFIGS_API = 'https://api.github.com/repos/BabyHamsta/Aimmy/contents/configs'
-GITHUB_RAW_BASE = 'https://github.com/BabyHamsta/Aimmy/raw/Aimmy-V2'
+MODEL_EXTENSIONS = ('.onnx', '.pt', '.engine')
+STORE_MODEL_EXTENSIONS = ('.onnx',)
+
+# Remote community catalogs disabled — use local upload / bin/models only.
+COMMUNITY_STORE_ENABLED = False
+COMMUNITY_STORE_MESSAGE = (
+    'Community model download is disabled. Copy .onnx files into bin/models '
+    'or upload via the AI panel.'
+)
 
 
 def list_local_models() -> list[str]:
-    return sorted(path.name for path in get_models_dir().glob('*.onnx'))
+    names: set[str] = set()
+    for ext in MODEL_EXTENSIONS:
+        names.update(path.name for path in get_models_dir().glob(f'*{ext}'))
+    return sorted(names)
 
 
 def list_local_configs() -> list[str]:
@@ -33,8 +40,8 @@ def resolve_model_path(filename: str) -> Path | None:
 
 
 def save_uploaded_model(filename: str, data: bytes) -> Path:
-    if not filename.lower().endswith('.onnx'):
-        raise ValueError('Only .onnx models are supported.')
+    if not filename.lower().endswith(MODEL_EXTENSIONS):
+        raise ValueError('Supported models: .onnx, .pt, .engine')
     dest = get_models_dir() / Path(filename).name
     dest.write_bytes(data)
     return dest
@@ -48,32 +55,14 @@ def delete_model(filename: str) -> bool:
     return False
 
 
-def fetch_store_listing(api_url: str) -> list[str]:
-    headers = {
-        'User-Agent': 'AimSync-Beta',
-        'Accept': 'application/vnd.github.v3+json',
-    }
-    response = requests.get(api_url, headers=headers, timeout=30)
-    response.raise_for_status()
-    payload = response.json()
-    names = []
-    for item in payload:
-        name = item.get('name')
-        if name:
-            names.append(name)
-    return sorted(names)
+def fetch_store_listing(_api_url: str) -> list[str]:
+    if not COMMUNITY_STORE_ENABLED:
+        return []
+    return []
 
 
 def download_store_file(folder: str, filename: str) -> Path:
-    url = f'{GITHUB_RAW_BASE}/{folder}/{filename}'
-    response = requests.get(url, timeout=120)
-    response.raise_for_status()
-    if folder == 'models':
-        dest = get_models_dir() / filename
-    else:
-        dest = get_ai_configs_dir() / filename
-    dest.write_bytes(response.content)
-    return dest
+    raise RuntimeError(COMMUNITY_STORE_MESSAGE)
 
 
 def import_external_model(source: Path) -> Path:

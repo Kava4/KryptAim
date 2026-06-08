@@ -1,4 +1,4 @@
-"""ONNX YOLOv8 inference (Aimmy-compatible shapes)."""
+"""ONNX YOLOv8 inference for AimSync AI."""
 
 from __future__ import annotations
 
@@ -33,6 +33,12 @@ class OnnxDetector:
         self._output_names: list[str] = []
         self.info: ModelInfo | None = None
         self.last_error: str = ''
+        self._backend = 'directml'
+        self._active_provider = ''
+        self.class_names: dict[int, str] = {}
+
+    def set_backend(self, backend: str) -> None:
+        self._backend = (backend or 'directml').strip().lower()
 
     @staticmethod
     def _num_detections(image_size: int) -> int:
@@ -45,22 +51,29 @@ class OnnxDetector:
     def load(self, model_path: Path) -> bool:
         self.last_error = ''
         if ort is None:
-            self.last_error = 'onnxruntime not installed. Run: pip install -r requirements-beta.txt'
+            self.last_error = 'onnxruntime not installed. Run: scripts\\install_aimsync_pc.bat'
             logger.error(self.last_error)
             return False
         self.unload()
 
-        available = ort.get_available_providers()
-        provider_attempts: list[list[str]] = []
-        if 'DmlExecutionProvider' in available:
-            provider_attempts.append(['DmlExecutionProvider', 'CPUExecutionProvider'])
-        provider_attempts.append(['CPUExecutionProvider'])
+        from AI.Engine.class_names import resolve_class_names
+        from AI.Engine.inference_backend import normalize_backend, resolve_onnx_providers
+
+        provider_attempts = resolve_onnx_providers(normalize_backend(self._backend))
+        logger.info(
+            'Loading ONNX %s backend=%s attempts=%s',
+            model_path.name,
+            self._backend,
+            [p[0] for p in provider_attempts],
+        )
 
         session = None
         errors: list[str] = []
         for providers in provider_attempts:
             try:
+                logger.info('ONNX InferenceSession create: %s', providers[0])
                 session = self._create_session(model_path, providers)
+                logger.info('ONNX session ready: active=%s', session.get_providers()[0] if session.get_providers() else '?')
                 break
             except Exception as exc:
                 errors.append(f'{providers[0]}: {exc}')
@@ -80,21 +93,47 @@ class OnnxDetector:
         self._session = session
         self._input_name = input_meta.name
         self._output_names = [o.name for o in session.get_outputs()]
+        self._active_provider = session.get_providers()[0] if session.get_providers() else ''
+        num_classes = self._infer_num_classes_from_output(session)
+        self.class_names = resolve_class_names(model_path, num_classes)
         self.info = ModelInfo(
             path=model_path,
             image_size=image_size,
             num_detections=self._num_detections(image_size),
-            num_classes=1,
+            num_classes=num_classes,
             is_dynamic=is_dynamic,
         )
-        logger.info('Loaded ONNX model %s (%sx%s)', model_path.name, image_size, image_size)
+        logger.info(
+            'Loaded ONNX model %s (%sx%s, classes=%s)',
+            model_path.name,
+            image_size,
+            image_size,
+            num_classes,
+        )
         return True
+
+    @staticmethod
+    def _infer_num_classes_from_output(session) -> int:
+        """YOLOv8 ONNX output channels = 4 + num_classes (community .onnx layout)."""
+        try:
+            shape = session.get_outputs()[0].shape
+            if len(shape) >= 2 and not isinstance(shape[1], str):
+                return max(1, int(shape[1]) - 4)
+        except Exception:
+            pass
+        return 1
 
     def unload(self) -> None:
         self._session = None
         self._input_name = None
         self._output_names = []
         self.info = None
+        self._active_provider = ''
+        self.class_names = {}
+
+    @property
+    def active_provider(self) -> str:
+        return self._active_provider
 
     @property
     def is_loaded(self) -> bool:
@@ -104,11 +143,17 @@ class OnnxDetector:
         size = self.info.image_size if self.info else rgb.shape[0]
         chw = rgb.transpose(2, 0, 1).astype(np.float32) / 255.0
         if chw.shape[1] != size or chw.shape[2] != size:
-            from PIL import Image
+            try:
+                import cv2
 
-            img = Image.fromarray(rgb)
-            img = img.resize((size, size), Image.Resampling.BILINEAR)
-            chw = np.asarray(img).transpose(2, 0, 1).astype(np.float32) / 255.0
+                resized = cv2.resize(rgb, (size, size), interpolation=cv2.INTER_LINEAR)
+                chw = resized.transpose(2, 0, 1).astype(np.float32) / 255.0
+            except ImportError:
+                from PIL import Image
+
+                img = Image.fromarray(rgb)
+                img = img.resize((size, size), Image.Resampling.BILINEAR)
+                chw = np.asarray(img).transpose(2, 0, 1).astype(np.float32) / 255.0
         return np.expand_dims(chw, axis=0)
 
     def run(self, rgb: np.ndarray) -> np.ndarray | None:
@@ -117,7 +162,7 @@ class OnnxDetector:
         tensor = self.preprocess(rgb)
         outputs = self._session.run(self._output_names, {self._input_name: tensor})
         output = np.asarray(outputs[0])
-        # Normalize to [1, channels, num_detections] (Aimmy layout).
+        # Normalize to [1, channels, num_detections] (standard YOLOv8 ONNX layout).
         if output.ndim == 3 and output.shape[1] > output.shape[2]:
             output = np.transpose(output, (0, 2, 1))
         return output

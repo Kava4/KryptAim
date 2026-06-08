@@ -2,6 +2,7 @@ import ctypes
 from dataclasses import dataclass
 from typing import Iterable
 
+from Makcu.makcu_manager import makcu_manager
 from Makcu.software_manager import software_manager
 
 
@@ -87,9 +88,24 @@ class HotkeySpec:
         return self.primary_key is None
 
 
+_hotkey_binding_active = False
+
+
+def set_hotkey_binding_active(active: bool) -> None:
+    global _hotkey_binding_active
+    _hotkey_binding_active = active
+
+
+def is_hotkey_binding_active() -> bool:
+    return _hotkey_binding_active
+
+
 class HotkeyStateTracker:
     def __init__(self) -> None:
         self._states: dict[str, bool] = {}
+
+    def reset(self, action_id: str) -> None:
+        self._states[action_id] = False
 
     def is_pressed_once(self, action_id: str, hotkey_value: str | None) -> bool:
         hotkey = parse_hotkey(hotkey_value)
@@ -208,7 +224,7 @@ def _normalize_primary_key(token: str) -> str:
 
 def _is_key_pressed(key_name: str) -> bool:
     if key_name in MOUSE_KEYS:
-        return software_manager.get_button_state(key_name)
+        return makcu_manager.get_button_state(key_name)
 
     vk_code = VK_CODES.get(key_name.lower())
     if vk_code is None:

@@ -1,4 +1,4 @@
-"""Aimmy-compatible .cfg keys and runtime settings."""
+"""AimSync AI profile storage (.cfg JSON) — alias keys via profile_sync."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from Config.config_manager import get_ai_configs_dir
 
 DEFAULT_TOGGLES: dict[str, bool] = {
     'Aim Assist': False,
+    'Dynamic FOV': False,
     'Sticky Aim': False,
     'Constant AI Tracking': False,
     'Predictions': False,
@@ -22,17 +23,17 @@ DEFAULT_TOGGLES: dict[str, bool] = {
 }
 
 DEFAULT_SLIDERS: dict[str, float] = {
-    'FOV Size': 640.0,
+    'FOV Size': 200.0,
     'Dynamic FOV Size': 200.0,
-    'Mouse Sensitivity (+/-)': 0.80,
-    'Mouse Jitter': 4.0,
+    'Mouse Sensitivity (+/-)': 0.0,
+    'Mouse Jitter': 0.0,
     'Sticky Aim Threshold': 50.0,
     'Y Offset (Up/Down)': 0.0,
     'Y Offset (%)': 50.0,
     'X Offset (Left/Right)': 0.0,
     'X Offset (%)': 50.0,
     'Auto Trigger Delay': 0.1,
-    'AI Minimum Confidence': 45.0,
+    'AI Minimum Confidence': 20.0,
 }
 
 DEFAULT_DROPDOWNS: dict[str, str] = {
@@ -70,6 +71,7 @@ DROPDOWN_OPTIONS: dict[str, list[str]] = {
 TOGGLE_GROUPS: dict[str, list[str]] = {
     'Aim & tracking': [
         'Aim Assist',
+        'Dynamic FOV',
         'Sticky Aim',
         'Constant AI Tracking',
         'Predictions',
@@ -93,7 +95,7 @@ SLIDER_GROUPS: dict[str, list[str]] = {
     'Trigger timing': ['Auto Trigger Delay'],
 }
 
-AIMMY_KEYBIND_ALIASES = {
+HOTKEY_ALIASES = {
     'Right': 'RMB',
     'Left': 'LMB',
     'Middle': 'MMB',
@@ -105,6 +107,84 @@ AIMMY_KEYBIND_ALIASES = {
     'D1': '1',
     'D2': '2',
 }
+
+
+# Default AI baseline — experimental tuning deviates from these values.
+BASELINE_SLIDERS: dict[str, float] = {
+    'Mouse Sensitivity (+/-)': 0.0,
+    'Mouse Jitter': 0.0,
+    'Y Offset (Up/Down)': 0.0,
+    'X Offset (Left/Right)': 0.0,
+    'X Offset (%)': 50.0,
+    'Y Offset (%)': 50.0,
+    'Sticky Aim Threshold': 50.0,
+}
+
+BASELINE_TOGGLES: dict[str, bool] = {
+    'Sticky Aim': False,
+    'Predictions': False,
+    'Dynamic FOV': False,
+    'X Axis Percentage Adjustment': False,
+    'Y Axis Percentage Adjustment': False,
+}
+
+BASELINE_DROPDOWNS: dict[str, str] = {
+    'Movement Path': 'Linear',
+    'Prediction Method': 'Linear',
+    'Aiming Boundaries Alignment': 'Center',
+}
+
+
+def is_experimental_slider(name: str, value: float) -> bool:
+    baseline = BASELINE_SLIDERS.get(name)
+    if baseline is None:
+        return False
+    try:
+        return abs(float(value) - float(baseline)) > 1e-6
+    except (TypeError, ValueError):
+        return True
+
+
+def is_experimental_toggle(name: str, enabled: bool) -> bool:
+    baseline = BASELINE_TOGGLES.get(name)
+    if baseline is None:
+        return False
+    return bool(enabled) != bool(baseline)
+
+
+def is_experimental_dropdown(name: str, value: str) -> bool:
+    baseline = BASELINE_DROPDOWNS.get(name)
+    if baseline is None:
+        return False
+    return str(value or '').strip() != baseline
+
+
+def apply_default_ai_profile(settings: 'AiSettings') -> None:
+    """Default starter profile (direct aim — no extra smoothing/jitter layers)."""
+    settings.toggles['Aim Assist'] = True
+    settings.toggles['Auto Trigger'] = False
+    settings.toggles['Constant AI Tracking'] = False
+    settings.toggles['Sticky Aim'] = False
+    settings.toggles['Predictions'] = False
+    settings.toggles['Dynamic FOV'] = False
+    settings.toggles['X Axis Percentage Adjustment'] = False
+    settings.toggles['Y Axis Percentage Adjustment'] = False
+    settings.sliders['AI Minimum Confidence'] = 20.0
+    settings.sliders['FOV Size'] = 200.0
+    settings.sliders['Mouse Sensitivity (+/-)'] = 0.0
+    settings.sliders['Mouse Jitter'] = 0.0
+    settings.sliders['Y Offset (Up/Down)'] = 0.0
+    settings.sliders['X Offset (Left/Right)'] = 0.0
+    settings.dropdowns['Detection Area Type'] = 'Closest to Center Screen'
+    settings.dropdowns['Movement Path'] = 'Linear'
+    settings.dropdowns['Prediction Method'] = 'Linear'
+    settings.dropdowns['Aiming Boundaries Alignment'] = 'Center'
+    settings.dropdowns['Image Size'] = '640'
+
+
+def apply_starter_profile(settings: 'AiSettings') -> None:
+    """Alias for quickstart / legacy callers."""
+    apply_default_ai_profile(settings)
 
 
 class AiSettings:
@@ -120,20 +200,18 @@ class AiSettings:
             return
         with open(path, encoding='utf-8') as handle:
             data = json.load(handle)
-        for key, value in data.items():
-            if key in self.toggles:
-                self.toggles[key] = bool(value)
-            elif key in self.sliders:
-                self.sliders[key] = float(value)
-            elif key in self.dropdowns:
-                self.dropdowns[key] = str(value)
+        from AI.Engine.profile_sync import import_profile_dict
 
-    def save_cfg(self, filename: str) -> None:
+        import_profile_dict(data, self)
+
+    def save_cfg(self, filename: str, *, use_alias_keys: bool = True) -> None:
         path = get_ai_configs_dir() / filename
-        merged: dict[str, Any] = {}
-        merged.update(self.sliders)
-        merged.update({k: v for k, v in self.toggles.items()})
-        merged.update(self.dropdowns)
+        if use_alias_keys:
+            from AI.Engine.profile_sync import export_profile_dict
+
+            merged = export_profile_dict(self)
+        else:
+            merged = self.export_cfg_dict()
         path.parent.mkdir(parents=True, exist_ok=True)
         with open(path, 'w', encoding='utf-8') as handle:
             json.dump(merged, handle, indent=2)
@@ -153,13 +231,9 @@ class AiSettings:
         self.apply_cfg_dict(data)
 
     def apply_cfg_dict(self, data: dict[str, Any]) -> None:
-        for key, value in data.items():
-            if key in self.toggles:
-                self.toggles[key] = bool(value)
-            elif key in self.sliders:
-                self.sliders[key] = float(value)
-            elif key in self.dropdowns:
-                self.dropdowns[key] = str(value)
+        from AI.Engine.profile_sync import import_profile_dict
+
+        import_profile_dict(data, self)
 
     def export_cfg_dict(self) -> dict[str, Any]:
         merged: dict[str, Any] = {}
@@ -174,5 +248,5 @@ class AiSettings:
         except (TypeError, ValueError):
             return 640
 
-    def normalize_aimmy_key(self, key: str) -> str:
-        return AIMMY_KEYBIND_ALIASES.get(key, key)
+    def normalize_hotkey(self, key: str) -> str:
+        return HOTKEY_ALIASES.get(key, key)

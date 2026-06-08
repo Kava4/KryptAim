@@ -1,127 +1,111 @@
 # =============================================================================
 # AimSync .gitignore
-# Public repo = UI, docs, game profiles, Cloud API, Pattern Generator.
-# Core engine / hardware / license client stay local (see "Protected core").
 # =============================================================================
 
 # --- Python ---
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyo
-*.pyd
-.Python
 *.so
+*.egg-info/
+.eggs/
+.Python
+
+# Virtual environments
 .venv/
 venv/
 env/
-.env
-.env.*
-!.env.example
+aimsync-venv/
+build-venv/
 
-# --- Test / tooling caches ---
+# Test / lint caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 htmlcov/
 .tox/
-*.egg-info/
-.eggs/
 
-# --- Build & release artifacts ---
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+**/.env.local
+**/secrets.*
+**/*_secret*
+.vercel/
+
+# --- Build & release ---
 build/
 dist/
+release/
 *.spec
+*.manifest
+*.pkg
 *.exe
 *.msi
 *.zip
 
-# --- PyInstaller / obfuscation ---
-*.manifest
-*.pkg
+# Maintainer-only build entrypoints (tracked copies live under scripts/)
+/build_app.py
+/build_beta.py
+/build_helper.py
+
+# Root-level batch wrappers only (scripts/*.bat are tracked)
+/*.bat
+
+# --- Local runtime data ---
+config.json
+*.local.json
+.beta-data/
+.aimsync-data/
+patterns/
+saved_patterns/
+Config/saved_patterns/
+**/bin/models/
+**/bin/configs/
+
+# --- Logs ---
+*.log
+
+# --- Generated exports & scratch ---
+AimSync_CLEAN_SOURCE.txt
+temp_*.py
+**/*_source.py
+*.bak
+**/*.bak
+posts.md
+*.ps1
 
 # --- IDE & OS ---
 .vscode/
 .idea/
+.cursor/
+*.code-workspace
 *.swp
-*.swo
 *~
 .DS_Store
 Thumbs.db
 Desktop.ini
-ehthumbs.db
 
-# --- Cursor / local tooling ---
-.cursor/
-*.code-workspace
-
-# --- Logs & debug ---
-*.log
-aimsyc_debug.log
-
-# --- User / machine-local data (never commit) ---
-config.json
-Config/config.json
-patterns/
-patterns/*.json
-Config/saved_patterns/
-saved_patterns/
-*.local.json
-
-# --- Secrets (cloud & payments) ---
-**/secrets.*
-**/*_secret*
-**/.env.local
-Cloud/.env*
-.vercel/
-
-# --- Maintainer-only / scratch (not for public tree) ---
-temp_*.py
-*.bat
-protect_sync.py
-coordinate_mapper.py
-recorder.py
-visualizer.py
-Cloud/
-*.ps1
-
-# Release packaging (maintainer machine only)
-build_app.py
-build_app.bat
-build_generator.bat
-AimSync.spec
-Recoil/games/*
-Recoil/games/*.py
-# --- Optional local drafts (pattern only; may not exist on disk) ---
-**/*_source.py
-build-helper/*
-build-helper/AimSyncHelper/*
-build-helper/AimSyncHelper/PYZ-00.toc
-build-helper/AimSyncHelper/PYZ-00.pyz
-build-helper/AimSyncHelper/PYZ-00.pyz.d
-build-helper/AimSyncHelper/PYZ-00.pyz.d/
-build-helper/AimSyncHelper/PYZ-00.pyz.d/__init__.py
-build-helper/AimSyncHelper/PYZ-00.pyz.d/__init__.pyc
+# --- Local-only reference / removed trees ---
 Aimmy-Makcu/
+AI/HelperApp/
+vendor-ai-reference/
+build-helper/
+PatternExtractor/
+Menu/
+Cloud/
+
+# Local weapon / G Hub reference imports (shipped via private releases)
+Recoil/games/*.py
+Recoil/games/*.lua
+!Recoil/games/.gitkeep
 
 # =============================================================================
-# PROTECTED CORE — do not remove
-# Bundled in release builds only. Ignored even when absent locally.
+# Protected core — private release artifacts; not in public clones
 # =============================================================================
-
 Recoil/recoil.py
 Makcu/makcu_manager.py
 Makcu/software_manager.py
 Server/cloud_manager.py
-dist
-build
-build_beta.py
-build_helper.py
-posts.md
-# Optional / removed trees (ignore if recreated locally)
-PatternExtractor/
-Menu/
-AimSync.spec
-
-

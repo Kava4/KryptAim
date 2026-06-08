@@ -57,6 +57,17 @@
 
     let activeBtn = null;
 
+    async function setHotkeyBindingActive(active) {
+        try {
+            await fetch('/api/recoil/hotkey-binding', {
+                method: 'POST',
+                body: new URLSearchParams({ active: active ? 'on' : 'off' }),
+            });
+        } catch (_) {
+            /* non-fatal; recoil loop may still see a stray edge */
+        }
+    }
+
     function stopCapture() {
         if (activeBtn) {
             activeBtn.classList.remove('ring-2', 'ring-amber-400/60', 'border-amber-400/50');
@@ -66,10 +77,12 @@
             activeBtn._hkCleanup = null;
             activeBtn = null;
         }
+        void setHotkeyBindingActive(false);
     }
 
     function startCapture(btn, callback) {
         stopCapture();
+        void setHotkeyBindingActive(true);
         activeBtn = btn;
         btn.classList.add('ring-2', 'ring-amber-400/60', 'border-amber-400/50');
         const label = btn.querySelector('.hotkey-bind-label');

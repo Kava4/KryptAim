@@ -7,20 +7,17 @@ import subprocess
 import json
 import requests # Added for Discord Webhook
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 from werkzeug.serving import make_server
 
-from Config.config_manager import load_config, save_config, get_pattern_names
-from Config.app_identity import get_app_name, get_app_version, get_app_version_label, is_beta_channel
+from Config.config_manager import load_config, save_config, get_pattern_names, get_base_dir
+from Config.app_identity import get_app_name, get_app_version, get_app_version_label
 from Server import cloud_manager
 from Recoil.weapon_data import WeaponData
 from flask import jsonify # Ensure jsonify is imported
 from Server.routes.recoil_routes import recoil_bp
 from Server.routes.pattern_generator_routes import pattern_generator_bp
 from Server.routes.ai_routes import ai_bp
-from Server.ocr_state import get_ocr_state
-
-
 def resource_path(*parts: str) -> Path:
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         # In PyInstaller frozen mode, check if 'Server' folder exists within _MEIPASS
@@ -55,9 +52,6 @@ def get_local_ip():
             return "127.0.0.1"
 
 
-def get_default_ocr_helper_ws_url() -> str:
-    return f"ws://{get_local_ip()}:8765/ws/ocr"
-
 # The remote Cloud API URL
 CLOUD_API_URL = "https://project-mkgdr.vercel.app"
 
@@ -88,7 +82,6 @@ def inject_app_version():
         "app_name": get_app_name(),
         "app_version": get_app_version(),
         "app_version_label": get_app_version_label(),
-        "is_beta_channel": is_beta_channel(),
     }
 
 
@@ -109,25 +102,15 @@ def index():
     if config['recoil_game_settings']['weapon'] not in available_weapons:
         config['recoil_game_settings']['weapon'] = available_weapons[0] if available_weapons else 'None'
 
-    if is_beta_channel():
-        current_ws_url = (config.get('ocr_helper_ws_url') or '').strip()
-        if not current_ws_url or current_ws_url == 'ws://0.0.0.0:8765/ws/ocr':
-            config['ocr_helper_ws_url'] = get_default_ocr_helper_ws_url()
-
     save_config(config) # Save the potentially updated weapon
-    weapon_direct_binds_text = ''
-    if is_beta_channel():
-        weapon_direct_binds_text = '\n'.join(
-            f'{hotkey}={weapon}'
-            for hotkey, weapon in (config.get('weapon_direct_binds') or {}).items()
-        )
+    weapon_direct_binds_text = '\n'.join(
+        f'{hotkey}={weapon}'
+        for hotkey, weapon in (config.get('weapon_direct_binds') or {}).items()
+    )
 
-    # Render the main index page, passing the updated weapons list
     return render_template('index.html', config=config, pattern_names=get_pattern_names(),
                            local_ip=get_local_ip(), is_premium=is_premium, weapons=available_weapons,
-                           games=SUPPORTED_GAMES, weapon_direct_binds_text=weapon_direct_binds_text,
-                           default_ocr_helper_ws_url=get_default_ocr_helper_ws_url(),
-                           is_beta_channel=is_beta_channel())
+                           games=SUPPORTED_GAMES, weapon_direct_binds_text=weapon_direct_binds_text)
 
 
 @app.route('/pattern-generator', methods=['GET'])
@@ -145,29 +128,18 @@ def pattern_generator_page():
         active_game=active_game,
     )
 
-@app.route('/api/recoil/toggle', methods=['POST'])
-def toggle_recoil():
-    """Master toggle for enabling/disabling recoil system."""
-    config = load_config()
-    config['recoil_enabled'] = request.form.get('recoil_enabled') == 'on'
-    save_config(config)
-    return '', 204
-
-@app.route('/api/recoil/mode', methods=['POST'])
-def set_recoil_mode():
-    """Sets the active recoil mode (simple, advanced, CS2)."""
-    config = load_config()
-    config['recoil_mode'] = request.form.get('recoil_mode', 'simple')
-    save_config(config)
-    return '', 204
 
 @app.route('/api/recoil/game_weapon', methods=['POST'])
 def update_game_weapon():
     """Saves the selected weapon for the Game Engine."""
+    from Recoil.recoil import reset_pattern_state
+
     config = load_config()
-    weapon = request.form.get('weapon', 'assault_rifle')
-    config['recoil_game_settings']['weapon'] = weapon
+    weapon = request.form.get('weapon', 'ak47')
+    config.setdefault('recoil_game_settings', {})['weapon'] = weapon
+    config['recoil_mode'] = 'CS2'
     save_config(config)
+    reset_pattern_state()
     return '', 204
 
 @app.route('/api/recoil/game_sensitivity', methods=['POST'])
@@ -272,70 +244,6 @@ def get_current_weapon():
     config = load_config()
     return config['recoil_game_settings'].get('weapon', 'None')
 
-
-@app.route('/api/recoil/ocr_status', methods=['GET'])
-def get_ocr_status():
-    if not is_beta_channel():
-        return jsonify({'success': False, 'message': 'OCR helper is available only in beta.'}), 404
-    return jsonify(get_ocr_state())
-
-
-@app.route('/api/recoil/ocr_settings', methods=['POST'])
-def update_ocr_settings():
-    if not is_beta_channel():
-        return jsonify({'success': False, 'message': 'OCR helper settings are available only in beta.'}), 404
-    config = load_config()
-
-    ocr_enabled = request.form.get('ocr_enabled')
-    if ocr_enabled is not None:
-        config['ocr_enabled'] = ocr_enabled == 'on'
-
-    helper_url = request.form.get('ocr_helper_ws_url')
-    if helper_url is not None:
-        normalized_helper_url = helper_url.strip()
-        config['ocr_helper_ws_url'] = normalized_helper_url or get_default_ocr_helper_ws_url()
-
-    helper_token = request.form.get('ocr_helper_token')
-    if helper_token is not None:
-        config['ocr_helper_token'] = helper_token.strip()
-
-    confidence = request.form.get('ocr_confidence_threshold')
-    if confidence is not None:
-        try:
-            config['ocr_confidence_threshold'] = float(confidence)
-        except ValueError:
-            return jsonify({'success': False, 'message': 'Confidence threshold must be a number.'}), 400
-
-    poll_ms = request.form.get('ocr_poll_ms')
-    if poll_ms is not None:
-        try:
-            config['ocr_poll_ms'] = max(50, int(float(poll_ms)))
-        except ValueError:
-            return jsonify({'success': False, 'message': 'OCR poll interval must be a number.'}), 400
-
-    roi_x = request.form.get('ocr_roi_x')
-    roi_y = request.form.get('ocr_roi_y')
-    roi_width = request.form.get('ocr_roi_width')
-    roi_height = request.form.get('ocr_roi_height')
-    roi_fields = {
-        'x': roi_x,
-        'y': roi_y,
-        'width': roi_width,
-        'height': roi_height,
-    }
-    if any(value is not None for value in roi_fields.values()):
-        roi_config = dict(config.get('ocr_roi_cs2', {}))
-        for key, value in roi_fields.items():
-            if value is None:
-                continue
-            try:
-                roi_config[key] = max(0, int(float(value)))
-            except ValueError:
-                return jsonify({'success': False, 'message': f'OCR ROI {key} must be a number.'}), 400
-        config['ocr_roi_cs2'] = roi_config
-
-    save_config(config)
-    return jsonify({'success': True})
 
 @app.route('/api/recoil/shutdown_on_exit_toggle', methods=['POST'])
 def shutdown_on_exit_toggle():

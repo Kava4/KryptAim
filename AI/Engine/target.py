@@ -34,6 +34,45 @@ class TargetSelector:
         self._sticky_target = None
         self._frames_without_target = 0
 
+    def _matches_detection_class(
+        self,
+        class_name: str,
+        class_id: int,
+        player_label: str,
+        head_label: str,
+        *,
+        exclude_friendly: bool = False,
+    ) -> tuple[bool, str]:
+        """Filter detections by enemy body/head class (or exclude friendly team)."""
+        if not player_label and not head_label:
+            return True, 'player'
+
+        name_str = str(class_name)
+        player_str = str(player_label) if player_label else ''
+        head_str = str(head_label) if head_label else ''
+
+        def _name_matches(label: str) -> bool:
+            if not label:
+                return False
+            if name_str == label or str(class_id) == label:
+                return True
+            if len(label) > 1 and not label.isdigit():
+                return label.lower() in name_str.lower()
+            return False
+
+        if exclude_friendly and player_str:
+            if _name_matches(player_str):
+                return False, ''
+            if head_str and _name_matches(head_str):
+                return False, ''
+            return True, 'player'
+
+        if player_str and _name_matches(player_str):
+            return True, 'player'
+        if head_str and _name_matches(head_str):
+            return True, 'head'
+        return False, ''
+
     def select(
         self,
         output: np.ndarray,
@@ -41,9 +80,20 @@ class TargetSelector:
         image_size: int,
         num_detections: int,
         num_classes: int = 1,
+        *,
+        class_names: dict[int, str] | None = None,
+        player_label: str = '',
+        head_label: str = '',
+        player_y_offset: int = 0,
+        min_confidence: float | None = None,
+        fov_size: float | None = None,
+        exclude_friendly: bool = False,
     ) -> Prediction | None:
-        min_conf = float(self._settings.sliders['AI Minimum Confidence']) / 100.0
-        fov = float(self._settings.sliders['FOV Size'])
+        if min_confidence is not None:
+            min_conf = float(min_confidence)
+        else:
+            min_conf = float(self._settings.sliders['AI Minimum Confidence']) / 100.0
+        fov = float(fov_size) if fov_size is not None else float(self._settings.sliders['FOV Size'])
         fov_min_x = (image_size - fov) / 2.0
         fov_max_x = (image_size + fov) / 2.0
         fov_min_y = (image_size - fov) / 2.0
@@ -70,6 +120,17 @@ class TargetSelector:
             if confidence < min_conf:
                 continue
 
+            class_name = (class_names or {}).get(class_id, str(class_id))
+            if player_label or head_label:
+                is_target, target_type = self._matches_detection_class(
+                    class_name, class_id, player_label, head_label,
+                    exclude_friendly=exclude_friendly,
+                )
+                if not is_target:
+                    continue
+            else:
+                target_type = 'player'
+
             x_min = x_center - width / 2
             y_min = y_center - height / 2
             x_max = x_center + width / 2
@@ -78,6 +139,11 @@ class TargetSelector:
             if x_min < fov_min_x or x_max > fov_max_x or y_min < fov_min_y or y_max > fov_max_y:
                 continue
 
+            aim_x = x_center
+            aim_y = y_center
+            if target_type == 'player' and player_y_offset:
+                aim_y = y_min + float(player_y_offset)
+
             pred = Prediction(
                 x_min=x_min,
                 y_min=y_min,
@@ -85,8 +151,8 @@ class TargetSelector:
                 height=height,
                 confidence=confidence,
                 class_id=class_id,
-                screen_center_x=region.left + x_center,
-                screen_center_y=region.top + y_center,
+                screen_center_x=region.left + aim_x,
+                screen_center_y=region.top + aim_y,
                 detection_box=(region.left + x_min, region.top + y_min, width, height),
             )
             candidates.append(pred)

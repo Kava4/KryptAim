@@ -1,4 +1,4 @@
-"""AimSync Beta AI / trigger engine (Aimmy-compatible pipeline)."""
+"""AimSync AI detection and aim engine."""
 
 from AI.Engine.engine import AiEngine, get_ai_engine
 

@@ -1,5 +1,41 @@
 import re
 
+XYD_ENTRY_RE = re.compile(
+    r'\{\s*x\s*=\s*(-?\d+(?:\.\d+)?)\s*,\s*y\s*=\s*(-?\d+(?:\.\d+)?)\s*,\s*d\s*=\s*(\d+)\s*\}',
+    re.IGNORECASE,
+)
+
+
+def parse_lua_xyd_table(
+    lua_content: str,
+    *,
+    weapon_name: str | None = None,
+    mult_base: float = 1.6,
+) -> list[tuple[float, float, float]]:
+    """Parse G Hub tables like `{ x = 0, y = 1, d = 7 }` into AimSync steps.
+
+    `d` is treated as milliseconds (Sleep delay before/after the move in most scripts).
+    `mult_base` matches the 1.6x scale used by other CS2 patterns (G Hub mult ≈ 2.0 parity).
+    """
+    block = lua_content
+    if weapon_name:
+        match = re.search(
+            rf'{re.escape(weapon_name)}\s*=\s*\{{(.*?)\}}\s*(?:$|\n|\r)',
+            lua_content,
+            re.S | re.IGNORECASE,
+        )
+        if match:
+            block = match.group(1)
+
+    pattern: list[tuple[float, float, float]] = []
+    for x_raw, y_raw, delay_ms in XYD_ENTRY_RE.findall(block):
+        x = float(x_raw) * mult_base
+        y = float(y_raw) * mult_base
+        delay_s = int(delay_ms) / 1000.0
+        pattern.append((round(x, 3), round(y, 3), round(delay_s, 4)))
+    return pattern
+
+
 def parse_ghub_lua_to_aimsync(lua_content: str):
     """
     Parses a Logitech G Hub LUA script for recoil movements and converts it

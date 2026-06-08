@@ -1,6 +1,8 @@
 import json
 from functools import wraps
 from flask import Blueprint, render_template_string, request, make_response, jsonify
+from Input.methods import method_display_name, resolve_mouse_input_method, sync_legacy_recoil_input_method, use_alt_input
+from Input.router import input_router
 from Makcu.makcu_manager import makcu_manager
 from Server import cloud_manager
 
@@ -12,8 +14,13 @@ from Config.config_manager import (
     save_config,
     save_pattern_file,
 )
-from Config.app_identity import is_beta_channel
-from Recoil.hotkeys import HotkeyValidationError, normalize_hotkey_string, validate_hotkey_bindings
+from Recoil.hotkeys import (
+    HotkeyValidationError,
+    normalize_hotkey_string,
+    set_hotkey_binding_active,
+    validate_hotkey_bindings,
+)
+from Recoil.recoil import reset_master_toggle_hotkey
 
 recoil_bp = Blueprint('recoil_bp', __name__, url_prefix='/api/recoil')
 
@@ -59,8 +66,12 @@ def _render_pattern_select(config):
 
 
 def _render_input_warning(method):
-    if method != 'software':
+    key = (method or '').strip().lower()
+    if key in ('hardware', 'makcu'):
         return ''
+    label = method_display_name(resolve_mouse_input_method({'mouse_input_method': key}))
+    if key == 'software':
+        label = method_display_name('win32')
     return render_template_string(
         """
         <div class="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200/80 text-xs animate-in fade-in duration-300">
@@ -68,11 +79,12 @@ def _render_input_warning(method):
                 <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
             </svg>
             <p>
-                <strong class="text-amber-400 block mb-0.5 uppercase tracking-wide">Security Warning</strong>
-                Software input (SendInput) is significantly easier to detect. Physical hardware is highly recommended for competitive play.
+                <strong class="text-amber-400 block mb-0.5 uppercase tracking-wide">Dual-PC / local input warning</strong>
+                {{ label }} moves and clicks on <em>this</em> PC only. For gaming-PC control via Makcu, select <strong>Hardware (Makcu)</strong>.
             </p>
         </div>
-        """
+        """,
+        label=label,
     )
 
 
@@ -110,33 +122,52 @@ def status():
 @recoil_bp.route('/hardware-check', methods=['GET'])
 def hardware_check():
     """Endpoint for the UI to verify hardware connection status."""
-    hardware = makcu_manager.is_hardware()
-    connected = hardware and makcu_manager.is_connected()
     config = load_config()
-    method = config.get('recoil_input_method', 'hardware')
-    is_unsafe = (method == 'software') or (not connected)
+    method = resolve_mouse_input_method(config)
+
+    if method == 'makcu':
+        if not makcu_manager.is_connected():
+            makcu_manager.connect()
+        hardware = makcu_manager.is_hardware()
+        connected = hardware and makcu_manager.is_connected()
+        is_unsafe = not connected
+        input_label = 'Makcu'
+        if connected:
+            input_status = 'Connected'
+            input_style = 'bg-green-500/10 border-green-500/50 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
+            input_dot = 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse'
+        elif hardware:
+            input_status = 'Disconnected'
+            input_style = 'bg-red-500/10 border-red-500/50 text-red-400'
+            input_dot = 'bg-red-500'
+        else:
+            input_status = 'Not connected'
+            input_style = 'bg-red-500/10 border-red-500/50 text-red-400'
+            input_dot = 'bg-red-500'
+    else:
+        status = input_router.status(config)
+        input_label = status.get('method_label', method_display_name(method))
+        connected = bool(status.get('connected'))
+        is_unsafe = True
+        if connected:
+            input_status = 'Connected'
+            input_style = 'bg-green-500/10 border-green-500/50 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
+            input_dot = 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse'
+        else:
+            input_status = status.get('last_error') or 'Not connected'
+            input_style = 'bg-red-500/10 border-red-500/50 text-red-400'
+            input_dot = 'bg-red-500'
+
     integrity_level = "High (Safe)" if not is_unsafe else "Low (Unsafe)"
     integrity_color = "bg-blue-500/10 border-blue-500/50 text-blue-400" if integrity_level == "High (Safe)" else ("bg-amber-500/10 border-amber-500/50 text-amber-400" if integrity_level == "Medium" else "bg-red-500/10 border-red-500/50 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.1)]")
     dot_color = "bg-blue-500" if integrity_level == "High (Safe)" else ("bg-amber-500" if integrity_level == "Medium" else "bg-red-500")
-    if connected:
-        makcu_label = 'Connected'
-        makcu_style = 'bg-green-500/10 border-green-500/50 text-green-400 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
-        makcu_dot = 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse'
-    elif hardware:
-        makcu_label = 'Disconnected'
-        makcu_style = 'bg-red-500/10 border-red-500/50 text-red-400'
-        makcu_dot = 'bg-red-500'
-    else:
-        makcu_label = 'Not connected'
-        makcu_style = 'bg-red-500/10 border-red-500/50 text-red-400'
-        makcu_dot = 'bg-red-500'
 
     return render_template_string(
         """
         <div id="hardware-status" hx-get="/api/recoil/hardware-check" hx-trigger="every 10s" hx-swap="outerHTML" class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-300 {{ makcu_style }}">
-                <div class="w-2 h-2 rounded-full {{ makcu_dot }}"></div>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Makcu: {{ makcu_label }}</span>
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-300 {{ input_style }}">
+                <div class="w-2 h-2 rounded-full {{ input_dot }}"></div>
+                <span class="text-[10px] font-bold uppercase tracking-widest">{{ input_label }}: {{ input_status }}</span>
             </div>
             
             <div class="flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-300 {{ integrity_color }}">
@@ -145,10 +176,10 @@ def hardware_check():
             </div>
         </div>
         """,
-        connected=connected,
-        makcu_label=makcu_label,
-        makcu_style=makcu_style,
-        makcu_dot=makcu_dot,
+        input_label=input_label,
+        input_status=input_status,
+        input_style=input_style,
+        input_dot=input_dot,
         is_unsafe=is_unsafe,
         integrity_level=integrity_level,
         integrity_color=integrity_color,
@@ -159,6 +190,13 @@ def hardware_check():
 @recoil_bp.route('/toggle', methods=['POST'])
 def toggle():
     _update_config(['recoil_enabled'], _parse_bool(request.form.get('recoil_enabled', False)))
+    reset_master_toggle_hotkey()
+    return '', 204
+
+
+@recoil_bp.route('/hotkey-binding', methods=['POST'])
+def hotkey_binding():
+    set_hotkey_binding_active(_parse_bool(request.form.get('active', False)))
     return '', 204
 
 
@@ -175,8 +213,6 @@ def _validate_all_hotkeys(config: dict) -> None:
 
 def _apply_hotkey_field(config: dict, field: str, normalized: str) -> None:
     ai_fields = {'ai_aim_keybind', 'ai_second_aim_keybind', 'ai_engine_toggle_hotkey'}
-    if field in ai_fields and not is_beta_channel():
-        raise HotkeyValidationError('AI hotkeys are available only in beta.')
 
     if field in {'recoil_keybind', 'global_toggle_hotkey'}:
         config['recoil_keybind'] = normalized
@@ -203,6 +239,8 @@ def set_hotkey():
     except HotkeyValidationError as exc:
         return jsonify({'success': False, 'message': str(exc)}), 400
     save_config(config)
+    if field in {'recoil_keybind', 'global_toggle_hotkey'}:
+        reset_master_toggle_hotkey()
     return jsonify({'success': True, 'field': field, 'value': normalized})
 
 
@@ -233,8 +271,6 @@ def cycle_keybind():
 
 @recoil_bp.route('/hotkeys', methods=['POST'])
 def hotkeys():
-    if not is_beta_channel():
-        return jsonify({'success': False, 'message': 'Custom hotkeys are available only in beta.'}), 404
     config = load_config()
     global_toggle = request.form.get('global_toggle_hotkey', config.get('global_toggle_hotkey', 'M4'))
     cycle_hotkey = request.form.get('weapon_cycle_hotkey', config.get('weapon_cycle_hotkey', 'None'))
@@ -296,8 +332,6 @@ def hotkeys():
 
 @recoil_bp.route('/hotkeys/validate', methods=['POST'])
 def validate_hotkeys_route():
-    if not is_beta_channel():
-        return jsonify({'success': False, 'message': 'Custom hotkeys are available only in beta.'}), 404
     payload = request.get_json(silent=True) or {}
     try:
         global_toggle = normalize_hotkey_string(payload.get('global_toggle_hotkey'))
@@ -340,8 +374,39 @@ def require_rmb():
 @recoil_bp.route('/input_method', methods=['POST'])
 def input_method():
     method = request.form.get('recoil_input_method', 'hardware')
-    _update_config(['recoil_input_method'], method)
+    config = load_config()
+    legacy_map = {
+        'hardware': 'makcu',
+        'software': 'win32',
+    }
+    if method in legacy_map:
+        config['mouse_input_method'] = legacy_map[method]
+    else:
+        config['mouse_input_method'] = method.strip().lower()
+    sync_legacy_recoil_input_method(config)
+    save_config(config)
+    if use_alt_input(config):
+        input_router.reload(config)
     return _render_input_warning(method), 200
+
+
+@recoil_bp.route('/alt_input_settings', methods=['POST'])
+def alt_input_settings():
+    config = load_config()
+    for key in (
+        'arduino_port',
+        'ghub_dll_path',
+        'razer_dll_path',
+        'kmbox_net_ip',
+        'kmbox_net_port',
+        'kmbox_net_uuid',
+    ):
+        if key in request.form:
+            config[key] = request.form.get(key, '')
+    save_config(config)
+    if use_alt_input(config):
+        input_router.reload(config)
+    return '', 204
 
 
 @recoil_bp.route('/randomisation', methods=['POST'])
@@ -453,7 +518,14 @@ def cs2_sensitivity():
 
 @recoil_bp.route('/mode', methods=['POST'])
 def mode():
-    _update_config(['recoil_mode'], request.form.get('recoil_mode', 'simple'))
+    from Recoil.recoil import reset_pattern_state
+
+    new_mode = request.form.get('recoil_mode', 'simple')
+    config = load_config()
+    if config.get('recoil_mode') != new_mode:
+        config['recoil_mode'] = new_mode
+        save_config(config)
+        reset_pattern_state()
     return '', 204
 
 
@@ -486,22 +558,36 @@ def delete_pattern():
 @recoil_bp.route('/cloud/list', methods=['GET'])
 def cloud_list():
     """Fetches a list of public patterns from the remote server."""
-    # Delegate logic to the cloud manager module
-    patterns = cloud_manager.fetch_patterns()
+    result = cloud_manager.fetch_patterns()
+    patterns = result.get('patterns', [])
+    online = result.get('online', False)
+    error = result.get('error')
 
     return render_template_string(
         """
+        {% if error %}
+        <div class="col-span-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-200/90">
+            Cloud unreachable — check internet on AimSync PC. ({{ error }})
+        </div>
+        {% elif not patterns %}
+        <div class="col-span-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/45">
+            Repository online — no community patterns yet. Use <strong class="text-white/70">Share</strong> to upload the first one.
+        </div>
+        {% else %}
         {% for p in patterns %}
         <div class="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all group">
-            <div class="flex flex-col">
-                <span class="text-xs font-semibold text-white">{{ p.name }}</span>
+            <div class="flex flex-col min-w-0">
+                <span class="text-xs font-semibold text-white truncate">{{ p.name }}</span>
                 <span class="text-[10px] text-white/30 uppercase tracking-tighter">by {{ p.author }}</span>
             </div>
-            <button onclick="loadCloudPattern('{{ p.name }}')" class="text-[10px] font-bold text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity uppercase">Import</button>
+            <button type="button" data-cloud-name="{{ p.name | e }}" class="cloud-import-btn text-[10px] font-bold text-blue-400 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity uppercase shrink-0 ml-2">Import</button>
         </div>
         {% endfor %}
+        {% endif %}
         """,
-        patterns=patterns
+        patterns=patterns,
+        online=online,
+        error=error,
     )
 
 @recoil_bp.route('/cloud/upload', methods=['POST'])
@@ -528,6 +614,9 @@ def cloud_username():
 def cloud_load():
     """Retrieves content from the cloud to inject into the local editor."""
     name = request.args.get('name', '').strip()
-    if name:
-        return cloud_manager.fetch_pattern_content(name), 200
-    return '', 400
+    if not name:
+        return 'Missing pattern name.', 400
+    content = cloud_manager.fetch_pattern_content(name)
+    if not content or not content.strip():
+        return f'Pattern "{name}" not found or empty on cloud.', 404
+    return content, 200

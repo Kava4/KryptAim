@@ -97,7 +97,8 @@ PatternExtractor/
 Menu/
 Cloud/
 
-# Local weapon / G Hub reference imports (shipped via private releases)
+# Local wiki clone (gitignored)
+.wiki-clone/
 Recoil/games/*.py
 Recoil/games/*.lua
 !Recoil/games/.gitkeep

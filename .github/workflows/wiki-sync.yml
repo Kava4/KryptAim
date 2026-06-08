@@ -1,0 +1,26 @@
+name: Sync Wiki
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [Beta, main]
+    paths:
+      - "wiki/**"
+      - ".github/workflows/wiki-sync.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish wiki/
+        uses: Andrew-Chen-Wang/github-wiki-action@v4
+        with:
+          path: wiki
+          strategy: init
+          exclude: WIKI-UPLOAD.md
+          commit-message: "Sync wiki from repo wiki/ folder"

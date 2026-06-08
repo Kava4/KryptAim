@@ -3,13 +3,29 @@
 GitHub Wiki is a **separate git repository**:
 
 ```
-https://github.com/Kava4/AimSync.wiki.git
+https://github.com/AimSyncCore/AimSync.wiki.git
 ```
 
-## One-time setup
+Live wiki: https://github.com/AimSyncCore/AimSync/wiki
+
+## Automatic sync (recommended)
+
+Push changes under `wiki/` to the `Beta` or `main` branch — the **Sync Wiki** GitHub Action publishes them.
+
+Manual run: **Actions → Sync Wiki → Run workflow**.
+
+## Manual sync (local)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\sync_github_wiki.ps1
+```
+
+Requires the wiki git repo to exist (create the first page once from the GitHub **Wiki** tab if the script reports “not initialized”).
+
+## One-time manual setup (if Action fails)
 
 ```bash
-git clone https://github.com/Kava4/AimSync.wiki.git
+git clone https://github.com/AimSyncCore/AimSync.wiki.git
 cd AimSync.wiki
 ```
 
@@ -20,20 +36,11 @@ Required files:
 - `_Sidebar.md` (left navigation)
 - All other `*.md` pages
 
-## Publish
-
 ```bash
-cd AimSync.wiki
 git add .
 git commit -m "Initial AimSync wiki"
 git push
 ```
-
-Wiki will be live at: https://github.com/Kava4/AimSync/wiki
-
-## Update later
-
-Edit pages in the wiki clone (or use the GitHub web editor), then `git commit` + `git push`.
 
 ## Notes
 
@@ -41,3 +48,4 @@ Edit pages in the wiki clone (or use the GitHub web editor), then `git commit` +
 - `Home.md` is the wiki home page
 - `_Sidebar.md` controls the left menu on every page
 - Do **not** upload `WIKI-UPLOAD.md` as a wiki page
+

@@ -7,12 +7,13 @@ import os
 import re
 import subprocess
 import sys
+import urllib.request
 import zipfile
 from pathlib import Path
 from typing import Any
 
 from app.core.config import config_dir
-from app.core.github import download_bytes, get_json
+from app.core.github import USER_AGENT, download_bytes, get_json
 from app.core.identity import APP_VERSION
 from app.core.paths import is_frozen
 
@@ -62,27 +63,83 @@ def _pick_asset(assets: list[dict[str, Any]]) -> dict[str, Any] | None:
     return None
 
 
+def _latest_via_redirect(repo: str) -> tuple[str, str, str, str, str | None]:
+    """Resolve latest release tag via /releases/latest redirect (no API quota)."""
+    page = f'https://github.com/{repo}/releases/latest'
+    req = urllib.request.Request(page, method='HEAD', headers={'User-Agent': USER_AGENT})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as response:
+            final = str(response.geturl() or page).strip()
+    except Exception as exc:
+        return '', page, '', '', str(exc)
+
+    tag = final.rstrip('/').split('/')[-1]
+    latest = tag.lstrip('vV')
+    if not latest:
+        return '', final, '', '', 'Could not parse release tag'
+
+    for name in _PREFERRED_ASSETS:
+        if not name.lower().endswith(('.exe', '.zip')):
+            continue
+        download = f'https://github.com/{repo}/releases/download/{tag}/{name}'
+        head = urllib.request.Request(download, method='HEAD', headers={'User-Agent': USER_AGENT})
+        try:
+            with urllib.request.urlopen(head, timeout=15) as probe:
+                if int(getattr(probe, 'status', 200) or 200) < 400:
+                    return latest, final, download, name, None
+        except Exception:
+            continue
+    return latest, final, '', '', 'Release has no .exe or .zip asset'
+
+
 def check_for_updates(*, repo: str = DEFAULT_REPO) -> dict[str, Any]:
     current = current_version()
     url = f'https://api.github.com/repos/{repo}/releases/latest'
     data, err = get_json(url, timeout=15)
+
+    tag = ''
+    latest = ''
+    notes = ''
+    page = ''
+    asset_name = ''
+    download_url = ''
+    asset_size = 0
+
     if err or not isinstance(data, dict):
-        return {
-            'success': False,
-            'current_version': current,
-            'latest_version': '',
-            'update_available': False,
-            'error': err or 'Could not reach GitHub releases',
-        }
+        latest, page, download_url, asset_name, fb_err = _latest_via_redirect(repo)
+        if not latest:
+            return {
+                'success': False,
+                'current_version': current,
+                'latest_version': '',
+                'update_available': False,
+                'error': err or fb_err or 'Could not reach GitHub releases',
+            }
+        tag = f'v{latest}' if latest and not str(latest).startswith('v') else latest
+    else:
+        tag = str(data.get('tag_name') or data.get('name') or '').strip()
+        latest = tag.lstrip('vV')
+        assets = data.get('assets') or []
+        asset = _pick_asset(assets) if isinstance(assets, list) else None
+        notes = str(data.get('body') or '').strip()
+        page = str(data.get('html_url') or '').strip()
+        if asset:
+            asset_name = str(asset.get('name') or '')
+            download_url = str(asset.get('browser_download_url') or '')
+            asset_size = int(asset.get('size') or 0)
 
-    tag = str(data.get('tag_name') or data.get('name') or '').strip()
-    latest = tag.lstrip('vV')
-    assets = data.get('assets') or []
-    asset = _pick_asset(assets) if isinstance(assets, list) else None
-    notes = str(data.get('body') or '').strip()
-    page = str(data.get('html_url') or '').strip()
+    if not download_url and latest:
+        latest, page, download_url, asset_name, fb_err = _latest_via_redirect(repo)
+        if not download_url and fb_err:
+            return {
+                'success': False,
+                'current_version': current,
+                'latest_version': latest,
+                'update_available': False,
+                'error': fb_err,
+            }
 
-    update_available = bool(latest) and version_lt(current, latest) and asset is not None
+    update_available = bool(latest) and version_lt(current, latest) and bool(download_url)
     return {
         'success': True,
         'current_version': current,
@@ -90,10 +147,10 @@ def check_for_updates(*, repo: str = DEFAULT_REPO) -> dict[str, Any]:
         'update_available': update_available,
         'release_notes': notes,
         'release_url': page,
-        'download_url': str(asset.get('browser_download_url') or '') if asset else '',
-        'asset_name': str(asset.get('name') or '') if asset else '',
-        'asset_size': int(asset.get('size') or 0) if asset else 0,
-        'error': None if asset or not update_available else 'Release has no .exe or .zip asset',
+        'download_url': download_url,
+        'asset_name': asset_name,
+        'asset_size': asset_size,
+        'error': None if download_url or not update_available else 'Release has no .exe or .zip asset',
     }
 
 

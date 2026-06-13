@@ -120,6 +120,7 @@ def build_args() -> list[str]:
     _add_data(protected / 'manifest.json', 'app/protected', args)
     _add_data(protected / 'sealed', 'app/protected/sealed', args)
     _add_data(ROOT / 'release' / 'projects.json', 'release', args)
+    _add_data(ROOT / 'release' / 'version.json', 'release', args)
     if profile == 'lite':
         _add_data(ROOT / 'requirements.txt', '.', args)
 

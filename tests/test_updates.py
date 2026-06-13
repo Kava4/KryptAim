@@ -37,6 +37,24 @@ class UpdatesTests(unittest.TestCase):
         self.assertTrue(status['update_available'])
         self.assertEqual(status['latest_version'], '0.2.0')
 
+    @patch('app.core.updates._latest_via_redirect')
+    @patch('app.core.updates.get_json')
+    def test_check_falls_back_on_rate_limit(self, mock_get, mock_redirect) -> None:
+        mock_get.return_value = (None, 'HTTP 403')
+        mock_redirect.return_value = (
+            '0.2.0',
+            'https://github.com/AimSyncCore/AimSync/releases/tag/v0.2.0',
+            'https://github.com/AimSyncCore/AimSync/releases/download/v0.2.0/AimSync.exe',
+            'AimSync.exe',
+            None,
+        )
+        with patch.object(upd, 'current_version', return_value='0.1.0'):
+            status = upd.check_for_updates()
+        self.assertTrue(status['success'])
+        self.assertTrue(status['update_available'])
+        self.assertEqual(status['latest_version'], '0.2.0')
+        mock_redirect.assert_called_once()
+
 
 if __name__ == '__main__':
     unittest.main()

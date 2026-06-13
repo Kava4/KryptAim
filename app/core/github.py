@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -16,14 +17,23 @@ DEFAULT_TIMEOUT = 15.0
 DOWNLOAD_TIMEOUT = 300.0
 
 
-def _request(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> tuple[bytes | None, str | None]:
-    req = urllib.request.Request(
-        url,
-        headers={
-            'User-Agent': USER_AGENT,
-            'Accept': 'application/vnd.github+json',
-        },
+def _github_token() -> str:
+    return (
+        os.environ.get('AIMSYNC_GITHUB_TOKEN', '').strip()
+        or os.environ.get('GITHUB_TOKEN', '').strip()
+        or os.environ.get('GH_TOKEN', '').strip()
     )
+
+
+def _request(url: str, *, timeout: float = DEFAULT_TIMEOUT) -> tuple[bytes | None, str | None]:
+    headers = {
+        'User-Agent': USER_AGENT,
+        'Accept': 'application/vnd.github+json',
+    }
+    token = _github_token()
+    if token:
+        headers['Authorization'] = f'Bearer {token}'
+    req = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as response:
             return response.read(), None

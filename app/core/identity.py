@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from app.core.paths import app_root, bundle_root
+
 APP_NAME = 'AimSync'
 APP_DISPLAY_NAME = 'AimSync'
 APP_STORAGE_DIR = 'AimSync'
@@ -13,8 +15,9 @@ APP_VERSION_LABEL = 'Early Access'
 
 def _read_shipped_version() -> tuple[str, str]:
     candidates = [
+        bundle_root() / 'release' / 'version.json',
+        app_root() / 'release' / 'version.json',
         Path(__file__).resolve().parents[2] / 'release' / 'version.json',
-        Path(__file__).resolve().parents[1] / 'release' / 'version.json',
     ]
     for path in candidates:
         if not path.is_file():

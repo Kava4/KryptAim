@@ -2,33 +2,48 @@
 
 ---
 
-**What is AimSync?**
-A local web app for Makcu HID recoil control, pattern editing, and optional AI aim/trigger on a dual-PC setup.
+## Where do I download AimSync?
 
-**Do I need two PCs?**
-No for basic recoil. **Yes** for NDI-based AI capture from a gaming PC while AimSync runs on a second PC with Makcu.
+[GitHub Releases — AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync/releases)
 
-**Why venv instead of `.exe`?**
-PyTorch + CUDA + Makcu are more reliable with native pip than a frozen bundle. See [Venv distribution](Venv-Distribution).
-
-**Where do models come from?**
-Place `.onnx` / `.pt` files in `%APPDATA%\AimSync\bin\models\`. No public model store — bring your own weights.
-
-**Is the AI always on?**
-No — use **Start AI engine** in the UI. Optional always-on aim/trigger in AI settings.
-
-**Can I build from GitHub clone alone?**
-The public repo may not include all protected core files. Use a [Release](https://github.com/Kava4/AimSync/releases) or full source zip from the maintainer.
-
-**Is it free?**
-Current access mode is free. Licensing hooks are placeholders.
-
-**Does this work without Makcu?**
-Software input exists for testing; hardware mode is the intended production path.
-
-**Where is documentation?**
-This wiki. Repo `README.md` links here.
+Use the slim `AimSync.exe` unless you need the full offline bundle.
 
 ---
+
+## Is AI free?
+
+**Yes, by default.** AI is unlocked for everyone. Supporter licensing can be enabled remotely via `release/app-config.json` without a new exe build.
+
+---
+
+## Why is the repo different from the old Beta tree?
+
+The codebase was rebuilt (2026): `app/`, `web/`, slim exe bootstrap. Legacy `Server/`, `Config/`, `AI/` folders were removed from the public repo.
+
+---
+
+## Where are models stored?
+
+```
+%APPDATA%\AimSync\models\
+```
+
+Use **Community models** in the AI tab or upload manually.
+
+---
+
+## How do I update?
+
+**Global Settings → Updates → Check for updates**. Requires a published [GitHub Release](https://github.com/AimSyncCore/AimSync/releases) with `AimSync.exe` or `AimSync.zip`.
+
+---
+
+## Dev license key?
+
+Run `scripts\run_dev.bat` and use `DEV-AIMSYNC` in Global Settings (dev builds only).
+
+---
+
+## More help
 
 [Installation](Installation) · [Troubleshooting](Troubleshooting) · [Ko-fi](https://ko-fi.com/kava4)

@@ -1,0 +1,7 @@
+# Build machine only (PyInstaller + CUDA stack)
+-r requirements.txt
+pyinstaller>=6.10
+pillow>=10.0
+onnx>=1.12
+onnxruntime-gpu>=1.18
+lap>=0.5.12

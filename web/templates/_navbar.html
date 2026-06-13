@@ -1,0 +1,114 @@
+    <nav class="bg-neutral-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 md:px-6">
+            <div class="flex items-center justify-between h-16 gap-3">
+                <a href="#" class="flex items-center gap-2.5 flex-shrink-0" title="{{ app_name }} {{ app_version }}">
+                    <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="AimSync Logo" class="h-12 w-auto">
+                    <span class="sm:hidden text-[10px] font-semibold text-blue-300/90">{{ app_version }}</span>
+                    <span class="hidden sm:inline-flex flex-col leading-tight">
+                        <span class="text-sm font-semibold text-white">{{ app_name }}</span>
+                        <span class="text-[10px] font-medium uppercase tracking-wider text-blue-300/80">{{ app_version }} · {{ app_version_label }}</span>
+                    </span>
+                </a>
+
+                <div class="flex items-center gap-2 md:gap-3 ml-auto">
+                    <button type="button" onclick="toggleQRModal()" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all" title="Connect Mobile Device">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                        </svg>
+                        <span class="text-xs font-semibold hidden lg:inline">Mobile Link</span>
+                    </button>
+
+                    <button type="button" onclick="toggleFeedbackModal()" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all" title="Send Feedback">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span class="text-xs font-semibold hidden lg:inline">Feedback</span>
+                    </button>
+
+                    <button type="button" onclick="switchToGlobalTab(); checkForUpdates(true);" id="nav-update-badge"
+                            class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-400/30 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20 transition-all"
+                            title="Update available">
+                        <span class="text-xs font-semibold">Update</span>
+                    </button>
+
+                    <div class="relative hidden sm:block" id="support-dropdown-container">
+                        <button type="button" onclick="toggleSupportDropdown()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all">
+                            <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                            <span class="text-xs font-semibold">Support</span>
+                            <svg class="w-3 h-3 opacity-40 transition-transform duration-200" id="support-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <div id="support-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-neutral-900 border border-white/10 shadow-2xl py-1 z-50">
+                            <a href="https://ko-fi.com/kava4" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 border-b border-white/5">Support on Ko-fi</a>
+                            <a href="https://paypal.me/kava4" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5">Donate via PayPal</a>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="quitApplication()" class="hidden md:inline-flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-1.5 text-xs font-semibold text-red-200 hover:bg-red-400/20 transition-colors">Stop App</button>
+
+                    <button id="menu-btn" type="button" onclick="toggleMobileMenu()" class="md:hidden flex flex-col gap-1.5 p-1.5 rounded-lg hover:bg-white/5 transition-colors" aria-label="Toggle menu">
+                        <span id="bar-1" class="block w-5 h-0.5 bg-white/80 transition-all duration-300 origin-center"></span>
+                        <span id="bar-2" class="block w-5 h-0.5 bg-white/80 transition-all duration-300"></span>
+                        <span id="bar-3" class="block w-5 h-0.5 bg-white/80 transition-all duration-300 origin-center"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="qr-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">Connect Mobile</h3>
+                <button type="button" onclick="toggleQRModal()" class="text-white/40 hover:text-white p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <div class="flex flex-col items-center gap-6">
+                <div id="qrcode-container" class="bg-white p-4 rounded-xl shadow-inner overflow-hidden"></div>
+                <p class="text-sm font-medium text-white/80">Scan with your phone camera</p>
+                <button type="button" onclick="toggleQRModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedback-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-white">Send Feedback</h3>
+                <button type="button" onclick="toggleFeedbackModal()" class="text-white/40 hover:text-white p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <select id="feedback-type-input" class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-4">
+                <option value="UI / UX">UI / Interface Issue</option>
+                <option value="Recoil Engine">Recoil Engine</option>
+                <option value="Hardware">Hardware / Makcu</option>
+                <option value="AI Engine">AimSync AI</option>
+                <option value="Bug Report">General Bug</option>
+            </select>
+            <textarea id="feedback-message-input" rows="6" placeholder="Your message…"
+                      class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-4 resize-y"></textarea>
+            <input type="text" id="contact-info-input" placeholder="Discord or email (optional)"
+                   class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-4">
+            <button type="button" onclick="sendFeedback(event)" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl">Send Feedback</button>
+        </div>
+    </div>
+
+    <div id="mobile-menu-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 z-[45] bg-black/60 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0"></div>
+    <div id="mobile-menu-drawer" class="fixed top-0 right-0 z-[50] h-full w-72 bg-neutral-900 border-l border-white/10 translate-x-full transition-transform duration-300 ease-in-out p-6 flex flex-col overflow-y-auto">
+        <div class="flex items-center justify-between mb-8">
+            <span class="text-white font-semibold">{{ app_name }}</span>
+            <button type="button" onclick="toggleMobileMenu()" class="text-white/40 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+        <div class="flex flex-col gap-1">
+            <p class="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-2 ml-4">Navigation</p>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-white/5 active" data-tab="global">Global Settings</button>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5" data-tab="CS2">Game Engine</button>
+            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5" data-tab="ai-engine">AimSync AI</button>
+        </div>
+        <div class="mt-auto pt-8 border-t border-white/5 space-y-4">
+            <button type="button" onclick="toggleFeedbackModal()" class="w-full rounded-xl bg-white/5 py-3 text-sm text-white/70">Send Feedback</button>
+            <button type="button" onclick="quitApplication()" class="w-full rounded-xl border border-red-400/30 bg-red-400/10 py-3 text-sm font-semibold text-red-200">Stop Application</button>
+        </div>
+    </div>

@@ -1,45 +1,70 @@
 # Global settings
 
-Controls that apply across all recoil modes.
+Controls that apply across recoil and shared app options.
 
 ---
 
 ## Master switch
 
 - **Recoil enabled** — global on/off for compensation.
-- Works with the configured toggle hotkey (default **M4**).
-
----
-
-## Hotkeys
-
-| Setting | Default | Notes |
-|---------|---------|-------|
-| Global toggle | M4 | Hold to activate recoil |
-| Cycle keybind | None | Cycle saved patterns |
-| Weapon cycle | None | Cycle CS2 weapons |
-| Require RMB | Off | Only compensate while right-click held |
-
-Custom binds are validated for conflicts with AI hotkeys.
+- Toggle hotkey (default **M4**).
 
 ---
 
 ## Input method
 
-- **Hardware (Makcu)** — use for production / dual-PC.
-- **Software** — testing only.
+- **Hardware (Makcu)** — production / dual-PC.
+- **Win32 (dev)** — local mouse only, for `run_dev.bat`.
 
-Check **Makcu status** on this tab. If disconnected, verify USB and that no other app holds the device.
+---
+
+## Randomisation
+
+Optional X/Y jitter and control sliders for spray variation.
+
+---
+
+## AI Runtime (slim exe)
+
+One-time install of embeddable Python + AI stack to:
+
+```
+%APPDATA%\AimSync\runtime\
+```
+
+Checklist shows: embed Python · virtualenv · AI packages.
+
+Required before the AI engine can run (lite build only).
+
+---
+
+## Updates
+
+- **Check for updates** — compares with [GitHub Releases](https://github.com/AimSyncCore/AimSync/releases).
+- **Install update** — downloads new `AimSync.exe` and restarts (built exe only).
+
+Version source: `release/version.json` in the repo.
+
+---
+
+## License & AI access
+
+**Default:** AI is free — badge shows **Free · AI unlocked**.
+
+When `release/app-config.json` sets `ai_premium_only: true`, this section shows supporter key validation (Ko-fi).
+
+Dev key: `DEV-AIMSYNC` with `scripts\run_dev.bat`.
 
 ---
 
 ## Shutdown
 
-**Shutdown on app stop** — optionally send shutdown signal to Makcu when AimSync exits.
+**Shutdown PC on Stop** — Windows shutdown when closing AimSync.
 
 ---
 
 ## Related
 
-- [Safety features](Safety-Features)
-- [Configuration](Configuration) — `recoil_*` keys
+- [Configuration](Configuration)
+- [Slim exe distribution](Slim-Exe-Distribution)
+- [Cloud API](Cloud-API) — remote flags

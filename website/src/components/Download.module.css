@@ -1,0 +1,89 @@
+.layout {
+  display: grid;
+  gap: 2rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.code {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.85em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.install {
+  margin-top: 2rem;
+}
+
+.installTitle,
+.asideTitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.pre {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border-radius: 0.65rem;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #e5e5e5;
+}
+
+.hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.aside {
+  align-self: start;
+}
+
+.list,
+.links {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.links {
+  list-style: none;
+  padding: 0;
+}
+
+.links a {
+  color: #93c5fd;
+  font-weight: 500;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.25rem 0;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 1.4fr 1fr;
+    align-items: start;
+  }
+}

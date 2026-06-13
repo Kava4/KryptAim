@@ -1,0 +1,130 @@
+.hero {
+  padding-block: 4rem 3rem;
+}
+
+.inner {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.title {
+  font-size: clamp(2.25rem, 5.5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.highlight {
+  background: linear-gradient(135deg, #93c5fd, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.lead {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 36rem;
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stats strong {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.stats span {
+  font-size: 0.75rem;
+  color: var(--muted-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 16rem;
+  padding: 1rem;
+}
+
+.logoGlow {
+  position: absolute;
+  inset: 5% 10%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.35), rgba(147, 197, 253, 0.12) 45%, transparent 70%);
+  filter: blur(48px);
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+.heroArt {
+  position: relative;
+  width: min(100%, 20rem);
+  height: auto;
+  animation: floatLogo 5s ease-in-out infinite;
+  filter: drop-shadow(0 20px 40px rgba(59, 130, 246, 0.25));
+}
+
+@keyframes floatLogo {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 960px) {
+  .inner {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+
+  .hero {
+    padding-block: 5rem 4rem;
+  }
+
+  .heroArt {
+    width: min(100%, 24rem);
+  }
+}

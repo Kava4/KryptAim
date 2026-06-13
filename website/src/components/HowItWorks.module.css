@@ -1,0 +1,112 @@
+.section {
+  background: rgba(255, 255, 255, 0.015);
+  border-block: 1px solid var(--border);
+}
+
+.diagram {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 2.5rem 0;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.node {
+  min-width: 9rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  text-align: center;
+}
+
+.node p {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.nodePrimary {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow: 0 0 32px rgba(59, 130, 246, 0.12);
+}
+
+.nodeTag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.arrow::before,
+.arrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 1.5rem;
+}
+
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.steps li {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.stepNum {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.stepTitle {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.stepBody {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+@media (min-width: 768px) {
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .steps li {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}

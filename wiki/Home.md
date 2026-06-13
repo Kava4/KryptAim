@@ -1,8 +1,10 @@
 # AimSync Wiki
 
-**AimSync** is a desktop utility for **Makcu HID** hardware. It provides a local web dashboard to configure recoil compensation, visualize patterns, run the AI aim engine (dual-PC + NDI), and sync optional cloud features.
+**AimSync** is a desktop utility for **Makcu HID** hardware. It provides a local web dashboard for CS2 recoil profiles and an optional **AI aim engine** (dual-PC + NDI).
 
 Dashboard URL after launch: `http://<your-LAN-IP>:5000`
+
+Repository: [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync)
 
 ---
 
@@ -10,9 +12,9 @@ Dashboard URL after launch: `http://<your-LAN-IP>:5000`
 
 | Page | Description |
 |------|-------------|
-| [Installation](Installation) | Python venv, CUDA, NDI, first run |
+| [Installation](Installation) | Venv, slim exe, CUDA, NDI, first run |
 | [Quick Start](Quick-Start) | Five-minute setup checklist |
-| [Venv distribution](Venv-Distribution) | Ship `AimSync-PC.zip` to end users |
+| [Slim exe distribution](Slim-Exe-Distribution) | Small exe + embeddable Python AI install |
 | [Dual-PC CS2 test](Dual-PC-CS2) | Gaming PC + AimSync PC workflow |
 
 ---
@@ -22,13 +24,9 @@ Dashboard URL after launch: `http://<your-LAN-IP>:5000`
 | Page | Description |
 |------|-------------|
 | [Application overview](Application-Overview) | Tabs, input methods, startup |
-| [Global settings](Global-Settings) | Master switch, hotkeys, shutdown |
-| [Safety features](Safety-Features) | Randomization, X/Y scaling |
-| [Simple recoil](Simple-Recoil) | Slider-based compensation |
-| [Recoil Lab](Recoil-Lab) | Pattern editor, save/load, cloud share |
-| [Game Engine](Game-Engine) | Per-game weapon profiles |
-| [Pattern Generator](Pattern-Generator) | Build patterns from image/GIF |
-| [AI Engine](AI-Engine) | Detection, aim, trigger, NDI capture |
+| [Global settings](Global-Settings) | Master switch, hotkeys, updates, AI runtime |
+| [Game Engine](Game-Engine) | CS2 weapon spray profiles |
+| [AI Engine](AI-Engine) | Detection, aim, trigger, NDI, CT/T classes |
 
 ---
 
@@ -38,8 +36,8 @@ Dashboard URL after launch: `http://<your-LAN-IP>:5000`
 |------|-------------|
 | [Configuration](Configuration) | `config.json` schema and paths |
 | [Local API](Local-API) | Flask endpoints on port 5000 |
-| [Cloud API](Cloud-API) | Hosted license and pattern services |
-| [Weapons and games](Weapons-and-Games) | Supported titles and profiles |
+| [Cloud API](Cloud-API) | License API, GitHub models, remote flags |
+| [Weapons and games](Weapons-and-Games) | CS2 weapons |
 
 ---
 
@@ -57,8 +55,8 @@ Dashboard URL after launch: `http://<your-LAN-IP>:5000`
 
 ## Links
 
-- [GitHub repository](https://github.com/Kava4/AimSync)
-- [Releases](https://github.com/Kava4/AimSync/releases)
+- [GitHub repository](https://github.com/AimSyncCore/AimSync)
+- [Releases](https://github.com/AimSyncCore/AimSync/releases)
 - [Ko-fi support](https://ko-fi.com/kava4)
 
 ---

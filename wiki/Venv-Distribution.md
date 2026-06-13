@@ -41,12 +41,15 @@ flowchart LR
 
 ## vs frozen `.exe`
 
-| | venv zip | PyInstaller exe |
-|---|----------|-----------------|
-| Download size | Small (~MB) | Large (~GB) |
-| First run | pip download | unpack only |
-| torch/ultralytics | Native pip | Bundled |
-| Updates | re-run install bat or `pip install -U` | Rebuild exe |
+| | venv zip | Slim exe (lite) | Full exe |
+|---|----------|-----------------|----------|
+| Download size | Small (~MB) | ~50–120 MB | ~2–4 GB |
+| System Python | Required | **Not required** | Not required |
+| First AI use | `install_aimsync_pc.bat` | AI tab → Install runtime | Ready |
+| torch/ultralytics | Native pip in venv | pip to `%APPDATA%\AimSync\runtime` | Bundled in exe |
+| Updates | re-run install or `pip -U` | Re-run install or delete `runtime\` | Rebuild exe |
+
+See [Slim exe distribution](Slim-Exe-Distribution) for the embeddable-Python bootstrap flow.
 
 ---
 

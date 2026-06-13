@@ -1,6 +1,8 @@
 # Installation
 
-AimSync runs on **Windows 10/11**. The recommended path is a **Python venv** on the AimSync PC (GPU + Makcu + NDI).
+AimSync runs on **Windows 10/11**. Use either **venv + source** (developers) or **slim `.exe`** (end users).
+
+Repository: [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync)
 
 ---
 
@@ -9,7 +11,7 @@ AimSync runs on **Windows 10/11**. The recommended path is a **Python venv** on 
 | Component | AimSync PC | Gaming PC |
 |-----------|------------|-----------|
 | Windows 10/11 | Yes | Yes |
-| Python 3.10+ | Yes | No |
+| Python 3.10+ | Yes (source only) | No |
 | NVIDIA GPU + driver | Yes (AI) | Optional |
 | [CUDA 12.6](https://developer.nvidia.com/cuda-12-6-0-download-archive) | Yes (AI) | No |
 | [NDI Runtime](https://ndi.link/NDIRedistV6) | Yes | Yes |
@@ -17,10 +19,16 @@ AimSync runs on **Windows 10/11**. The recommended path is a **Python venv** on 
 
 ---
 
-## Install (venv — recommended)
+## Install (venv — developers)
 
-1. Copy the full AimSync folder to the AimSync PC (or extract `AimSync-PC.zip`).
-2. Run once:
+1. Clone the repo:
+
+```bat
+git clone -b Beta https://github.com/AimSyncCore/AimSync.git
+cd AimSync
+```
+
+2. First-time setup:
 
 ```bat
 scripts\install_aimsync_pc.bat
@@ -29,59 +37,56 @@ scripts\install_aimsync_pc.bat
 3. Every session:
 
 ```bat
-scripts\run_aimsync.bat
+scripts\run.bat
+```
+
+Dev mode (no Makcu):
+
+```bat
+scripts\run_dev.bat
 ```
 
 4. Open `http://<local-ip>:5000` in your browser.
-
-The install script:
-- Creates `aimsync-venv`
-- Installs `requirements-aimsync-pc.txt`
-- Installs PyTorch **CUDA 12.6** wheels
-- Runs `scripts\verify_build_ai_stack.py`
 
 ---
 
 ## Models
 
-Place YOLO models in:
+Download from **AI tab → Community models** (GitHub + Aimmy CS2 catalog), or place files in:
 
 ```
-%APPDATA%\AimSync\bin\models\
+%APPDATA%\AimSync\models\
 ```
 
-Example: `cs2_640.onnx`
-
-You can also upload models via the **AI** tab in the dashboard.
+Supported: `.onnx`, `.pt`, `.engine`
 
 ---
 
-## Portable `.exe` (optional)
+## Slim `.exe` (recommended for end users)
 
-If you have a PyInstaller build from a maintainer:
+Download from [Releases](https://github.com/AimSyncCore/AimSync/releases).
 
-1. Extract `dist\AimSync\` anywhere.
-2. Run `AimSync.exe`.
-3. Data still lives under `%APPDATA%\AimSync\`.
+1. Extract `AimSync.exe` (single file, ~15–120 MB).
+2. Run it — recoil works immediately.
+3. **Global Settings → AI Runtime → Install AI runtime** (10–20 min, one-time).
+4. Restart, then configure NDI + model in the **AI** tab.
 
-Legacy `%APPDATA%\AimSyncBeta\` is read if `AimSync\config.json` is missing.
+Details: [Slim exe distribution](Slim-Exe-Distribution).
 
----
+### Full `.exe` (offline)
 
-## Repair CUDA / torch
-
-If AI shows CPU inference or `torch.cuda` is false:
-
-```bat
-scripts\repair_ai_deps.bat
-```
-
-Close AimSync first (`scripts\stop_all.bat`).
+Maintainers: `scripts\build_app_full.bat` — bundles AI stack (~GB), no bootstrap.
 
 ---
 
-## Next steps
+## Updates
+
+**Global Settings → Updates → Check for updates** (GitHub Releases). In-app install replaces `AimSync.exe` and restarts.
+
+---
+
+## Related
 
 - [Quick Start](Quick-Start)
-- [Dual-PC CS2 test](Dual-PC-CS2)
+- [Dual-PC CS2](Dual-PC-CS2)
 - [Troubleshooting](Troubleshooting)

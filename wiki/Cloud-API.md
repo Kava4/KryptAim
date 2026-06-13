@@ -1,35 +1,72 @@
 # Cloud API
 
-Hosted services for licensing placeholders and community pattern sharing.
-
-Base URL (default): `https://project-mkgdr.vercel.app`
+Hosted services and remote configuration.
 
 ---
 
-## Pattern sharing
+## License validation
 
-Used by Recoil Lab **Share** / **Refresh Community**.
+Base URL (default): `https://project-mkgdr.vercel.app/api`
 
-| Endpoint | Purpose |
-|----------|---------|
-| List patterns | Returns community pattern metadata |
-| Upload | POST pattern JSON with username |
-| Load | Fetch pattern by id |
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/license/validate` | POST | Validate supporter key + HWID |
 
-Empty community list is normal until users upload patterns.
+Used when **AI premium mode** is enabled. Recoil stays free.
 
-Remote **model download** from a public store is **disabled** — use local `bin/models/` or manual upload in the AI tab.
+Override: env `AIMSYNC_CLOUD_API`
 
----
-
-## Licensing (placeholder)
-
-Access mode is currently **free for all users**. `license_key` and `is_premium` fields exist for future use.
-
-See dashboard **Access mode** section.
+Local proxy: `POST /api/access/validate_license`
 
 ---
 
-## Deployment
+## Remote feature flags
 
-Maintainers deploy the cloud API separately (Vercel + Supabase). Not required for local-only / offline use.
+Fetched from GitHub (cached ~5 min):
+
+```
+https://raw.githubusercontent.com/AimSyncCore/AimSync/Beta/release/app-config.json
+```
+
+Example:
+
+```json
+{
+  "ai_premium_only": false
+}
+```
+
+Set `"ai_premium_only": true` to lock AI behind Ko-fi keys **without rebuilding the exe**.
+
+Override URL: env `AIMSYNC_APP_CONFIG_URL`
+
+---
+
+## Community models (GitHub + Aimmy)
+
+Not served from Vercel. The app reads:
+
+| Source | Content |
+|--------|---------|
+| [AimSyncCore/AimSync/models](https://github.com/AimSyncCore/AimSync/tree/Beta/models) | Official catalog + `catalog.json` |
+| [Aimmy models](https://github.com/Babyhamsta/Aimmy/tree/Aimmy-V2/models) | CS2 `.onnx` files (filtered) |
+
+Local routes:
+
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/api/ai/community/models` | GET | Catalog + installed |
+| `/api/ai/community/download` | POST | Download to `%APPDATA%\AimSync\models\` |
+
+---
+
+## Pattern sharing (legacy cloud)
+
+Recoil Lab pattern upload may use `/api/patterns` on the Vercel host if deployed. Optional for local-only use.
+
+---
+
+## Related
+
+- [AI Engine](AI-Engine)
+- [Configuration](Configuration)

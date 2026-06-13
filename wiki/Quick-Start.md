@@ -14,9 +14,13 @@ Five-minute checklist after [Installation](Installation).
 
 ## 2. Launch
 
+**From source / venv:**
+
 ```bat
-scripts\run_aimsync.bat
+scripts\run.bat
 ```
+
+**Slim exe:** run `AimSync.exe` from `dist\AimSync\`.
 
 Open the dashboard: `http://<LAN-IP>:5000`
 
@@ -45,10 +49,11 @@ Check **Global Settings** → Makcu status should show **Connected**.
 ## 5. AI Engine (dual-PC)
 
 1. Gaming PC: NDI output (OBS / NDI Screen Capture).
-2. AimSync PC: **AI** tab → Refresh NDI sources → pick stream.
-3. Select model (`cs2_640.onnx` in `%APPDATA%\AimSync\bin\models\`).
-4. Click **Start AI engine**.
-5. Set main PC resolution (e.g. 1920×1080).
+2. **Slim exe:** **AI** tab → **Install AI runtime** if prompted → restart app.
+3. AimSync PC: **AI** tab → Refresh NDI sources → pick stream.
+4. Select model (`cs2_640.onnx` in `%APPDATA%\AimSync\bin\models\`).
+5. Click **Start AI engine**.
+6. Set main PC resolution (e.g. 1920×1080).
 
 See [Dual-PC CS2](Dual-PC-CS2) for full test steps.
 
@@ -58,8 +63,9 @@ See [Dual-PC CS2](Dual-PC-CS2) for full test steps.
 
 | Task | Command |
 |------|---------|
-| Install once | `scripts\install_aimsync_pc.bat` |
-| Run | `scripts\run_aimsync.bat` |
+| Install once (venv) | `scripts\install_aimsync_pc.bat` |
+| Run (venv) | `scripts\run.bat` |
+| Slim exe AI install | AI tab → Install AI runtime |
 | Dev run | `scripts\run_dev.bat` |
 | Stop all | `scripts\stop_all.bat` |
 | Fix CUDA | `scripts\repair_ai_deps.bat` |

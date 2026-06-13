@@ -5,17 +5,13 @@
 **Getting started**
 - [Installation](Installation)
 - [Quick Start](Quick-Start)
-- [Venv distribution](Venv-Distribution)
+- [Slim exe distribution](Slim-Exe-Distribution)
 - [Dual-PC CS2](Dual-PC-CS2)
 
 **User guide**
 - [Overview](Application-Overview)
 - [Global settings](Global-Settings)
-- [Safety features](Safety-Features)
-- [Simple recoil](Simple-Recoil)
-- [Recoil Lab](Recoil-Lab)
 - [Game Engine](Game-Engine)
-- [Pattern Generator](Pattern-Generator)
 - [AI Engine](AI-Engine)
 
 **Reference**

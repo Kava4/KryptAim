@@ -2,65 +2,76 @@
 
 YOLO-based detection, aim assist, and triggerbot. Runs on the **AimSync PC** with Makcu movement.
 
+**Access:** Free by default. Premium gate is optional via `release/app-config.json` on GitHub.
+
 ---
 
-## Pipeline overview
+## Pipeline
 
 ```
-NDI / MSS capture → YOLO inference → target selection → aim/trigger → Makcu movement
+NDI capture → YOLO inference → CT/T class filter → aim/trigger → Makcu
 ```
 
 | Stage | Module | Notes |
 |-------|--------|-------|
-| Capture | `AI/Engine/capture*.py` | NDI (dual-PC) or MSS (local) |
-| Inference | `inference_ultralytics.py` | CUDA Ultralytics (default) |
-| Aim | `aim.py`, `movement/` | Normal / Bezier / Silent modes |
-| Trigger | `trigger.py` | Radius + confidence + cooldown |
-| Config | `.cfg` profiles | Same style as classic aim configs |
+| Capture | `app/ai/capture*.py` | NDI (dual-PC) |
+| Inference | `app/ai/inference.py` | Ultralytics + ONNX |
+| Classes | `app/ai/class_names.py` | CT/T from model metadata |
+| Targeting | `app/ai/targets.py` | Enemy class + aim point |
+| Engine | `app/ai/engine.py` | Main loop |
 
 ---
 
 ## Setup (dual-PC)
 
-1. Gaming PC: NDI out.
-2. AimSync PC: install CUDA + NDI + model.
-3. AI tab:
-   - **Inference backend**: CUDA Ultralytics
-   - **Capture**: NDI → select source
-   - **Model**: `.onnx` / `.pt` in `bin/models/`
-   - **Main PC resolution**: match gaming display
-4. **Start AI engine**
-
-Quick setup: use the built-in quickstart API (`POST /api/ai/quickstart`) from the UI.
+1. Gaming PC: NDI output enabled.
+2. AimSync PC: CUDA driver + NDI Runtime.
+3. **Slim exe:** Global Settings → **AI Runtime** → install once. Restart when done.
+4. AI tab:
+   - Select **NDI source**
+   - **Community models** or upload `.onnx` / `.pt`
+   - Pick **your team (CT/T)** — targets enemy class automatically
+   - **Quick setup** → **Start AI engine**
 
 ---
 
-## Key settings
+## Key settings (`config.json`)
 
-| Setting | Purpose |
-|---------|---------|
-| `ai_engine_enabled` | Master AI on/off |
-| `ai_active_model` | YOLO weights filename |
-| `ai_capture_mode` | `ndi` or `mss` |
+| Key | Purpose |
+|-----|---------|
+| `ai_enabled` | Master AI on/off |
+| `ai_model_path` | Path to weights |
+| `ai_my_team` | `ct` or `t` — auto enemy class |
+| `ai_player_class` | Manual body class override |
+| `ai_head_class` | Head class if model has one |
+| `ai_capture_mode` | `ndi` |
 | `ai_ndi_source` | NDI stream name |
-| `ai_inference_backend` | `cuda_ultralytics` (recommended) |
 | `ai_detection_conf` | Confidence threshold |
-| `ai_imgsz` | Model input size (640 typical) |
-| `ai_max_detect` | Max boxes per frame |
-| `ai_always_on_aim` | Aim without hold key |
-| `ai_trigger_always_on` | Trigger without hold key |
+| `ai_aim_enabled` / `ai_trigger_enabled` | Feature toggles |
+
+---
+
+## Community models
+
+Sources (no Vercel catalog):
+
+- **AimSyncCore/AimSync** `models/` on GitHub
+- **Aimmy** CS2 models (`Babyhamsta/Aimmy`, branch `Aimmy-V2`)
+
+Saved to `%APPDATA%\AimSync\models\`.
 
 ---
 
 ## Debug
 
-- Enable **OpenCV window** in Capture settings for live preview (local window only).
-- Log file: `%APPDATA%\AimSync\aimsyc_debug.log`
+- Log: `%APPDATA%\AimSync\aimsync.log`
+- Runtime install log: `%APPDATA%\AimSync\runtime\install.log`
 
 ---
 
 ## Related
 
 - [Dual-PC CS2](Dual-PC-CS2)
-- [Configuration](Configuration) — `ai_*` keys
+- [Configuration](Configuration)
 - [Local API](Local-API) — `/api/ai/*`
+- [Cloud API](Cloud-API) — remote flags

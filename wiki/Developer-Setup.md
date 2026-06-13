@@ -1,15 +1,15 @@
 # Developer setup
 
-For contributors with the **full source tree**.
+Clone [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync) (branch **Beta**).
 
 ---
 
 ## Prerequisites
 
 - Windows 10/11
-- Python 3.10+
-- Makcu device (for hardware tests)
-- NVIDIA GPU (for AI tests)
+- Python 3.10+ (3.12 recommended)
+- Makcu device (hardware tests)
+- NVIDIA GPU (AI tests)
 
 ---
 
@@ -20,67 +20,62 @@ scripts\install_aimsync_pc.bat
 scripts\run_dev.bat
 ```
 
-Dev data directory: `<project>/.aimsync-data/`
+Production (Makcu):
+
+```bat
+scripts\run.bat
+```
 
 Tests:
 
 ```bat
-aimsync-venv\Scripts\python.exe -m pytest tests\
+.venv\Scripts\python.exe -m pytest tests\
 ```
+
+Config & logs: `%APPDATA%\AimSync\`
 
 ---
 
 ## Project layout
 
-```
-AimSync/
-├── main.py              # Entry point
-├── Config/              # config.json, app identity
-├── Makcu/               # HID manager
-├── Recoil/              # Recoil engine + games/
-├── AI/Engine/           # Capture, inference, aim, trigger
-├── Server/              # Flask app, routes, templates
-├── PatternGenerator/    # Standalone GIF/image tool
-├── scripts/             # Install, run, build helpers
-└── tests/
-```
+See [Architecture](Architecture).
 
 ---
 
 ## Build exe (maintainer)
 
+**Lite** (default — ~15–120 MB, AI via AppData bootstrap):
+
 ```bat
 scripts\create_build_venv.bat
 scripts\build_app.bat
+scripts\package_release.bat
 ```
 
-Debug console build:
+**Full** (offline — ~2–4 GB, AI bundled):
 
 ```bat
-scripts\build_debug.bat
+scripts\create_build_venv.bat
+scripts\build_app_full.bat
 ```
 
-Output: `dist\AimSync\`
+Debug console build: `scripts\build_debug.bat`
 
-`build_app.py` and `.spec` may be gitignored — maintainer-only.
+Output: `dist\AimSync.exe` (lite) or `dist\AimSync\` (full onedir)
+
+Bootstrap: `app/bootstrap/embed_python.py`, `app/bootstrap/runtime.py`
 
 ---
 
-## Package venv release
+## Publish release
 
-```bat
-scripts\package_aimsync_pc_release.bat
-```
+1. Bump `release/version.json`
+2. Build + `scripts\package_release.bat`
+3. Create GitHub Release on [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync/releases) with tag `vX.Y.Z`
+4. Attach `AimSync.exe` or `AimSync.zip`
+5. Push `release/app-config.json` if changing remote flags (e.g. AI premium gate)
 
----
-
-## Source backup export
-
-```bat
-python scripts\export_clean_source_txt.py
-```
-
-Creates `AimSync_CLEAN_SOURCE.txt` (gitignored).
+Wiki auto-syncs from `wiki/` on push (see `.github/workflows/wiki-sync.yml`).
 
 ---
 

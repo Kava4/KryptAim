@@ -1,113 +1,72 @@
-# =============================================================================
-# AimSync .gitignore
-# =============================================================================
-
-# --- Python ---
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
+*.pyo
+*.pyd
+.Python
 *.egg-info/
 .eggs/
-.Python
+dist/
+build/
+*.egg
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 .venv/
 venv/
-env/
-aimsync-venv/
 build-venv/
+aimsync-venv/
+env/
 
-# Test / lint caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-.tox/
-
-# --- Environment & secrets ---
-.env
-.env.*
-!.env.example
-**/.env.local
-**/secrets.*
-**/*_secret*
-.vercel/
-
-# --- Build & release ---
-build/
-dist/
-release/
+# PyInstaller
 *.spec
-*.manifest
-*.pkg
-*.exe
-*.msi
-*.zip
+dist/
+build/
 
-# Maintainer-only build entrypoints (tracked copies live under scripts/)
-/build_app.py
-/build_beta.py
-/build_helper.py
-
-# Root-level batch wrappers only (scripts/*.bat are tracked)
-/*.bat
-
-# --- Local runtime data ---
-config.json
-*.local.json
+# Local / dev data
 .beta-data/
 .aimsync-data/
-patterns/
-saved_patterns/
-Config/saved_patterns/
-**/bin/models/
-**/bin/configs/
-
-# --- Logs ---
 *.log
-
-# --- Generated exports & scratch ---
-AimSync_CLEAN_SOURCE.txt
-temp_*.py
-**/*_source.py
 *.bak
-**/*.bak
-posts.md
-*.ps1
-!scripts/sync_github_wiki.ps1
 
-# --- IDE & OS ---
+# Archives & exports (not shipped)
+.backup-legacy/
+.wiki-clone/
+original_source/
+rebuild/
+AimSync_CLEAN_SOURCE.txt
+
+# IDE / OS
+.cursor/
 .vscode/
 .idea/
-.cursor/
-*.code-workspace
 *.swp
-*~
+*.swo
 .DS_Store
 Thumbs.db
-Desktop.ini
+desktop.ini
 
-# --- Local-only reference / removed trees ---
-Aimmy-Makcu/
-AI/HelperApp/
-vendor-ai-reference/
-build-helper/
-PatternExtractor/
-Menu/
-Cloud/
+# Website build
+website/node_modules/
+website/dist/
 
-# Local wiki clone (gitignored)
-.wiki-clone/
-Recoil/games/*.py
-Recoil/games/*.lua
-!Recoil/games/.gitkeep
+# Models (large binaries — use releases or community download)
+models/*.onnx
+models/*.pt
+models/*.engine
+*.onnx
+*.pt
+*.engine
 
-# =============================================================================
-# Protected core — private release artifacts; not in public clones
-# =============================================================================
-Recoil/recoil.py
-Makcu/makcu_manager.py
-Makcu/software_manager.py
-Server/cloud_manager.py
+# Secrets
+.env
+.env.*
+*.pem
+
+# OneDrive
+.onedriveignore

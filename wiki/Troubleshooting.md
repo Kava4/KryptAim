@@ -6,10 +6,25 @@
 
 | Symptom | Fix |
 |---------|-----|
-| Python not found | Install Python 3.10+ with **Add to PATH** |
+| Python not found (venv path) | Install Python 3.10+ with **Add to PATH**, or use slim exe |
 | `install_aimsync_pc.bat` fails | Read error; run `repair_ai_deps.bat` after NVIDIA driver |
-| Port 5000 in use | `scripts\stop_all.bat` |
+| Port 5000 in use | Close other AimSync instances |
 | Dashboard won't open | Check firewall; use `http://127.0.0.1:5000` |
+
+---
+
+## Slim exe / AI runtime bootstrap
+
+| Symptom | Fix |
+|---------|-----|
+| "AI components not installed" banner | AI tab → **Install AI runtime** |
+| Install stuck / failed | Internet required; allow python.org + pypi.org |
+| AI still unavailable after install | **Restart** `AimSync.exe` |
+| Retry clean install | Delete `%APPDATA%\AimSync\runtime\` and install again |
+| CUDA torch install failed | CPU ONNX may work; update NVIDIA driver and retry |
+| Embed download fails | Falls back to system Python if `py -3.12` is installed |
+
+Log: `%APPDATA%\AimSync\aimsync.log`
 
 ---
 

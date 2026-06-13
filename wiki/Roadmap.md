@@ -20,7 +20,7 @@ Single source of truth for AimSync. Merges: Aimmy integration, AI engine migrati
 | Player class inverted (CT shoots CT) | **Fixed** | **My team (ignore)** — CT selected → shoots T |
 | Debug preview low FPS | **Improved** | OpenCV window no longer capped at 10 FPS; raw BGR path |
 | Pattern Generator not laser-accurate | **Open** | Phase 5 — GIF→pattern tuning; G Hub `.lua` import ideal |
-| 3 GB exe distribution | **Open** | Phase 6 — venv zip default; slim exe later |
+| 3 GB exe distribution | **Fixed** | Lite exe (~100 MB) + AppData AI bootstrap; full exe optional |
 
 | Area | Status | Notes |
 |------|--------|-------|
@@ -74,6 +74,8 @@ Single source of truth for AimSync. Merges: Aimmy integration, AI engine migrati
 - [x] Build repair: `repair_build_venv.bat` (CUDA torch force-reinstall)
 - [x] Runtime repair: `repair_ai_deps.bat` (aimsync-venv)
 - [x] PyInstaller bundles: torch, ultralytics, matplotlib, cyndilib, makcu, onnxruntime-gpu
+- [x] **Lite exe** (`build_app.bat`) — recoil/UI only; AI via AppData runtime
+- [x] **Embeddable Python bootstrap** — no system Python on target PC for AI install
 - [x] Wiki docs (replaces old `docs/` tree)
 
 ---
@@ -122,12 +124,13 @@ Single source of truth for AimSync. Merges: Aimmy integration, AI engine migrati
 | G Hub `.lua` import | Parse Logitech scripts → weapon data directly | Planned (ideal) |
 | Reference weapon scaling | Better famas/AK/M4 cross-weapon tuning | Partial |
 
-### Phase 6 — Distribution size · **LATER**
+### Phase 6 — Distribution size · **DONE (core)**
 
 | Item | Goal | Status |
 |------|------|--------|
-| Venv zip as default ship | `package_aimsync_pc_release.bat` — no 3 GB exe | Available now |
-| Slim exe / optional AI bundle | Split core recoil vs AI CUDA pack | Planned |
+| Venv zip as dev ship | Source + `install_aimsync_pc.bat` | Available |
+| Slim exe + AppData AI | `build_app.bat` + embeddable Python bootstrap | **Done** |
+| Full offline exe | `build_app_full.bat` — all AI bundled | **Done** |
 | Onefile exe | Optional single `.exe` (slow start) | Low priority |
 
 ---
@@ -242,4 +245,4 @@ flowchart TB
 
 ## Support development
 
-[Ko-fi](https://ko-fi.com/kava4) · [GitHub Discussions](https://github.com/Kava4/AimSync/discussions)
+[Ko-fi](https://ko-fi.com/kava4) · [GitHub Discussions](https://github.com/AimSyncCore/AimSync/discussions)

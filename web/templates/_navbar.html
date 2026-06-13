@@ -1,7 +1,7 @@
     <nav class="bg-neutral-900/80 backdrop-blur-md border-b border-white/10 sticky top-0 z-40">
         <div class="max-w-6xl mx-auto px-4 md:px-6">
             <div class="flex items-center justify-between h-16 gap-3">
-                <a href="#" class="flex items-center gap-2.5 flex-shrink-0" title="{{ app_name }} {{ app_version }}">
+                <a href="/" class="flex items-center gap-2.5 flex-shrink-0" title="{{ app_name }} {{ app_version }}">
                     <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="AimSync Logo" class="h-12 w-auto">
                     <span class="sm:hidden text-[10px] font-semibold text-blue-300/90">{{ app_version }}</span>
                     <span class="hidden sm:inline-flex flex-col leading-tight">
@@ -19,15 +19,18 @@
                         <span class="text-xs font-semibold hidden lg:inline">Mobile Link</span>
                     </button>
 
+                    <a href="/projects"
+                       class="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                       title="Our other GitHub projects">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M4 6h16M4 12h16M4 18h7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="text-xs font-semibold hidden lg:inline">Projects</span>
+                    </a>
+
                     <button type="button" onclick="toggleFeedbackModal()" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all" title="Send Feedback">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         <span class="text-xs font-semibold hidden lg:inline">Feedback</span>
-                    </button>
-
-                    <button type="button" onclick="switchToGlobalTab(); checkForUpdates(true);" id="nav-update-badge"
-                            class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-400/30 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20 transition-all"
-                            title="Update available">
-                        <span class="text-xs font-semibold">Update</span>
                     </button>
 
                     <div class="relative hidden sm:block" id="support-dropdown-container">
@@ -36,13 +39,23 @@
                             <span class="text-xs font-semibold">Support</span>
                             <svg class="w-3 h-3 opacity-40 transition-transform duration-200" id="support-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
-                        <div id="support-dropdown" class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-neutral-900 border border-white/10 shadow-2xl py-1 z-50">
+                        <div id="support-dropdown" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-neutral-900 border border-white/10 shadow-2xl py-1 z-50">
                             <a href="https://ko-fi.com/kava4" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 border-b border-white/5">Support on Ko-fi</a>
-                            <a href="https://paypal.me/kava4" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5">Donate via PayPal</a>
+                            <a href="https://paypal.me/kava4" target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 border-b border-white/5">Donate via PayPal</a>
+                            <button type="button" onclick="openSupportCodeModal('giftmecrypto')"
+                                    class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left border-b border-white/5">
+                                <span class="text-green-400">●</span>
+                                Submit GiftMeCrypto code
+                            </button>
+                            <button type="button" onclick="openSupportCodeModal('paysafe')"
+                                    class="w-full flex items-center gap-3 px-4 py-3 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all text-left">
+                                <span class="text-sky-400">●</span>
+                                Submit Paysafe code
+                            </button>
                         </div>
                     </div>
 
-                    <button type="button" onclick="quitApplication()" class="hidden md:inline-flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-1.5 text-xs font-semibold text-red-200 hover:bg-red-400/20 transition-colors">Stop App</button>
+                    <button type="button" onclick="openStopAppModal()" class="hidden md:inline-flex items-center gap-2 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-1.5 text-xs font-semibold text-red-200 hover:bg-red-400/20 transition-colors">Stop App</button>
 
                     <button id="menu-btn" type="button" onclick="toggleMobileMenu()" class="md:hidden flex flex-col gap-1.5 p-1.5 rounded-lg hover:bg-white/5 transition-colors" aria-label="Toggle menu">
                         <span id="bar-1" class="block w-5 h-0.5 bg-white/80 transition-all duration-300 origin-center"></span>
@@ -93,6 +106,53 @@
         </div>
     </div>
 
+    <div id="stop-app-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-white">Stop AimSync?</h3>
+                    <p class="text-sm text-white/45 mt-1">The Makcu connection will be released and the background engine will shut down.</p>
+                    <p id="stop-app-shutdown-note" class="hidden text-xs text-amber-300/90 mt-2">PC shutdown is enabled in Global Settings — your computer will shut down after stop.</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeStopAppModal()"
+                        class="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/10 transition-colors">
+                    Cancel
+                </button>
+                <button type="button" id="stop-app-confirm-btn" onclick="confirmStopApplication()"
+                        class="flex-1 rounded-xl border border-red-400/30 bg-red-500/15 py-2.5 text-sm font-semibold text-red-100 hover:bg-red-500/25 transition-colors">
+                    Stop App
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="support-code-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 id="support-code-title" class="text-lg font-bold text-white">Submit code</h3>
+                <button type="button" onclick="closeSupportCodeModal()" class="text-white/40 hover:text-white p-1">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <p id="support-code-hint" class="text-xs text-white/45 mb-4">Paste your code below — it will be sent to our Discord for manual verification.</p>
+            <input type="text" id="support-code-input" placeholder="Your code"
+                   class="w-full text-sm text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-3 font-mono tracking-wide">
+            <input type="text" id="support-code-contact-input" placeholder="Discord username (optional)"
+                   class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-4">
+            <button type="button" id="support-code-submit-btn" onclick="sendSupportCode(event)"
+                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-2.5 rounded-xl">
+                Send code
+            </button>
+        </div>
+    </div>
+
     <div id="mobile-menu-overlay" onclick="toggleMobileMenu()" class="fixed inset-0 z-[45] bg-black/60 backdrop-blur-sm hidden transition-opacity duration-300 opacity-0"></div>
     <div id="mobile-menu-drawer" class="fixed top-0 right-0 z-[50] h-full w-72 bg-neutral-900 border-l border-white/10 translate-x-full transition-transform duration-300 ease-in-out p-6 flex flex-col overflow-y-auto">
         <div class="flex items-center justify-between mb-8">
@@ -103,12 +163,13 @@
         </div>
         <div class="flex flex-col gap-1">
             <p class="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-2 ml-4">Navigation</p>
-            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-white/5 active" data-tab="global">Global Settings</button>
-            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5" data-tab="CS2">Game Engine</button>
-            <button class="tab-button w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5" data-tab="ai-engine">AimSync AI</button>
+            <button type="button" onclick="navigateToTab('global')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-white/5 active">Global Settings</button>
+            <button type="button" onclick="navigateToTab('CS2')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5">Game Engine</button>
+            <button type="button" onclick="navigateToTab('ai-engine')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5">AimSync AI</button>
+            <a href="/projects" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5">Our Projects</a>
         </div>
         <div class="mt-auto pt-8 border-t border-white/5 space-y-4">
             <button type="button" onclick="toggleFeedbackModal()" class="w-full rounded-xl bg-white/5 py-3 text-sm text-white/70">Send Feedback</button>
-            <button type="button" onclick="quitApplication()" class="w-full rounded-xl border border-red-400/30 bg-red-400/10 py-3 text-sm font-semibold text-red-200">Stop Application</button>
+            <button type="button" onclick="openStopAppModal()" class="w-full rounded-xl border border-red-400/30 bg-red-400/10 py-3 text-sm font-semibold text-red-200">Stop Application</button>
         </div>
     </div>

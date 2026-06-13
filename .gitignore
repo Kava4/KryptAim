@@ -23,10 +23,8 @@ build-venv/
 aimsync-venv/
 env/
 
-# PyInstaller
+# PyInstaller (generated locally)
 *.spec
-dist/
-build/
 
 # Local / dev data
 .beta-data/
@@ -55,7 +53,7 @@ desktop.ini
 website/node_modules/
 website/dist/
 
-# Models (large binaries — use releases or community download)
+# Models (large binaries — use releases or in-app download)
 models/*.onnx
 models/*.pt
 models/*.engine
@@ -63,10 +61,22 @@ models/*.engine
 *.pt
 *.engine
 
+# Protected module plaintext (maintainers only)
+app/_src/
+
+# Maintainer / asset tooling (not needed for clone & run)
+scripts/bake_aie_weapon.py
+scripts/gen_weapon_icons.py
+scripts/sync_weapon_icons.py
+scripts/sync_weapon_icons.bat
+scripts/verify_build_stack.py
+scripts/verify_build_stack_lite.py
+
 # Secrets
 .env
 .env.*
 *.pem
+app/protected/.seal-key
 
 # OneDrive
 .onedriveignore

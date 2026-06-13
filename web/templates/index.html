@@ -175,11 +175,11 @@
                     <p id="update-status-msg" class="text-[11px] text-white/45">Checking GitHub releases…</p>
                     <pre id="update-notes" class="hidden text-[10px] text-white/35 whitespace-pre-wrap max-h-28 overflow-y-auto bg-black/20 rounded-lg p-2"></pre>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" id="update-check-btn" onclick="checkForUpdates(true)"
+                        <button type="button" id="update-check-btn" onclick="AimSyncUpdates.check(true)"
                                 class="text-xs font-semibold text-white bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-4 py-2">
                             Check for updates
                         </button>
-                        <button type="button" id="update-install-btn" onclick="installAppUpdate()"
+                        <button type="button" id="update-install-btn" onclick="AimSyncUpdates.install()"
                                 class="hidden text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2">
                             Install update
                         </button>
@@ -297,25 +297,9 @@
         {% include '_ai_panel.html' %}
     </main>
 
-    <footer class="mt-12 bg-neutral-900 border-t border-white/10 py-8 px-6">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-neutral-800/50 border border-white/10 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-blue-400/80" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
-                        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-                <div hx-get="/api/recoil/hardware-check" hx-trigger="load">
-                    <span class="text-white/20 text-[10px] animate-pulse uppercase tracking-widest">Analyzing Integrity...</span>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <p class="text-white/20 text-[11px] uppercase tracking-widest font-medium">© 2026 {{ app_name }}</p>
-            </div>
-        </div>
-    </footer>
+    {% include '_footer.html' %}
 
-    <script src="{{ url_for('static', filename='qrcode.min.js') }}"></script>
+    {% include '_shell_scripts.html' %}
     <script src="{{ url_for('static', filename='hotkey_bind.js') }}"></script>
     <script>
         const WEAPON_LABELS = {{ weapon_labels | tojson }};
@@ -343,6 +327,12 @@
                 if (drawer && !drawer.classList.contains('translate-x-full')) toggleMobileMenu();
             });
         });
+
+        function activateTabFromUrl() {
+            const tab = new URLSearchParams(window.location.search).get('tab');
+            if (!tab) return;
+            document.querySelector(`.tab-button[data-tab="${tab}"]`)?.click();
+        }
 
         function weaponCategoryFor(id) {
             if ((WEAPONS_BY_CATEGORY.smg || []).includes(id)) return 'smg';
@@ -441,113 +431,21 @@
             );
         }
 
-        function toggleMobileMenu() {
-            const drawer = document.getElementById('mobile-menu-drawer');
-            const overlay = document.getElementById('mobile-menu-overlay');
-            const opening = drawer.classList.contains('translate-x-full');
-            if (opening) {
-                overlay.classList.remove('hidden');
-                setTimeout(() => {
-                    overlay.classList.add('opacity-100');
-                    drawer.classList.remove('translate-x-full');
-                }, 10);
-            } else {
-                overlay.classList.remove('opacity-100');
-                drawer.classList.add('translate-x-full');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
-            }
-        }
-
-        function toggleQRModal() {
-            const modal = document.getElementById('qr-modal');
-            const container = document.getElementById('qrcode-container');
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                container.innerHTML = '';
-                new QRCode(container, {
-                    text: `http://{{ local_ip }}:5000`,
-                    width: 200, height: 200,
-                    colorDark: '#171717', colorLight: '#ffffff',
-                    correctLevel: QRCode.CorrectLevel.H,
-                });
-            } else {
-                modal.classList.add('hidden');
-            }
-        }
-
-        function toggleFeedbackModal() {
-            document.getElementById('feedback-modal')?.classList.toggle('hidden');
-        }
-
-        function toggleSupportDropdown() {
-            const menu = document.getElementById('support-dropdown');
-            const arrow = document.getElementById('support-arrow');
-            const open = menu.classList.contains('hidden');
-            menu.classList.toggle('hidden', !open);
-            if (arrow) arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
-        }
-
-        window.addEventListener('click', (e) => {
-            const container = document.getElementById('support-dropdown-container');
-            if (container && !container.contains(e.target)) {
-                document.getElementById('support-dropdown')?.classList.add('hidden');
-                const arrow = document.getElementById('support-arrow');
-                if (arrow) arrow.style.transform = 'rotate(0deg)';
-            }
-        });
-
-        function sendFeedback(event) {
-            const message = document.getElementById('feedback-message-input')?.value || '';
-            const contact = document.getElementById('contact-info-input')?.value || '';
-            const bugType = document.getElementById('feedback-type-input')?.value || '';
-            if (!message.trim()) { alert('Please enter a message.'); return; }
-            const btn = event.currentTarget;
-            btn.disabled = true;
-            const fd = new FormData();
-            fd.append('feedback_message', message);
-            fd.append('contact_info', contact);
-            fd.append('bug_type', bugType);
-            fetch('/api/feedback', { method: 'POST', body: fd })
-                .then(r => r.json())
-                .then(() => { alert('Thank you!'); toggleFeedbackModal(); })
-                .catch(() => alert('Could not send feedback.'))
-                .finally(() => { btn.disabled = false; });
-        }
-
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const boot = document.getElementById('boot-screen');
                 if (boot) { boot.style.opacity = '0'; setTimeout(() => boot.remove(), 400); }
             }, 350);
+            activateTabFromUrl();
             startAiPoll();
             syncAiSettingsFromServer();
             initWeaponPicker();
             refreshCommunityModels();
-            checkForUpdates(false);
+            AimSyncUpdates.init({ autoCheck: true });
         });
 
-        function quitApplication() {
-            if (!confirm('Are you sure you want to stop the application?')) return;
-            const willShutdownPC = document.querySelector('[name="shutdown_on_app_stop"]')?.checked;
-            fetch('/api/quit', { method: 'POST' })
-                .finally(() => {
-                    document.body.innerHTML = `
-                        <div class="min-h-screen bg-neutral-950 flex items-center justify-center text-center p-6">
-                            <div class="flex flex-col items-center gap-4">
-                                <div class="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-2">
-                                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </div>
-                                <h1 class="text-2xl font-bold text-white mb-2">AimSync Stopped</h1>
-                                <p class="text-white/40 text-sm">The hardware connection has been released. You can safely close this window.</p>
-                                ${willShutdownPC ? '<p class="text-white/60 text-sm mt-2 font-semibold">System shutdown initiated...</p>' : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-        }
-
         function switchToGlobalTab() {
-            document.querySelector('.tab-button[data-tab="global"]')?.click();
+            navigateToTab('global');
         }
 
         let aiPollTimer = null;
@@ -730,96 +628,7 @@
             }
             if (startBtn) startBtn.disabled = !access.allowed;
         }
-
-        function renderUpdateStatus(data) {
-            const msg = document.getElementById('update-status-msg');
-            const badge = document.getElementById('update-badge');
-            const installBtn = document.getElementById('update-install-btn');
-            const latestEl = document.getElementById('update-latest-version');
-            const notes = document.getElementById('update-notes');
-            const releaseLink = document.getElementById('update-release-link');
-            const navBadge = document.getElementById('nav-update-badge');
-            if (!data) return;
-
-            if (latestEl) {
-                latestEl.textContent = data.latest_version
-                    ? `Latest: v${data.latest_version}`
-                    : 'Latest: —';
-            }
-            if (msg) {
-                if (!data.success) {
-                    msg.textContent = data.error || 'Could not check for updates.';
-                } else if (data.update_available) {
-                    msg.textContent = `v${data.current_version} → v${data.latest_version} available.`;
-                } else {
-                    msg.textContent = `You are on the latest release (v${data.current_version}).`;
-                }
-            }
-            if (badge) badge.classList.toggle('hidden', !data.update_available);
-            if (navBadge) navBadge.classList.toggle('hidden', !data.update_available);
-            if (installBtn) installBtn.classList.toggle('hidden', !data.update_available);
-            if (notes) {
-                const body = (data.release_notes || '').trim();
-                if (body && data.update_available) {
-                    notes.textContent = body;
-                    notes.classList.remove('hidden');
-                } else {
-                    notes.textContent = '';
-                    notes.classList.add('hidden');
-                }
-            }
-            if (releaseLink && data.release_url) {
-                releaseLink.href = data.release_url;
-                releaseLink.classList.toggle('hidden', !data.update_available);
-            }
-        }
-
-        function checkForUpdates(manual) {
-            const btn = document.getElementById('update-check-btn');
-            const msg = document.getElementById('update-status-msg');
-            if (manual && btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
-            if (manual && msg) msg.textContent = 'Checking GitHub releases…';
-            return fetch('/api/updates/check', { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    renderUpdateStatus(data);
-                    if (data.features) {
-                        updateAiAccess({
-                            allowed: true,
-                            premium_required: !!data.features.ai_premium_only,
-                        });
-                    }
-                    return data;
-                })
-                .catch(() => {
-                    if (msg) msg.textContent = 'Update check failed.';
-                })
-                .finally(() => {
-                    if (btn) { btn.disabled = false; btn.textContent = 'Check for updates'; }
-                });
-        }
-
-        function installAppUpdate() {
-            if (!confirm('Download and install the latest AimSync.exe? The app will close and restart.')) return;
-            const installBtn = document.getElementById('update-install-btn');
-            const msg = document.getElementById('update-status-msg');
-            if (installBtn) { installBtn.disabled = true; installBtn.textContent = 'Downloading…'; }
-            if (msg) msg.textContent = 'Downloading update…';
-            fetch('/api/updates/install', { method: 'POST' })
-                .then(r => r.json())
-                .then(data => {
-                    if (!data.success) {
-                        alert(data.message || 'Update failed');
-                        return;
-                    }
-                    if (msg) msg.textContent = data.message || 'Restarting…';
-                    setTimeout(() => fetch('/api/quit', { method: 'POST' }), 800);
-                })
-                .catch(() => alert('Update request failed'))
-                .finally(() => {
-                    if (installBtn) { installBtn.disabled = false; installBtn.textContent = 'Install update'; }
-                });
-        }
+        window.updateAiAccess = updateAiAccess;
 
         function refreshLicenseBadge() {
             if (typeof htmx === 'undefined') return;

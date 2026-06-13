@@ -79,6 +79,11 @@ def fetch_community_models() -> dict[str, Any]:
     return {'models': models_raw, 'online': True, 'error': None}
 
 
+def submit_feedback(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, str | None]:
+    """Forward feedback / support codes to Cloud API → Discord webhook."""
+    return _post_json('feedback', payload, timeout=10)
+
+
 def download_community_model_bytes(name: str, *, download_url: str = '') -> tuple[bytes | None, str | None]:
     safe = urllib.parse.quote(name, safe='')
     if download_url:

@@ -16,5 +16,6 @@ import ultralytics  # noqa: F401
 from ultralytics import YOLO  # noqa: F401
 
 import app.ai.engine  # noqa: F401
+import app.protected.pyi_deps  # noqa: F401
 import app.recoil.engine  # noqa: F401
 import web.app  # noqa: F401

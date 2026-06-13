@@ -82,6 +82,9 @@ def build_args() -> list[str]:
     profile = build_profile()
     _maybe_clean()
 
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+
     if profile == 'full':
         import pyi_collect  # noqa: F401
     else:
@@ -113,6 +116,10 @@ def build_args() -> list[str]:
     _add_data(ROOT / 'web' / 'static', 'web/static', args)
     _add_data(ROOT / 'web' / 'templates', 'web/templates', args)
     _add_data(ROOT / 'assets', 'assets', args)
+    protected = ROOT / 'app' / 'protected'
+    _add_data(protected / 'manifest.json', 'app/protected', args)
+    _add_data(protected / 'sealed', 'app/protected/sealed', args)
+    _add_data(ROOT / 'release' / 'projects.json', 'release', args)
     if profile == 'lite':
         _add_data(ROOT / 'requirements.txt', '.', args)
 
@@ -127,7 +134,15 @@ def build_args() -> list[str]:
             'click',
             'makcu',
             'tkinter',
+            'app.protected.loader',
+            'app.protected.crypto',
         )
+        from app.protected.pyi_deps import protected_hidden_imports
+
+        sealed_deps = protected_hidden_imports()
+        hidden = tuple(dict.fromkeys(hidden + sealed_deps))
+        if sealed_deps:
+            print(f'[build] sealed-module hidden imports: {", ".join(sealed_deps)}')
         for mod in hidden:
             args.extend(['--hidden-import', mod])
         for mod in _LITE_EXCLUDES:
@@ -152,7 +167,15 @@ def build_args() -> list[str]:
             'onnxruntime',
             'PIL',
             'tkinter',
+            'app.protected.loader',
+            'app.protected.crypto',
         )
+        from app.protected.pyi_deps import protected_hidden_imports
+
+        sealed_deps = protected_hidden_imports()
+        hidden = tuple(dict.fromkeys(hidden + sealed_deps))
+        if sealed_deps:
+            print(f'[build] sealed-module hidden imports: {", ".join(sealed_deps)}')
         for mod in hidden:
             args.extend(['--hidden-import', mod])
         for pkg in ('ultralytics', 'flask', 'cyndilib', 'matplotlib'):

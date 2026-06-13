@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects · {{ app_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+</head>
+<body class="min-h-screen bg-neutral-950 font-['Inter',sans-serif] flex flex-col text-white">
+    {% include '_navbar.html' %}
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 md:px-6 py-8 md:py-10">
+        <div class="mb-8">
+            <a href="/" class="inline-flex items-center gap-1.5 text-xs font-medium text-white/45 hover:text-white/80 transition-colors mb-4">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Back to dashboard
+            </a>
+            <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Our Projects</h1>
+            <p class="text-sm text-white/45 mt-2 max-w-2xl">
+                Other open-source work from our GitHub — tools, experiments, and side projects alongside {{ app_name }}.
+            </p>
+        </div>
+
+        <div id="projects-status" class="text-xs text-white/40 mb-4">Loading repositories from GitHub…</div>
+        <div id="projects-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+        <div id="projects-empty" class="hidden rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
+            <p class="text-sm text-white/50">No public repositories found right now.</p>
+            <a href="https://github.com/AimSyncCore" target="_blank" rel="noopener"
+               class="inline-block mt-4 text-xs font-semibold text-blue-300 hover:text-blue-200">Browse GitHub →</a>
+        </div>
+    </main>
+
+    {% include '_footer.html' %}
+
+    {% include '_shell_scripts.html' %}
+    <script>
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function renderProjects(projects) {
+            const grid = document.getElementById('projects-grid');
+            const empty = document.getElementById('projects-empty');
+            if (!grid) return;
+            if (!projects.length) {
+                grid.innerHTML = '';
+                empty?.classList.remove('hidden');
+                return;
+            }
+            empty?.classList.add('hidden');
+            grid.innerHTML = projects.map(project => {
+                const topics = (project.topics || []).slice(0, 4)
+                    .map(t => `<span class="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-white/5 text-white/45 border border-white/10">${escapeHtml(t)}</span>`)
+                    .join('');
+                const language = project.language
+                    ? `<span class="text-[10px] text-white/35">${escapeHtml(project.language)}</span>`
+                    : '';
+                const stars = Number(project.stars || 0);
+                const demo = project.demo_url
+                    ? `<span class="text-[10px] font-semibold text-emerald-300/90">Live demo</span>`
+                    : '';
+                const featured = project.featured
+                    ? `<span class="text-[10px] font-semibold uppercase tracking-wide text-blue-300/80">Featured</span>`
+                    : '';
+                return `
+                    <a href="${escapeHtml(project.url)}" target="_blank" rel="noopener"
+                       class="group flex flex-col h-full rounded-2xl border border-white/10 bg-neutral-900/60 hover:border-blue-400/30 hover:bg-neutral-900 transition-all p-5">
+                        <div class="flex items-start justify-between gap-3 mb-2">
+                            <div class="min-w-0">
+                                <h2 class="text-base font-semibold text-white group-hover:text-blue-200 transition-colors">${escapeHtml(project.name)}</h2>
+                                ${project.repo_name && project.repo_name !== project.name
+                                    ? `<p class="text-[10px] text-white/30 mt-0.5 truncate">${escapeHtml(project.repo_name)}</p>`
+                                    : ''}
+                            </div>
+                            <svg class="w-4 h-4 text-white/25 group-hover:text-blue-300/70 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M7 17L17 7M7 7h10v10" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-white/45 leading-relaxed flex-1">${escapeHtml(project.description)}</p>
+                        <div class="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-white/5">
+                            ${featured}
+                            ${demo}
+                            ${language}
+                            <span class="text-[10px] text-white/35">★ ${stars}</span>
+                            ${topics}
+                        </div>
+                        ${project.demo_url ? `
+                            <span class="mt-3 text-[11px] font-medium text-emerald-300/80 group-hover:text-emerald-200"
+                                  onclick="event.preventDefault(); event.stopPropagation(); window.open('${escapeHtml(project.demo_url)}', '_blank');">
+                                Open live demo →
+                            </span>` : ''}
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function loadProjects(refresh) {
+            const status = document.getElementById('projects-status');
+            const url = refresh ? '/api/projects?refresh=1' : '/api/projects';
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        if (status) status.textContent = 'Could not load projects from GitHub.';
+                        return;
+                    }
+                    if (status) {
+                        status.textContent = data.projects.length
+                            ? `${data.projects.length} public ${data.projects.length === 1 ? 'repository' : 'repositories'}`
+                            : 'No repositories to show';
+                    }
+                    renderProjects(data.projects || []);
+                })
+                .catch(() => {
+                    if (status) status.textContent = 'Failed to reach GitHub.';
+                });
+        }
+
+        window.addEventListener('load', () => {
+            AimSyncUpdates.init({ autoCheck: true });
+            loadProjects(false);
+        });
+    </script>
+</body>
+</html>

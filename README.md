@@ -1,51 +1,66 @@
-# AimSync
+# AimSync for Makcu — Dual-PC CS2 Recoil & AI
 
-Dual-PC CS2 desktop app — Makcu HID, spray recoil, YOLO aim engine over NDI.
+**AimSync** is a Windows app built for **[Makcu](https://www.makcu.com/) HID** users running **Counter-Strike 2** on a dual-PC setup. Your game PC sends video over **NDI**; your AimSync PC runs recoil control (and optional YOLO AI) and moves the **gaming mouse through Makcu hardware** — not software simulation on the game PC.
 
-Product name: **AimSync** (`BRAND.md`). Legacy monolith archived in `.backup-legacy/`.
+> **Download:** [Latest release (AimSync.exe)](https://github.com/AimSyncCore/AimSync/releases/latest) — no Python required on the AimSync PC.
 
-## Run
+## Why Makcu + AimSync?
 
-**Dev (no Makcu):**
+| | |
+|---|---|
+| **Hardware input** | Mouse movement goes through Makcu USB HID — the path anti-cheat sees as a real device |
+| **Dual-PC** | CS2 stays clean on the game PC; GPU, NDI, and Makcu live on the AimSync PC |
+| **Recoil** | 12 CS2 weapons, CT/T picker, sensitivity scaling, randomisation, return-to-crosshair |
+| **AI (optional)** | YOLO over NDI — aim assist, trigger, team filter, community ONNX models |
+| **Dashboard** | Dark web UI at `http://<local-ip>:5000` — configure from phone or second monitor |
+| **Portable** | ~17 MB lite `.exe` — recoil works immediately; AI runtime installs to AppData on first use |
+
+## Quick start (exe)
+
+1. Download **`AimSync.exe`** from [Releases](https://github.com/AimSyncCore/AimSync/releases/latest)
+2. Connect **Makcu** to the AimSync PC (and to your game setup per your wiring)
+3. Run the exe → open the dashboard URL shown in the tray / console
+4. **Game Engine** tab → pick weapon & sensitivity · **AimSync AI** tab → NDI source + model (optional)
+
+Config: `%APPDATA%\AimSync\config.json`
+
+## Run from source (developers)
 
 ```bat
-scripts\run_dev.bat
+scripts\install_aimsync_pc.bat   :: first time
+scripts\run.bat                  :: production Makcu
+scripts\run_dev.bat              :: simulated Makcu + dev keys
 ```
-
-**First time on AimSync PC:**
-
-```bat
-scripts\install_aimsync_pc.bat
-```
-
-**Production (Makcu):**
-
-```bat
-scripts\run.bat
-```
-
-Opens `http://<local-ip>:5000` in your browser. Config: `%APPDATA%\AimSync\config.json`.
-
-If you see `No Python at ...Python312...`, delete `.venv` or re-run `run.bat`.
 
 Tests: `python -m pytest tests/`
 
-**AimSync PC (AI):** `scripts\repair_ai_deps.bat` then `python scripts\diagnose_ndi.py`
+## Dual-PC wiring (typical)
 
-## Distribution (.exe)
+```text
+[Gaming PC]  CS2 + NDI out
+      │
+      ▼  (network)
+[AimSync PC]  AimSync + Makcu
+      │
+      ▼  (USB HID)
+[Gaming mouse on game PC]
+```
 
-Two build profiles:
+## What's in this repo
 
-| Profile | Script | Size | AI stack |
-|---------|--------|------|----------|
-| **lite** (default) | `scripts\build_app.bat` | ~50–120 MB | Installs to `%APPDATA%\AimSync\runtime` on first use (button in AI tab) |
-| **full** | `scripts\build_app_full.bat` | ~2–4 GB | Everything bundled offline |
+| Path | Public? | Notes |
+|------|---------|-------|
+| `app/` | ✅ | Core engine — sensitive logic shipped as sealed blobs |
+| `app/protected/sealed/` | ✅ | Encrypted modules (recoil, AI, licensing) |
+| `app/_src/` | ❌ | Maintainer plaintext (gitignored) |
+| `web/` | ✅ | Flask UI |
+| `scripts/` | ✅ | Run, install, build, seal (dev asset scripts gitignored) |
+| `tests/` | ✅ | Pytest suite |
+| `wiki/` | ✅ | User & dev docs |
+| `release/` | ✅ | `version.json`, remote feature flags |
+| `dist/` | ❌ | Use GitHub Releases for the `.exe` |
 
-**Lite flow:** Ship small `AimSync.exe` → recoil works immediately → AI tab → **Install AI runtime** (embeddable Python + pip to AppData, no system Python).
-
-**Full flow:** Fat build for offline USB — everything bundled, no first-run install.
-
-Build machine setup:
+## Build your own exe
 
 ```bat
 scripts\create_build_venv.bat
@@ -53,22 +68,18 @@ scripts\build_app.bat
 scripts\package_release.bat
 ```
 
-Output: `dist\AimSync.exe` (lite, single file) or `dist\AimSync\` (full onedir + `_internal`)
+Lite profile (~50–120 MB build) · Full offline: `scripts\build_app_full.bat`
 
-Debug build (console): `scripts\build_debug.bat`
+## Other AimSync projects
 
-## Layout
+In-app **Projects** page or see [`release/projects.json`](release/projects.json) — WebRadar, Crosshair Studio, Logitech recoil script, and more.
 
-```text
-AimSync/
-├── app/           # core, makcu, ai, recoil, bootstrap, web runner
-├── web/           # Flask UI (templates + static)
-├── website/       # React marketing site (GitHub Pages)
-├── scripts/
-├── tests/
-├── wiki/
-├── release/       # version.json, app-config.json
-└── main.py
-```
+## Support
 
-See `wiki/` on [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync/wiki) for more.
+- **Ko-fi:** [ko-fi.com/kava4](https://ko-fi.com/kava4)
+- **PayPal:** [paypal.me/kava4](https://paypal.me/kava4)
+- In-app **Feedback** / **Support** (GiftMeCrypto & Paysafe codes → Discord)
+
+## License
+
+Early Access · see repository license file. Community models: AimSync catalog + filtered [Aimmy CS2 models](https://github.com/Babyhamsta/Aimmy/tree/Aimmy-V2/models).

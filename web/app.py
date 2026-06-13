@@ -18,7 +18,9 @@ from app.recoil.weapon_data import WeaponData
 from web.routes.access_routes import access_bp
 from web.routes.ai_routes import ai_bp
 from web.routes.bootstrap_routes import bootstrap_bp
+from web.routes.projects_routes import projects_bp
 from web.routes.recoil_routes import recoil_bp
+from web.routes.support_routes import support_bp
 from web.routes.update_routes import updates_bp
 
 _WEB_ROOT = web_root()
@@ -56,6 +58,8 @@ def create_app() -> Flask:
     app.register_blueprint(ai_bp)
     app.register_blueprint(bootstrap_bp)
     app.register_blueprint(updates_bp)
+    app.register_blueprint(projects_bp)
+    app.register_blueprint(support_bp)
 
     @app.context_processor
     def inject_identity():
@@ -63,6 +67,7 @@ def create_app() -> Flask:
             'app_name': APP_DISPLAY_NAME,
             'app_version': APP_VERSION,
             'app_version_label': 'Rebuild',
+            'local_ip': get_local_ip(),
         }
 
     @app.route('/', methods=['GET'])
@@ -101,6 +106,7 @@ def create_app() -> Flask:
             weapons_by_team_category=weapons_by_team_category,
             local_ip=get_local_ip(),
             active_input=active_input,
+            show_integrity_check=True,
         )
 
     @app.route('/api/shutdown_on_exit_toggle', methods=['POST'])
@@ -141,10 +147,6 @@ def create_app() -> Flask:
 
         threading.Thread(target=shutdown_sequence, daemon=True).start()
         return '', 204
-
-    @app.route('/api/feedback', methods=['POST'])
-    def feedback():
-        return jsonify({'success': True})
 
     @app.route('/api/health', methods=['GET'])
     def health():

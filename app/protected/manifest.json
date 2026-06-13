@@ -1,0 +1,12 @@
+{
+  "modules": [
+    "recoil/engine.py",
+    "recoil/weapon_data.py",
+    "ai/engine.py",
+    "ai/inference.py",
+    "ai/targets.py",
+    "ai/aim.py",
+    "ai/trigger.py",
+    "core/licensing.py"
+  ]
+}

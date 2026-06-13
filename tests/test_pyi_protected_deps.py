@@ -10,7 +10,9 @@ def test_protected_hidden_imports_includes_cloud():
     assert 'app.core.cloud' in imports
 
 
-def test_protected_hidden_imports_excludes_sealed_stubs():
+def test_protected_hidden_imports_includes_sealed_stubs():
     imports = protected_hidden_imports()
-    assert 'app.core.licensing' not in imports
-    assert 'app.recoil.engine' not in imports
+    assert 'app.ai.aim' in imports
+    assert 'app.ai.engine' in imports
+    assert 'app.recoil.engine' in imports
+    assert 'app.core.licensing' in imports

@@ -52,15 +52,17 @@ def _app_imports(source: str) -> set[str]:
 
 
 def protected_hidden_imports() -> tuple[str, ...]:
-    """Return app.* modules imported only from sealed code (for PyInstaller --hidden-import)."""
+    """Return app.* modules PyInstaller must bundle for sealed protected code."""
     modules: set[str] = set()
     for source in _protected_sources():
         modules |= _app_imports(source)
 
-    sealed: set[str] = set()
+    sealed_stubs: set[str] = set()
     if MANIFEST.is_file():
         for rel in json.loads(MANIFEST.read_text(encoding='utf-8')).get('modules', []):
             rel = str(rel).replace('\\', '/').removesuffix('.py').replace('/', '.')
-            sealed.add(f'app.{rel}')
-    modules -= sealed
+            sealed_stubs.add(f'app.{rel}')
+
+    # Stubs are imported only from inside other sealed blobs — invisible to static analysis.
+    modules |= sealed_stubs
     return tuple(sorted(modules))

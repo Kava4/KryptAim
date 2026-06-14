@@ -1,4 +1,4 @@
-"""AimSync — entry point (web UI + workers)."""
+"""KryptAim — entry point (web UI + workers)."""
 
 from __future__ import annotations
 

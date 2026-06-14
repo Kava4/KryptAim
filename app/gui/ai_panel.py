@@ -1,4 +1,4 @@
-"""AimSync AI tab — legacy-style header, stats, quick setup, capture + trigger."""
+"""KryptAim AI tab — legacy-style header, stats, quick setup, capture + trigger."""
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ class AiPanel(QWidget):
         header_row.setSpacing(16)
         title_col = QVBoxLayout()
         title_col.setSpacing(4)
-        title = QLabel('AimSync AI')
+        title = QLabel('KryptAim AI')
         title.setStyleSheet(
             'font-size: 18px; font-weight: 700; color: #fafafa; background: transparent;'
         )

@@ -9,11 +9,11 @@ if errorlevel 1 (
 )
 
 echo.
-echo [dev] AIMSYNC_DEV=1 - web UI, local mouse if no Makcu, dev license keys
-echo [dev] AI unlock key: DEV-AIMSYNC  (Global Settings -^> Validate)
+echo [dev] KRYPTAIM_DEV=1 - web UI, local mouse if no Makcu, dev license keys
+echo [dev] AI unlock key: DEV-KRYPTAIM  (Global Settings -^> Validate)
 echo.
 
-set AIMSYNC_DEV=1
+set KRYPTAIM_DEV=1
 .venv\Scripts\python.exe main.py --dev
 set "EC=%ERRORLEVEL%"
 if not "%EC%"=="0" echo Exit code: %EC%

@@ -1,8 +1,8 @@
     <script>
-        window.AIMSYNC_SHELL = {
+        window.KRYPTAIM_SHELL = {
             localIp: {{ local_ip | tojson }},
             port: 5000,
-            logoUrl: {{ url_for('static', filename='AimSync_logo.png') | tojson }},
+            logoUrl: {{ url_for('static', filename='KryptAim_logo.png') | tojson }},
         };
     </script>
     <script src="{{ url_for('static', filename='qrcode.min.js') }}"></script>

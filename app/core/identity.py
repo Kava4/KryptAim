@@ -7,9 +7,13 @@ from pathlib import Path
 
 from app.core.paths import app_root, bundle_root
 
-APP_NAME = 'AimSync'
-APP_DISPLAY_NAME = 'AimSync'
-APP_STORAGE_DIR = 'AimSync'
+APP_NAME = 'KryptAim'
+APP_DISPLAY_NAME = 'KryptAim'
+APP_STORAGE_DIR = 'KryptAim'
+LEGACY_STORAGE_DIR = 'KryptAim'
+APP_EXE_NAME = 'KryptAim.exe'
+AI_TAB_LABEL = 'KryptAim AI'
+LOG_NAME = 'KryptAim'
 APP_VERSION_LABEL = 'Early Access'
 
 

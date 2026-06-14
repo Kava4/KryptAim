@@ -3,29 +3,24 @@
 from __future__ import annotations
 
 import logging
-import os
 import time
 from typing import Any
 
+from app.core.env import env_flag, env_get
 from app.core.github import get_json, raw_github_url
 
-logger = logging.getLogger('AimSync.features')
+logger = logging.getLogger('KryptAim.features')
 
-_ON = frozenset({'1', 'true', 'yes', 'on'})
 _REMOTE_TTL = 300.0
 _REMOTE_CACHE: dict[str, Any] = {'data': {}, 'fetched_at': 0.0, 'error': None}
 
-DEFAULT_REPO = os.environ.get('AIMSYNC_UPDATES_REPO', 'AimSyncCore/AimSync')
-DEFAULT_REF = os.environ.get('AIMSYNC_APP_CONFIG_REF', 'main')
-DEFAULT_CONFIG_PATH = os.environ.get('AIMSYNC_APP_CONFIG_PATH', 'release/app-config.json')
-
-
-def _env_on(name: str) -> bool:
-    return os.environ.get(name, '').strip().lower() in _ON
+DEFAULT_REPO = env_get('UPDATES_REPO', 'AimSyncCore/KryptAim')
+DEFAULT_REF = env_get('APP_CONFIG_REF', 'main')
+DEFAULT_CONFIG_PATH = env_get('APP_CONFIG_PATH', 'release/app-config.json')
 
 
 def _config_url() -> str:
-    custom = os.environ.get('AIMSYNC_APP_CONFIG_URL', '').strip()
+    custom = env_get('APP_CONFIG_URL')
     if custom:
         return custom
     return raw_github_url(DEFAULT_REPO, DEFAULT_REF, DEFAULT_CONFIG_PATH)
@@ -60,9 +55,9 @@ def fetch_remote_config(*, force: bool = False) -> dict[str, Any]:
 
 def ai_premium_required(*, refresh: bool = False) -> bool:
     """When False (default), AI is free. Lock later via env or release/app-config.json."""
-    if _env_on('AIMSYNC_AI_PREMIUM_ONLY'):
+    if env_flag('AI_PREMIUM_ONLY'):
         return True
-    if _env_on('AIMSYNC_AI_FREE'):
+    if env_flag('AI_FREE'):
         return False
 
     remote = fetch_remote_config(force=refresh)

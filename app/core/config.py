@@ -8,7 +8,7 @@ import os
 import threading
 from pathlib import Path
 
-from app.core.identity import APP_STORAGE_DIR
+from app.core.identity import APP_STORAGE_DIR, LEGACY_STORAGE_DIR
 
 _io_lock = threading.Lock()
 _last_good: dict | None = None
@@ -64,9 +64,21 @@ DEFAULTS: dict = {
 
 
 def config_dir() -> Path:
-    path = Path(os.environ.get('APPDATA', Path.home())) / APP_STORAGE_DIR
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    custom = os.environ.get('KRYPTAIM_CONFIG_DIR') or os.environ.get('KRYPTAIM_CONFIG_DIR')
+    if custom:
+        path = Path(custom)
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    base = Path(os.environ.get('APPDATA', Path.home()))
+    new_path = base / APP_STORAGE_DIR
+    legacy_path = base / LEGACY_STORAGE_DIR
+    if new_path.is_dir():
+        return new_path
+    if legacy_path.is_dir():
+        return legacy_path
+    new_path.mkdir(parents=True, exist_ok=True)
+    return new_path
 
 
 def config_path() -> Path:

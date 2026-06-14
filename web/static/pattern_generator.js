@@ -482,11 +482,11 @@
           await generatePattern();
         }
         const payload = { pattern: output.value, ts: Date.now() };
-        localStorage.setItem("aimsync.pattern.import", JSON.stringify(payload));
+        localStorage.setItem("kryptaim.pattern.import", JSON.stringify(payload));
 
         if (window.opener && !window.opener.closed) {
           try {
-            window.opener.postMessage({ type: "aimsync_pattern_import", pattern: output.value }, window.location.origin);
+            window.opener.postMessage({ type: "kryptaim_pattern_import", pattern: output.value }, window.location.origin);
             window.opener.focus();
             setStatus("Pattern sent to Recoil Lab.", false);
             return;
@@ -496,7 +496,7 @@
         }
 
         window.open("/", "_blank");
-        setStatus("Opened AimSync tab. Pattern is queued for import.", false);
+        setStatus("Opened KryptAim tab. Pattern is queued for import.", false);
       } catch (err) {
         setStatus(err.message || "Failed to send pattern to Recoil Lab.", true);
       }

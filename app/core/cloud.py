@@ -1,4 +1,4 @@
-"""AimSync cloud API client (patterns, community models)."""
+"""KryptAim cloud API client (patterns, community models)."""
 
 from __future__ import annotations
 
@@ -10,13 +10,13 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-logger = logging.getLogger('AimSync.cloud')
+logger = logging.getLogger('KryptAim.cloud')
 
 DEFAULT_CLOUD_API = 'https://project-mkgdr.vercel.app/api'
 
 
 def cloud_api_base() -> str:
-    return os.environ.get('AIMSYNC_CLOUD_API', DEFAULT_CLOUD_API).rstrip('/')
+    return os.environ.get('KRYPTAIM_CLOUD_API', DEFAULT_CLOUD_API).rstrip('/')
 
 
 def _get_json(path: str, *, timeout: float = 12) -> tuple[dict[str, Any] | list[Any] | None, str | None]:

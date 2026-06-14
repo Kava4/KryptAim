@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-# AimSync weapon id -> icon file in web/static/weapons/
+# KryptAim weapon id -> icon file in web/static/weapons/
 WEAPON_ICON_FILES: dict[str, str] = {
     'assault_rifle': 'ak47.svg',
     'm4a4': 'm4a1.svg',

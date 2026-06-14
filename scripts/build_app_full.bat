@@ -8,11 +8,11 @@ if not exist "build-venv\Scripts\python.exe" (
     exit /b 1
 )
 
-set AIMSYNC_BUILD_PROFILE=full
+set KRYPTAIM_BUILD_PROFILE=full
 echo [build] FULL profile — bundles torch/ultralytics ^(~2-4 GB^)
 echo.
 build-venv\Scripts\python.exe build_app.py
 if errorlevel 1 pause & exit /b 1
 echo.
-echo Done: dist\AimSync\AimSync.exe
+echo Done: dist\KryptAim\KryptAim.exe
 pause

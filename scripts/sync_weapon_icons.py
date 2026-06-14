@@ -24,10 +24,10 @@ def _normalize_svg_fill(content: str) -> str:
 
 
 def main() -> int:
-    src_root = Path(os.environ.get('AIMSYNC_WEAPON_ICONS', DEFAULT_ICON_SOURCE))
+    src_root = Path(os.environ.get('KRYPTAIM_WEAPON_ICONS', DEFAULT_ICON_SOURCE))
     if not src_root.is_dir():
         print(f'ERROR: icon source not found: {src_root}')
-        print('Set AIMSYNC_WEAPON_ICONS to your cs2-webradar icons folder.')
+        print('Set KRYPTAIM_WEAPON_ICONS to your cs2-webradar icons folder.')
         return 1
 
     out = Path(__file__).resolve().parents[1] / 'web' / 'static' / 'weapons'

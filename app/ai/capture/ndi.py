@@ -1,4 +1,4 @@
-"""NDI capture for dual-PC (gaming PC → AimSync PC).
+"""NDI capture for dual-PC (gaming PC → KryptAim PC).
 
 Ported from original_source/eventuri/src/capture.py (NDICamera).
 """
@@ -10,7 +10,7 @@ import time
 
 import numpy as np
 
-logger = logging.getLogger('AimSync.rebuild.NDI')
+logger = logging.getLogger('KryptAim.rebuild.NDI')
 
 try:
     import cv2

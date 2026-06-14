@@ -11,7 +11,7 @@ if not exist "build-venv\Scripts\python.exe" (
 echo [build] LITE profile (default) — slim exe, AI installs to AppData on first use
 echo       Full offline bundle: scripts\build_app_full.bat
 echo.
-set AIMSYNC_BUILD_PROFILE=lite
+set KRYPTAIM_BUILD_PROFILE=lite
 build-venv\Scripts\python.exe build_app.py
 if errorlevel 1 (
     pause
@@ -19,6 +19,6 @@ if errorlevel 1 (
 )
 
 echo.
-echo Done: dist\AimSync.exe  (single file, no _internal)
+echo Done: dist\KryptAim.exe  (single file, no _internal)
 echo Zip:   scripts\package_release.bat
 pause

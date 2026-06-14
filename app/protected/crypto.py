@@ -15,7 +15,10 @@ _MATERIAL = bytes([
 
 
 def _key(extra: bytes = b'') -> bytes:
-    env = os.environ.get('AIMSYNC_SEAL_KEY', '').strip().encode('utf-8')
+    env = (
+        os.environ.get('KRYPTAIM_SEAL_KEY', '').strip()
+        or os.environ.get('AIMSYNC_SEAL_KEY', '').strip()
+    ).encode('utf-8')
     seed = _MATERIAL + env + extra
     return hashlib.pbkdf2_hmac('sha256', seed, b'aimsync-seal', 120_000, dklen=32)
 

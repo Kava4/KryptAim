@@ -4,7 +4,7 @@ Flask>=3.1
 requests>=2.31
 Werkzeug>=3.1
 
-# NDI capture on AimSync PC
+# NDI capture on KryptAim PC
 numpy
 opencv-python-headless
 cyndilib

@@ -10,16 +10,17 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-logger = logging.getLogger('AimSync.github')
+logger = logging.getLogger('KryptAim.github')
 
-USER_AGENT = 'AimSync'
+USER_AGENT = 'KryptAim'
 DEFAULT_TIMEOUT = 15.0
 DOWNLOAD_TIMEOUT = 300.0
 
 
 def _github_token() -> str:
     return (
-        os.environ.get('AIMSYNC_GITHUB_TOKEN', '').strip()
+        os.environ.get('KRYPTAIM_GITHUB_TOKEN', '').strip()
+        or os.environ.get('AIMSYNC_GITHUB_TOKEN', '').strip()
         or os.environ.get('GITHUB_TOKEN', '').strip()
         or os.environ.get('GH_TOKEN', '').strip()
     )

@@ -10,7 +10,7 @@ import time
 import webbrowser
 from pathlib import Path
 
-from app.core.paths import app_root
+from app.core.config import config_dir
 from app.core.runtime import dev_mode_enabled
 from app.makcu.manager import makcu_manager
 from app.runtime.worker import recoil_worker
@@ -30,10 +30,10 @@ def _hide_console_window() -> None:
 
 
 def _setup_logging() -> None:
-    log_dir = Path(os.environ.get('APPDATA', Path.home())) / 'AimSync'
+    log_dir = config_dir()
     log_dir.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
-        filename=str(log_dir / 'aimsync.log'),
+        filename=str(log_dir / 'kryptaim.log'),
         level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         filemode='a',
@@ -59,7 +59,7 @@ def _acquire_single_instance() -> bool:
     try:
         import ctypes
 
-        mutex = ctypes.windll.kernel32.CreateMutexW(None, False, 'Local\\AimSync_Rebuild_v1')
+        mutex = ctypes.windll.kernel32.CreateMutexW(None, False, 'Local\\KryptAim_Rebuild_v1')
         if ctypes.windll.kernel32.GetLastError() == 183:
             return False
         return True
@@ -101,7 +101,7 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
         dev_mode = dev_mode_enabled()
 
     if not _acquire_single_instance():
-        logging.getLogger('AimSync').warning('AimSync is already running.')
+        logging.getLogger('KryptAim').warning('KryptAim is already running.')
         return 1
 
     root = app_root()
@@ -110,10 +110,10 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
         sys.path.insert(0, str(root))
 
     if dev_mode:
-        os.environ['AIMSYNC_DEV'] = '1'
+        os.environ['KRYPTAIM_DEV'] = '1'
 
     _setup_logging()
-    logger = logging.getLogger('AimSync')
+    logger = logging.getLogger('KryptAim')
 
     stop_event = threading.Event()
     makcu_manager.set_dev_allowed(dev_mode)
@@ -126,9 +126,9 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
     url = f'http://{get_local_ip()}:5000'
     time.sleep(0.45)
     _open_browser(url)
-    logger.info('AimSync running at %s', url)
+    logger.info('KryptAim running at %s', url)
     if dev_mode:
-        logger.info('AIMSYNC_DEV=1 — local mouse if Makcu unavailable')
+        logger.info('KRYPTAIM_DEV=1 — local mouse if Makcu unavailable')
 
     shutdown_requested = threading.Event()
 
@@ -157,7 +157,7 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
 
         root_tk = tk.Tk()
         root_tk.withdraw()
-        root_tk.title('AimSync')
+        root_tk.title('KryptAim')
         root_tk.protocol('WM_DELETE_WINDOW', lambda: request_shutdown(False))
 
         def poll() -> None:

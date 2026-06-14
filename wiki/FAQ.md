@@ -2,11 +2,11 @@
 
 ---
 
-## Where do I download AimSync?
+## Where do I download KryptAim?
 
-[GitHub Releases — AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync/releases)
+[GitHub Releases — AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim/releases)
 
-Use the slim `AimSync.exe` unless you need the full offline bundle.
+Use the slim `KryptAim.exe` unless you need the full offline bundle.
 
 ---
 
@@ -25,7 +25,7 @@ The codebase was rebuilt (2026): `app/`, `web/`, slim exe bootstrap. Legacy `Ser
 ## Where are models stored?
 
 ```
-%APPDATA%\AimSync\models\
+%APPDATA%\KryptAim\models\
 ```
 
 Use **Community models** in the AI tab or upload manually.
@@ -34,13 +34,13 @@ Use **Community models** in the AI tab or upload manually.
 
 ## How do I update?
 
-**Global Settings → Updates → Check for updates**. Requires a published [GitHub Release](https://github.com/AimSyncCore/AimSync/releases) with `AimSync.exe` or `AimSync.zip`.
+**Global Settings → Updates → Check for updates**. Requires a published [GitHub Release](https://github.com/AimSyncCore/KryptAim/releases) with `KryptAim.exe` or `KryptAim.zip`.
 
 ---
 
 ## Dev license key?
 
-Run `scripts\run_dev.bat` and use `DEV-AIMSYNC` in Global Settings (dev builds only).
+Run `scripts\run_dev.bat` and use `DEV-KRYPTAIM` in Global Settings (dev builds only).
 
 ---
 

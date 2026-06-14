@@ -1,4 +1,4 @@
-"""Check cyndilib + NDI finder on the AimSync PC."""
+"""Check cyndilib + NDI finder on the KryptAim PC."""
 
 from __future__ import annotations
 

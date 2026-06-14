@@ -1,4 +1,4 @@
-"""Community model catalogs — AimSync GitHub + Aimmy CS2 models."""
+"""Community model catalogs — KryptAim GitHub + Aimmy CS2 models."""
 
 from __future__ import annotations
 
@@ -9,16 +9,16 @@ from typing import Any
 
 from app.core.github import download_bytes, get_json, list_repo_contents, raw_github_url
 
-logger = logging.getLogger('AimSync.ai.model_sources')
+logger = logging.getLogger('KryptAim.ai.model_sources')
 
 AIMMY_REPO = 'Babyhamsta/Aimmy'
 AIMMY_REF = 'Aimmy-V2'
 AIMMY_MODELS_PATH = 'models'
 
-AIMSYNC_REPO = os.environ.get('AIMSYNC_MODELS_REPO', 'AimSyncCore/AimSync')
-AIMSYNC_REF = os.environ.get('AIMSYNC_MODELS_REF', 'main')
-AIMSYNC_CATALOG_PATH = os.environ.get('AIMSYNC_MODELS_CATALOG', 'models/catalog.json')
-AIMSYNC_MODELS_PATH = 'models'
+KRYPTAIM_REPO = os.environ.get('KRYPTAIM_MODELS_REPO', 'AimSyncCore/KryptAim')
+KRYPTAIM_REF = os.environ.get('KRYPTAIM_MODELS_REF', 'main')
+KRYPTAIM_CATALOG_PATH = os.environ.get('KRYPTAIM_MODELS_CATALOG', 'models/catalog.json')
+KRYPTAIM_MODELS_PATH = 'models'
 
 MODEL_EXTENSIONS = ('.onnx', '.pt', '.engine')
 
@@ -84,7 +84,7 @@ def _normalize_catalog_entry(raw: Any, *, default_source: str) -> dict[str, Any]
 
     download_url = str(raw.get('download_url') or raw.get('url') or '').strip()
     if not download_url:
-        download_url = raw_github_url(AIMSYNC_REPO, AIMSYNC_REF, f'{AIMSYNC_MODELS_PATH}/{filename}')
+        download_url = raw_github_url(KRYPTAIM_REPO, KRYPTAIM_REF, f'{KRYPTAIM_MODELS_PATH}/{filename}')
 
     return _model_entry(
         filename=filename,
@@ -102,7 +102,7 @@ def fetch_aimsync_models() -> tuple[list[dict[str, Any]], str | None]:
     seen: set[str] = set()
     errors: list[str] = []
 
-    catalog_url = raw_github_url(AIMSYNC_REPO, AIMSYNC_REF, AIMSYNC_CATALOG_PATH)
+    catalog_url = raw_github_url(KRYPTAIM_REPO, KRYPTAIM_REF, KRYPTAIM_CATALOG_PATH)
     catalog_data, catalog_err = get_json(catalog_url)
     if catalog_err:
         errors.append(f'catalog: {catalog_err}')
@@ -118,7 +118,7 @@ def fetch_aimsync_models() -> tuple[list[dict[str, Any]], str | None]:
                 seen.add(entry['filename'])
                 entries.append(entry)
 
-    dir_items, dir_err = list_repo_contents(AIMSYNC_REPO, AIMSYNC_MODELS_PATH, ref=AIMSYNC_REF)
+    dir_items, dir_err = list_repo_contents(KRYPTAIM_REPO, KRYPTAIM_MODELS_PATH, ref=KRYPTAIM_REF)
     if dir_err:
         if dir_err != 'HTTP 404':
             errors.append(f'models/: {dir_err}')
@@ -134,10 +134,10 @@ def fetch_aimsync_models() -> tuple[list[dict[str, Any]], str | None]:
                 _model_entry(
                     filename=name,
                     title=Path(name).stem,
-                    description='AimSync model',
+                    description='KryptAim model',
                     size_bytes=int(item.get('size') or 0),
                     download_url=str(item.get('download_url') or raw_github_url(
-                        AIMSYNC_REPO, AIMSYNC_REF, f'{AIMSYNC_MODELS_PATH}/{name}',
+                        KRYPTAIM_REPO, KRYPTAIM_REF, f'{KRYPTAIM_MODELS_PATH}/{name}',
                     )),
                     source='aimsync',
                 ),
@@ -194,7 +194,7 @@ def fetch_all_community_models() -> dict[str, Any]:
 
     errors: list[str] = []
     if aimsync_err:
-        errors.append(f'AimSync: {aimsync_err}')
+        errors.append(f'KryptAim: {aimsync_err}')
     if aimmy_err:
         errors.append(f'Aimmy: {aimmy_err}')
 

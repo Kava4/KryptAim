@@ -77,7 +77,7 @@
     }
 
     function installAppUpdate() {
-        if (!confirm('Download and install the latest AimSync.exe? The app will close and restart.')) return;
+        if (!confirm('Download and install the latest KryptAim.exe? The app will close and restart.')) return;
         const installBtn = document.getElementById('update-install-btn');
         const footerBtn = document.getElementById('footer-update-btn');
         const msg = document.getElementById('update-status-msg');
@@ -109,7 +109,7 @@
         }
     }
 
-    global.AimSyncUpdates = {
+    global.KryptAimUpdates = {
         init,
         check: checkForUpdates,
         install: installAppUpdate,

@@ -2,7 +2,7 @@
   "featured": [
     {
       "repo": "AimSyncCore/cs2_webradar",
-      "name": "AimSync WebRadar",
+      "name": "CS2 WebRadar",
       "description": "Live Counter-Strike 2 web radar — reads game memory on your PC and streams match data (players, bomb, grenades, round info) to a browser radar. Single-exe AIO build, 44 maps, LAN sharing, and in-game overlay (WIP).",
       "demo_url": null,
       "tags": ["C++", "React", "WebSocket", "CS2"],
@@ -28,6 +28,6 @@
   "sources": [
     { "type": "org", "name": "AimSyncCore" }
   ],
-  "exclude_repos": ["AimSync"],
+  "exclude_repos": ["KryptAim"],
   "exclude_forks": true
 }

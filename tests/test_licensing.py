@@ -12,8 +12,8 @@ from app.core import licensing as lic
 class LicensingTests(unittest.TestCase):
     def tearDown(self) -> None:
         lic.invalidate_license_cache()
-        os.environ.pop('AIMSYNC_AI_UNLOCK', None)
-        os.environ.pop('AIMSYNC_AI_PREMIUM_ONLY', None)
+        os.environ.pop('KRYPTAIM_AI_UNLOCK', None)
+        os.environ.pop('KRYPTAIM_AI_PREMIUM_ONLY', None)
 
     def test_ai_free_when_premium_not_required(self) -> None:
         with patch('app.core.licensing.ai_premium_required', return_value=False):
@@ -33,7 +33,7 @@ class LicensingTests(unittest.TestCase):
             self.assertTrue(lic.ai_access_allowed(data, 'KOFI-ABC123'))
 
     def test_dev_unlock_env(self) -> None:
-        os.environ['AIMSYNC_AI_UNLOCK'] = '1'
+        os.environ['KRYPTAIM_AI_UNLOCK'] = '1'
         status = lic.ai_access_status(refresh=True)
         self.assertTrue(status['allowed'])
 
@@ -46,16 +46,16 @@ class LicensingTests(unittest.TestCase):
 
     def test_dev_key_validates_locally(self) -> None:
         with patch.object(lic, 'dev_keys_enabled', return_value=True):
-            result = lic.validate_license('DEV-AIMSYNC')
+            result = lic.validate_license('DEV-KRYPTAIM')
         self.assertTrue(result['valid'])
         self.assertEqual(result['tier'], 'Dev')
-        self.assertTrue(lic.ai_access_allowed(result, 'DEV-AIMSYNC'))
+        self.assertTrue(lic.ai_access_allowed(result, 'DEV-KRYPTAIM'))
 
     def test_dev_key_blocked_when_disabled(self) -> None:
         with patch('app.core.licensing.ai_premium_required', return_value=True):
-            with patch.object(lic, 'load_config', return_value={'license_key': 'DEV-AIMSYNC'}):
+            with patch.object(lic, 'load_config', return_value={'license_key': 'DEV-KRYPTAIM'}):
                 with patch.object(lic, 'dev_keys_enabled', return_value=False):
-                    with patch.object(lic, '_refresh_if_stale', return_value=lic._dev_license_result('DEV-AIMSYNC')):
+                    with patch.object(lic, '_refresh_if_stale', return_value=lic._dev_license_result('DEV-KRYPTAIM')):
                         status = lic.ai_access_status(refresh=False)
         self.assertFalse(status['allowed'])
         self.assertIn('disabled', status['message'].lower())

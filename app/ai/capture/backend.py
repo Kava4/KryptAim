@@ -12,7 +12,7 @@ import numpy as np
 from app.ai.capture.ndi import NDICapture
 from app.ai.capture.region import DetectionRegion
 
-logger = logging.getLogger('AimSync.rebuild.Capture')
+logger = logging.getLogger('KryptAim.rebuild.Capture')
 
 
 @dataclass(frozen=True)

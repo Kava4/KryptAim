@@ -8,6 +8,6 @@ if not exist "build-venv\Scripts\python.exe" (
     exit /b 1
 )
 
-set AIMSYNC_BUILD_CONSOLE=1
+set KRYPTAIM_BUILD_CONSOLE=1
 build-venv\Scripts\python.exe build_app.py
 pause

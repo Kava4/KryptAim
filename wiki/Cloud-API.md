@@ -14,7 +14,7 @@ Base URL (default): `https://project-mkgdr.vercel.app/api`
 
 Used when **AI premium mode** is enabled. Recoil stays free.
 
-Override: env `AIMSYNC_CLOUD_API`
+Override: env `KRYPTAIM_CLOUD_API`
 
 Local proxy: `POST /api/access/validate_license`
 
@@ -25,7 +25,7 @@ Local proxy: `POST /api/access/validate_license`
 Fetched from GitHub (cached ~5 min):
 
 ```
-https://raw.githubusercontent.com/AimSyncCore/AimSync/Beta/release/app-config.json
+https://raw.githubusercontent.com/AimSyncCore/KryptAim/Beta/release/app-config.json
 ```
 
 Example:
@@ -38,7 +38,7 @@ Example:
 
 Set `"ai_premium_only": true` to lock AI behind Ko-fi keys **without rebuilding the exe**.
 
-Override URL: env `AIMSYNC_APP_CONFIG_URL`
+Override URL: env `KRYPTAIM_APP_CONFIG_URL`
 
 ---
 
@@ -48,7 +48,7 @@ Not served from Vercel. The app reads:
 
 | Source | Content |
 |--------|---------|
-| [AimSyncCore/AimSync/models](https://github.com/AimSyncCore/AimSync/tree/Beta/models) | Official catalog + `catalog.json` |
+| [AimSyncCore/KryptAim/models](https://github.com/AimSyncCore/KryptAim/tree/Beta/models) | Official catalog + `catalog.json` |
 | [Aimmy models](https://github.com/Babyhamsta/Aimmy/tree/Aimmy-V2/models) | CS2 `.onnx` files (filtered) |
 
 Local routes:
@@ -56,7 +56,7 @@ Local routes:
 | Route | Method | Purpose |
 |-------|--------|---------|
 | `/api/ai/community/models` | GET | Catalog + installed |
-| `/api/ai/community/download` | POST | Download to `%APPDATA%\AimSync\models\` |
+| `/api/ai/community/download` | POST | Download to `%APPDATA%\KryptAim\models\` |
 
 ---
 

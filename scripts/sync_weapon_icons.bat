@@ -2,12 +2,12 @@
 setlocal EnableExtensions
 cd /d "%~dp0.."
 
-if not defined AIMSYNC_WEAPON_ICONS (
-    set "AIMSYNC_WEAPON_ICONS=e:\projects\cs2-webradar-usermode\release\dist\assets\icons"
+if not defined KRYPTAIM_WEAPON_ICONS (
+    set "KRYPTAIM_WEAPON_ICONS=e:\projects\cs2-webradar-usermode\release\dist\assets\icons"
 )
 
 echo Sync weapon icons from:
-echo   %AIMSYNC_WEAPON_ICONS%
+echo   %KRYPTAIM_WEAPON_ICONS%
 echo.
 
 if exist ".venv\Scripts\python.exe" (

@@ -29,7 +29,7 @@ Optional X/Y jitter and control sliders for spray variation.
 One-time install of embeddable Python + AI stack to:
 
 ```
-%APPDATA%\AimSync\runtime\
+%APPDATA%\KryptAim\runtime\
 ```
 
 Checklist shows: embed Python · virtualenv · AI packages.
@@ -40,8 +40,8 @@ Required before the AI engine can run (lite build only).
 
 ## Updates
 
-- **Check for updates** — compares with [GitHub Releases](https://github.com/AimSyncCore/AimSync/releases).
-- **Install update** — downloads new `AimSync.exe` and restarts (built exe only).
+- **Check for updates** — compares with [GitHub Releases](https://github.com/AimSyncCore/KryptAim/releases).
+- **Install update** — downloads new `KryptAim.exe` and restarts (built exe only).
 
 Version source: `release/version.json` in the repo.
 
@@ -53,13 +53,13 @@ Version source: `release/version.json` in the repo.
 
 When `release/app-config.json` sets `ai_premium_only: true`, this section shows supporter key validation (Ko-fi).
 
-Dev key: `DEV-AIMSYNC` with `scripts\run_dev.bat`.
+Dev key: `DEV-KRYPTAIM` with `scripts\run_dev.bat`.
 
 ---
 
 ## Shutdown
 
-**Shutdown PC on Stop** — Windows shutdown when closing AimSync.
+**Shutdown PC on Stop** — Windows shutdown when closing KryptAim.
 
 ---
 

@@ -1,6 +1,6 @@
 # AI Engine
 
-YOLO-based detection, aim assist, and triggerbot. Runs on the **AimSync PC** with Makcu movement.
+YOLO-based detection, aim assist, and triggerbot. Runs on the **KryptAim PC** with Makcu movement.
 
 **Access:** Free by default. Premium gate is optional via `release/app-config.json` on GitHub.
 
@@ -25,7 +25,7 @@ NDI capture → YOLO inference → CT/T class filter → aim/trigger → Makcu
 ## Setup (dual-PC)
 
 1. Gaming PC: NDI output enabled.
-2. AimSync PC: CUDA driver + NDI Runtime.
+2. KryptAim PC: CUDA driver + NDI Runtime.
 3. **Slim exe:** Global Settings → **AI Runtime** → install once. Restart when done.
 4. AI tab:
    - Select **NDI source**
@@ -55,17 +55,17 @@ NDI capture → YOLO inference → CT/T class filter → aim/trigger → Makcu
 
 Sources (no Vercel catalog):
 
-- **AimSyncCore/AimSync** `models/` on GitHub
+- **AimSyncCore/KryptAim** `models/` on GitHub
 - **Aimmy** CS2 models (`Babyhamsta/Aimmy`, branch `Aimmy-V2`)
 
-Saved to `%APPDATA%\AimSync\models\`.
+Saved to `%APPDATA%\KryptAim\models\`.
 
 ---
 
 ## Debug
 
-- Log: `%APPDATA%\AimSync\aimsync.log`
-- Runtime install log: `%APPDATA%\AimSync\runtime\install.log`
+- Log: `%APPDATA%\KryptAim\aimsync.log`
+- Runtime install log: `%APPDATA%\KryptAim\runtime\install.log`
 
 ---
 

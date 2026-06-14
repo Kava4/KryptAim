@@ -10,7 +10,7 @@ from app.ai.engine import AiEngine
 from app.ai.lifecycle import set_active_engine
 from app.ai.ndi_control import request_ndi_refresh
 
-logger = logging.getLogger('AimSync.rebuild.AiWorker')
+logger = logging.getLogger('KryptAim.rebuild.AiWorker')
 
 
 def ai_worker(stop_event: threading.Event) -> None:

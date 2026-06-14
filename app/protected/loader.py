@@ -9,7 +9,7 @@ from pathlib import Path
 
 from app.protected.crypto import unseal_bytes
 
-logger = logging.getLogger('AimSync.protected')
+logger = logging.getLogger('KryptAim.protected')
 
 _BUILTIN_MODULES = frozenset({
     'recoil/engine.py',

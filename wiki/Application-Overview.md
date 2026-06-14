@@ -1,6 +1,6 @@
 # Application overview
 
-AimSync starts a local Flask server and opens a tabbed web dashboard.
+KryptAim starts a local Flask server and opens a tabbed web dashboard.
 
 ---
 
@@ -10,7 +10,7 @@ AimSync starts a local Flask server and opens a tabbed web dashboard.
 |-----|---------|
 | **Global Settings** | Recoil master switch, input method, license (when premium), **AI runtime install**, **updates** |
 | **Game Engine** | CS2 weapon spray profiles (CT/T sides, rifles & SMGs) |
-| **AimSync AI** | NDI capture, YOLO model, CT/T target class, aim assist & triggerbot |
+| **KryptAim AI** | NDI capture, YOLO model, CT/T target class, aim assist & triggerbot |
 
 ---
 
@@ -37,11 +37,11 @@ AimSync starts a local Flask server and opens a tabbed web dashboard.
 
 | Data | Path |
 |------|------|
-| Config | `%APPDATA%\AimSync\config.json` |
-| AI models | `%APPDATA%\AimSync\models\` |
-| AI runtime (slim exe) | `%APPDATA%\AimSync\runtime\` |
-| Update downloads | `%APPDATA%\AimSync\updates\` |
-| App log | `%APPDATA%\AimSync\aimsync.log` |
+| Config | `%APPDATA%\KryptAim\config.json` |
+| AI models | `%APPDATA%\KryptAim\models\` |
+| AI runtime (slim exe) | `%APPDATA%\KryptAim\runtime\` |
+| Update downloads | `%APPDATA%\KryptAim\updates\` |
+| App log | `%APPDATA%\KryptAim\aimsync.log` |
 
 **Slim exe:** Recoil works immediately. Install AI from **Global Settings → AI Runtime**.
 
@@ -51,7 +51,7 @@ AimSync starts a local Flask server and opens a tabbed web dashboard.
 
 **Default:** AI is **free** for everyone.
 
-To require supporter keys later, set `ai_premium_only: true` in [release/app-config.json](https://github.com/AimSyncCore/AimSync/blob/Beta/release/app-config.json) on GitHub (no rebuild needed).
+To require supporter keys later, set `ai_premium_only: true` in [release/app-config.json](https://github.com/AimSyncCore/KryptAim/blob/Beta/release/app-config.json) on GitHub (no rebuild needed).
 
 ---
 

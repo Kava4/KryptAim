@@ -1,6 +1,6 @@
 # Slim exe distribution
 
-Ship a **small** `AimSync.exe` (~50–120 MB) with recoil + UI bundled. The AI stack installs on first use into AppData — **no system Python required**.
+Ship a **small** `KryptAim.exe` (~50–120 MB) with recoil + UI bundled. The AI stack installs on first use into AppData — **no system Python required**.
 
 ---
 
@@ -19,7 +19,7 @@ scripts\build_app.bat
 scripts\package_release.bat
 ```
 
-Output: `dist\AimSync.exe` — **single file**, no `_internal` folder (PyInstaller onefile).
+Output: `dist\KryptAim.exe` — **single file**, no `_internal` folder (PyInstaller onefile).
 
 ---
 
@@ -27,23 +27,23 @@ Output: `dist\AimSync.exe` — **single file**, no `_internal` folder (PyInstall
 
 ```mermaid
 flowchart LR
-  A[Run AimSync.exe] --> B[Recoil + UI work]
+  A[Run KryptAim.exe] --> B[Recoil + UI work]
   B --> C[AI tab banner]
   C --> D[Install AI runtime]
   D --> E[Embeddable Python]
   E --> F[pip AI deps to AppData]
-  F --> G[Restart AimSync]
+  F --> G[Restart KryptAim]
   G --> H[Start AI engine]
 ```
 
-1. Download `AimSync.zip` from [Releases](https://github.com/AimSyncCore/AimSync/releases) and extract `AimSync.exe` anywhere.
+1. Download `KryptAim.zip` from [Releases](https://github.com/AimSyncCore/KryptAim/releases) and extract `KryptAim.exe` anywhere.
 2. Run it — recoil and dashboard work immediately.
 3. Open **Global Settings** → **AI Runtime** → click **Install AI runtime**.
 4. Wait 10–20 minutes (internet required). Checklist turns green when each step completes. Downloads:
    - Python 3.12 embeddable zip from python.org
    - `get-pip.py` + pip packages from PyPI
    - Optional CUDA PyTorch wheels
-5. **Restart AimSync** when install finishes.
+5. **Restart KryptAim** when install finishes.
 6. Configure NDI, model, and **Start AI engine**.
 
 ---
@@ -51,7 +51,7 @@ flowchart LR
 ## AppData layout after install
 
 ```
-%APPDATA%\AimSync\
+%APPDATA%\KryptAim\
 ├── config.json
 ├── bin\models\          ← your YOLO weights
 ├── aimsync.log
@@ -71,7 +71,7 @@ Embeddable Python is configured automatically (`python*._pth`, pip, virtualenv).
 |---|-----------------|----------|----------|
 | Initial download | Small | Small | Large (~GB) |
 | System Python | **Not required** | Required | Not required |
-| First AI use | One-click install | `install_aimsync_pc.bat` | Ready |
+| First AI use | One-click install | `install_kryptaim_pc.bat` | Ready |
 | Internet | Needed once for AI | Needed once | Optional |
 | Updates | Re-run install or repair | `pip install -U` | Rebuild exe |
 
@@ -90,12 +90,12 @@ Embeddable Python is configured automatically (`python*._pth`, pip, virtualenv).
 
 | Symptom | Fix |
 |---------|-----|
-| AI banner stays after install | Restart `AimSync.exe` |
-| Install failed / timeout | Check internet; delete `%APPDATA%\AimSync\runtime` and retry |
+| AI banner stays after install | Restart `KryptAim.exe` |
+| Install failed / timeout | Check internet; delete `%APPDATA%\KryptAim\runtime` and retry |
 | CUDA torch failed | CPU ONNX may still work; install NVIDIA driver + retry |
 | Embed download blocked | Allow python.org + pypi.org in firewall |
 
-Logs: `%APPDATA%\AimSync\aimsync.log`
+Logs: `%APPDATA%\KryptAim\aimsync.log`
 
 ---
 

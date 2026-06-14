@@ -13,17 +13,21 @@ from pathlib import Path
 from typing import Any
 
 from app.core.config import config_dir
+from app.core.env import env_get
 from app.core.github import USER_AGENT, download_bytes, get_json
-from app.core.identity import APP_VERSION
+from app.core.identity import APP_EXE_NAME, APP_VERSION
 from app.core.paths import is_frozen
 
-logger = logging.getLogger('AimSync.updates')
+logger = logging.getLogger('KryptAim.updates')
 
-DEFAULT_REPO = os.environ.get('AIMSYNC_UPDATES_REPO', 'AimSyncCore/AimSync')
+DEFAULT_REPO = env_get('UPDATES_REPO', 'AimSyncCore/KryptAim')
 _PREFERRED_ASSETS = (
+    APP_EXE_NAME,
+    'KryptAim.exe',
     'AimSync.exe',
-    'aimsync.exe',
+    'KryptAim.zip',
     'AimSync.zip',
+    'aimsync.exe',
     'aimsync.zip',
 )
 
@@ -160,8 +164,11 @@ def _extract_exe_from_zip(zip_path: Path) -> Path | None:
             names = [name for name in archive.namelist() if name.lower().endswith('.exe')]
             if not names:
                 return None
-            preferred = next((n for n in names if Path(n).name.lower() == 'aimsync.exe'), names[0])
-            dest = updates_dir() / 'AimSync-new.exe'
+            preferred = next(
+                (n for n in names if Path(n).name.lower() in {'kryptaim.exe', 'aimsync.exe'}),
+                names[0],
+            )
+            dest = updates_dir() / 'KryptAim-new.exe'
             with archive.open(preferred) as src, dest.open('wb') as out:
                 out.write(src.read())
             return dest
@@ -178,14 +185,14 @@ def download_update(download_url: str, *, asset_name: str = '') -> tuple[Path | 
     if data is None:
         return None, err or 'Download failed'
 
-    name = asset_name or Path(download_url).name or 'AimSync-download'
+    name = asset_name or Path(download_url).name or 'KryptAim-download'
     dest = updates_dir() / name
     dest.write_bytes(data)
 
     if dest.suffix.lower() == '.zip':
         extracted = _extract_exe_from_zip(dest)
         if extracted is None:
-            return None, 'Zip did not contain AimSync.exe'
+            return None, 'Zip did not contain KryptAim.exe'
         return extracted, None
 
     if dest.suffix.lower() != '.exe':
@@ -210,14 +217,14 @@ def _spawn_updater(new_exe: Path, target_exe: Path) -> tuple[bool, str]:
         subprocess.Popen(['cmd', '/c', str(bat)], creationflags=flags, close_fds=True)
     except Exception as exc:
         return False, str(exc)
-    return True, 'Updater scheduled — AimSync will restart'
+    return True, 'Updater scheduled — KryptAim will restart'
 
 
 def install_update(*, repo: str = DEFAULT_REPO) -> dict[str, Any]:
     if not is_frozen():
         return {
             'success': False,
-            'message': 'In-app updates apply to the built AimSync.exe only. Download the latest release manually.',
+            'message': 'In-app updates apply to the built KryptAim.exe only. Download the latest release manually.',
         }
 
     status = check_for_updates(repo=repo)
@@ -234,7 +241,7 @@ def install_update(*, repo: str = DEFAULT_REPO) -> dict[str, Any]:
         return {'success': False, 'message': err or 'Download failed'}
 
     target = Path(sys.executable).resolve()
-    staged = updates_dir() / f'AimSync-{status.get("latest_version", "new")}.exe'
+    staged = updates_dir() / f'KryptAim-{status.get("latest_version", "new")}.exe'
     if new_exe != staged:
         staged.write_bytes(new_exe.read_bytes())
 

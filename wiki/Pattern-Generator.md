@@ -6,7 +6,7 @@ Build weapon recoil data from spray captures (image or GIF).
 
 ## Open
 
-1. Launch AimSync.
+1. Launch KryptAim.
 2. **Recoil Lab** → **Pattern Generator** (new tab).
 
 Or run standalone:

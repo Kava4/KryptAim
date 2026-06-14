@@ -12,7 +12,7 @@ from flask import Flask, jsonify, render_template, request
 from werkzeug.serving import make_server
 
 from app.core.config import load_config, save_config
-from app.core.identity import APP_DISPLAY_NAME, APP_VERSION
+from app.core.identity import APP_DISPLAY_NAME, APP_VERSION, APP_VERSION_LABEL
 from app.core.paths import web_root
 from app.recoil.weapon_data import WeaponData
 from web.routes.access_routes import access_bp
@@ -66,7 +66,7 @@ def create_app() -> Flask:
         return {
             'app_name': APP_DISPLAY_NAME,
             'app_version': APP_VERSION,
-            'app_version_label': 'Rebuild',
+            'app_version_label': APP_VERSION_LABEL,
             'local_ip': get_local_ip(),
         }
 

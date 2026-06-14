@@ -9,7 +9,7 @@ if not exist "build-venv\Scripts\python.exe" (
 )
 
 echo [release] Clean rebuild + zip
-set AIMSYNC_BUILD_CLEAN=1
+set KRYPTAIM_BUILD_CLEAN=1
 build-venv\Scripts\python.exe build_app.py
 if errorlevel 1 (
     pause

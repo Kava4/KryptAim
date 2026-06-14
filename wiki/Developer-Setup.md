@@ -1,6 +1,6 @@
 # Developer setup
 
-Clone [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync) (branch **Beta**).
+Clone [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim) (branch **Beta**).
 
 ---
 
@@ -16,7 +16,7 @@ Clone [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync) (branch **Be
 ## Run from source
 
 ```bat
-scripts\install_aimsync_pc.bat
+scripts\install_kryptaim_pc.bat
 scripts\run_dev.bat
 ```
 
@@ -32,7 +32,7 @@ Tests:
 .venv\Scripts\python.exe -m pytest tests\
 ```
 
-Config & logs: `%APPDATA%\AimSync\`
+Config & logs: `%APPDATA%\KryptAim\`
 
 ---
 
@@ -61,7 +61,7 @@ scripts\build_app_full.bat
 
 Debug console build: `scripts\build_debug.bat`
 
-Output: `dist\AimSync.exe` (lite) or `dist\AimSync\` (full onedir)
+Output: `dist\KryptAim.exe` (lite) or `dist\KryptAim\` (full onedir)
 
 Bootstrap: `app/bootstrap/embed_python.py`, `app/bootstrap/runtime.py`
 
@@ -71,8 +71,8 @@ Bootstrap: `app/bootstrap/embed_python.py`, `app/bootstrap/runtime.py`
 
 1. Bump `release/version.json`
 2. Build + `scripts\package_release.bat`
-3. Create GitHub Release on [AimSyncCore/AimSync](https://github.com/AimSyncCore/AimSync/releases) with tag `vX.Y.Z`
-4. Attach `AimSync.exe` or `AimSync.zip`
+3. Create GitHub Release on [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim/releases) with tag `vX.Y.Z`
+4. Attach `KryptAim.exe` or `KryptAim.zip`
 5. Push `release/app-config.json` if changing remote flags (e.g. AI premium gate)
 
 Wiki auto-syncs from `wiki/` on push (see `.github/workflows/wiki-sync.yml`).

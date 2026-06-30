@@ -1,0 +1,8 @@
+{
+  "name": "kryptaim-cloud-api",
+  "private": true,
+  "description": "Vercel serverless routes for KryptAim (deploy to project-mkgdr)",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}

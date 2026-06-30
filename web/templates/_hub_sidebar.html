@@ -1,0 +1,83 @@
+<aside id="hub-sidebar" class="hub-sidebar">
+    <p class="hub-brand">
+        <img src="{{ url_for('static', filename='KryptAim_mark.svg') }}" alt="" class="hub-brand-mark">
+        Krypto<span>Aim</span> Hub
+    </p>
+
+    <div class="hub-status">
+        <div class="hub-status-row">
+            <span class="hub-status-label">Status</span>
+            <span id="hub-makcu-status" class="hub-mono hub-status-disconnected">—</span>
+        </div>
+        <div class="hub-status-row">
+            <span class="hub-status-label">Port</span>
+            <span id="hub-makcu-port" class="hub-mono">—</span>
+        </div>
+        <div class="hub-status-row">
+            <span class="hub-status-label">Version</span>
+            <span class="hub-mono text-white/70">{{ app_version }}</span>
+        </div>
+    </div>
+
+    <nav class="hub-nav" aria-label="Main">
+        {% if hub_standalone|default(false) %}
+        <a href="/" class="hub-nav-btn tab-button {{ 'active' if request.path == '/' else '' }}">Dashboard</a>
+        <a href="/?tab=ai-engine" class="hub-nav-btn tab-button">Vision AI</a>
+        <a href="/?tab=CS2" class="hub-nav-btn tab-button">Game Engine</a>
+        {% else %}
+        <button type="button" class="hub-nav-btn tab-button active" data-tab="global">Dashboard</button>
+        <button type="button" class="hub-nav-btn tab-button" data-tab="ai-engine">Vision AI</button>
+        <button type="button" class="hub-nav-btn tab-button" data-tab="CS2">Game Engine</button>
+        {% endif %}
+    </nav>
+
+    <div class="hub-sidebar-footer">
+        <div class="hub-footer-links">
+            <a href="/projects" class="hub-footer-link {{ 'is-active' if request.path == '/projects' else '' }}">
+                <svg class="hub-footer-icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.341-3.369-1.341-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.021C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                <span>Projects</span>
+            </a>
+            <button type="button" class="hub-footer-link" onclick="toggleFeedbackModal()">
+                <svg class="hub-footer-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Feedback</span>
+            </button>
+            <div class="hub-footer-support-wrap" id="hub-support-wrap">
+                <button type="button" class="hub-footer-link hub-footer-link-expand" onclick="toggleHubSupportMenu()">
+                    <svg class="hub-footer-icon hub-footer-icon-heart" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <span>Support</span>
+                    <svg class="hub-footer-chevron" id="hub-support-chevron" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <div id="hub-support-menu" class="hub-support-menu hidden">
+                    <a href="https://ko-fi.com/kava4" target="_blank" rel="noopener" class="hub-support-item">Support on Ko-fi</a>
+                    <a href="https://paypal.me/kava4" target="_blank" rel="noopener" class="hub-support-item">Donate via PayPal</a>
+                    <button type="button" onclick="openSupportCodeModal('giftmecrypto')" class="hub-support-item">Submit GiftMeCrypto code</button>
+                    <button type="button" onclick="openSupportCodeModal('paysafe')" class="hub-support-item">Submit Paysafe code</button>
+                </div>
+            </div>
+            <button type="button" class="hub-footer-link" onclick="toggleQRModal()">
+                <svg class="hub-footer-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="7" y="2.5" width="10" height="19" rx="2"/>
+                    <path d="M11 18.5h2" stroke-linecap="round"/>
+                </svg>
+                <span>Mobile Link</span>
+            </button>
+        </div>
+        <div class="hub-sidebar-exit">
+            <button type="button" class="hub-exit-btn" onclick="openStopAppModal()">
+                <svg class="hub-footer-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M18.36 6.64a9 9 0 11-12.73 0M12 2v10" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Stop App</span>
+            </button>
+        </div>
+    </div>
+</aside>
+<div id="hub-sidebar-backdrop" class="hub-sidebar-backdrop" onclick="toggleHubSidebar(true)"></div>

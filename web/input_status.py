@@ -71,4 +71,5 @@ def get_input_status() -> dict:
         'dot_color': dot_color,
         'makcu_hardware': hardware,
         'makcu_dev_fallback': dev_fallback,
+        'makcu_port': makcu_manager.device_port if hardware else ('DEV' if dev_fallback else '—'),
     }

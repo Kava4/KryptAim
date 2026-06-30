@@ -55,7 +55,7 @@ NDI capture → YOLO inference → CT/T class filter → aim/trigger → Makcu
 
 Sources (no Vercel catalog):
 
-- **AimSyncCore/KryptAim** `models/` on GitHub
+- **Kava4/KryptAim** `models/` on GitHub
 - **Aimmy** CS2 models (`Babyhamsta/Aimmy`, branch `Aimmy-V2`)
 
 Saved to `%APPDATA%\KryptAim\models\`.

@@ -2,7 +2,7 @@
 
 **KryptAim** is a Windows app built for **[Makcu](https://www.makcu.com/) HID** users running **Counter-Strike 2** on a dual-PC setup. Your game PC sends video over **NDI**; your KryptAim PC runs recoil control (and optional YOLO AI) and moves the **gaming mouse through Makcu hardware** — not software simulation on the game PC.
 
-> **Download:** [Latest release (KryptAim.exe)](https://github.com/AimSyncCore/KryptAim/releases/latest) — no Python required on the KryptAim PC.
+> **Download:** [Latest release (KryptAim.exe)](https://github.com/Kava4/KryptAim/releases/latest) — no Python required on the KryptAim PC.
 
 ## Why Makcu + KryptAim?
 
@@ -17,7 +17,7 @@
 
 ## Quick start (exe)
 
-1. Download **`KryptAim.exe`** from [Releases](https://github.com/AimSyncCore/KryptAim/releases/latest)
+1. Download **`KryptAim.exe`** from [Releases](https://github.com/Kava4/KryptAim/releases/latest)
 2. Connect **Makcu** to the KryptAim PC (and to your game setup per your wiring)
 3. Run the exe → open the dashboard URL shown in the tray / console
 4. **Game Engine** tab → pick weapon & sensitivity · **KryptAim AI** tab → NDI source + model (optional)

@@ -10,7 +10,8 @@ from werkzeug.utils import secure_filename
 from app.ai.community_models import community_models_status, download_community_model, models_dir
 from app.ai.lifecycle import invalidate_config_cache
 from app.ai.model_classes import apply_team_to_player_class, class_info_for_path
-from app.core.licensing import ai_access_status
+from app.core.ai_access import can_enable_ai_engine, resolve_ai_access
+from app.core.ai_free_quota import get_ai_free_quota_manager
 from app.ai.ndi_control import get_ndi_sources, request_ndi_refresh
 from app.ai.presets import apply_quickstart
 from app.ai.status import get_ai_runtime_status
@@ -25,7 +26,7 @@ _MODEL_EXTS = {'.pt', '.onnx', '.engine'}
 
 
 def _ai_gate():
-    status = ai_access_status()
+    status = resolve_ai_access()
     if status.get('allowed'):
         return None
     return (
@@ -140,9 +141,11 @@ def _status_payload() -> dict:
         readiness.append({'ok': False, 'label': 'Engine running'})
 
     bs = bootstrap_status()
-    access = ai_access_status()
+    access = resolve_ai_access()
+    quota = access.get('free_quota') or {}
     return {
         'ai_access': access,
+        'free_quota': quota,
         'enabled': bool(config.get('ai_enabled')),
         'bootstrap': bs,
         'ai_engine_enabled': bool(config.get('ai_enabled')),
@@ -167,6 +170,7 @@ def _status_payload() -> dict:
         'ndi_source': runtime.ndi_source or config.get('ai_ndi_source', ''),
         'makcu_connected': makcu_ok,
         'makcu_dev_fallback': makcu_dev,
+        'makcu_port': input_status.get('makcu_port', '—'),
         'makcu_buttons_live': makcu_ok,
         'makcu_buttons_pressed': pressed,
         'aim_key_active': aim_active,
@@ -189,7 +193,8 @@ def _status_payload() -> dict:
         'profiles': [],
         'assist_mode': config.get('ai_assist_mode', 'trigger'),
         'aim_point': config.get('ai_aim_point', 'head'),
-        'detection_conf': config.get('ai_detection_conf', 0.25),
+        'detection_conf': config.get('ai_detection_conf', 0.65),
+        'fov_radius_px': config.get('ai_fov_radius_px', 120),
         **_model_class_payload(config),
     }
 
@@ -202,14 +207,86 @@ def ai_status():
         return jsonify({'success': False, 'message': str(exc)}), 500
 
 
-@ai_bp.route('/enable', methods=['POST'])
-def ai_enable():
+@ai_bp.route('/preview', methods=['GET'])
+def ai_preview():
     denied = _ai_gate()
     if denied:
         return denied
+
+    import base64
+
+    runtime = get_ai_runtime_status()
+    config = load_config()
+    payload: dict = {
+        'success': True,
+        'image': None,
+        'boxes': [],
+        'frame_width': runtime.frame_width or int(config.get('ai_main_pc_width', 1920)),
+        'frame_height': runtime.frame_height or int(config.get('ai_main_pc_height', 1080)),
+        'message': '',
+    }
+
+    from app.ai.lifecycle import get_active_engine
+
+    engine = get_active_engine()
+    if engine is None or not config.get('ai_enabled'):
+        payload['message'] = 'Start Vision AI engine for live feed'
+        return jsonify(payload)
+
+    preview_bytes = None
+    for attr in ('get_debug_preview', 'debug_preview_jpeg', 'last_preview_jpeg'):
+        value = getattr(engine, attr, None)
+        if callable(value):
+            try:
+                preview_bytes = value()
+            except Exception:
+                preview_bytes = None
+        elif isinstance(value, (bytes, bytearray)):
+            preview_bytes = bytes(value)
+        if preview_bytes:
+            break
+
+    if preview_bytes:
+        payload['image'] = 'data:image/jpeg;base64,' + base64.b64encode(preview_bytes).decode('ascii')
+
+    for attr in ('get_debug_boxes', 'last_detections'):
+        fn = getattr(engine, attr, None)
+        if callable(fn):
+            try:
+                boxes = fn()
+                if isinstance(boxes, list):
+                    payload['boxes'] = boxes
+            except Exception:
+                pass
+            break
+
+    return jsonify(payload)
+
+
+@ai_bp.route('/enable', methods=['POST'])
+def ai_enable():
     enabled = _parse_bool(request.form.get('enabled', request.form.get('ai_engine_enabled', False)))
+    if enabled:
+        denied = _ai_gate()
+        if denied:
+            return denied
+    else:
+        get_ai_free_quota_manager().sync_engine_state(False)
+    if enabled:
+        ok, status = can_enable_ai_engine()
+        if not ok:
+            return jsonify(
+                {
+                    'success': False,
+                    'message': status.get('message') or 'Vision AI unavailable',
+                    'ai_access': status,
+                    'locked': True,
+                },
+            ), 403
     _merge_config({'ai_enabled': enabled})
-    return jsonify({'success': True, 'enabled': enabled})
+    get_ai_free_quota_manager().sync_engine_state(enabled)
+    access = resolve_ai_access()
+    return jsonify({'success': True, 'enabled': enabled, 'ai_access': access, 'free_quota': access.get('free_quota')})
 
 
 @ai_bp.route('/quickstart', methods=['POST'])
@@ -285,6 +362,12 @@ def ai_detection():
             updates[key] = str(request.form.get(key, '') or '').strip()
     if request.form.get('ai_my_team') is not None:
         updates['ai_my_team'] = str(request.form.get('ai_my_team', '') or '').strip().lower()
+    fov = request.form.get('fov_radius')
+    if fov is not None and str(fov).strip():
+        try:
+            updates['ai_fov_radius_px'] = int(float(fov))
+        except ValueError:
+            pass
     if updates:
         updates = _merge_with_team(updates)
         _merge_config(updates)

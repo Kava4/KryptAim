@@ -4,7 +4,7 @@
 
 ## Where do I download KryptAim?
 
-[GitHub Releases — AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim/releases)
+[GitHub Releases — Kava4/KryptAim](https://github.com/Kava4/KryptAim/releases)
 
 Use the slim `KryptAim.exe` unless you need the full offline bundle.
 
@@ -34,7 +34,7 @@ Use **Community models** in the AI tab or upload manually.
 
 ## How do I update?
 
-**Global Settings → Updates → Check for updates**. Requires a published [GitHub Release](https://github.com/AimSyncCore/KryptAim/releases) with `KryptAim.exe` or `KryptAim.zip`.
+**Global Settings → Updates → Check for updates**. Requires a published [GitHub Release](https://github.com/Kava4/KryptAim/releases) with `KryptAim.exe` or `KryptAim.zip`.
 
 ---
 

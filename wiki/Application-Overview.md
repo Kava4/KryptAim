@@ -51,7 +51,7 @@ KryptAim starts a local Flask server and opens a tabbed web dashboard.
 
 **Default:** AI is **free** for everyone.
 
-To require supporter keys later, set `ai_premium_only: true` in [release/app-config.json](https://github.com/AimSyncCore/KryptAim/blob/Beta/release/app-config.json) on GitHub (no rebuild needed).
+To require supporter keys later, set `ai_premium_only: true` in [release/app-config.json](https://github.com/Kava4/KryptAim/blob/Beta/release/app-config.json) on GitHub (no rebuild needed).
 
 ---
 

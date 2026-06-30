@@ -1,34 +1,85 @@
         <div id="tab-content-ai-engine" class="tab-content mt-5 hidden">
-            <div class="bg-neutral-900 border border-amber-400/20 rounded-xl p-6 space-y-6">
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <p class="text-lg font-semibold text-white">KryptAim AI</p>
+            <div class="hub-card bg-neutral-900 border border-white/10 rounded-xl p-6 space-y-6">
+
+                <section class="vision-ai-hero">
+                    <p class="hub-section-title vision-ai-hero-title-left">Live Vision Feed</p>
+                    <div class="vision-ai-hero-title-right">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <p class="text-lg font-semibold text-white leading-tight">Vision AI</p>
+                            <span id="ai-vision-license-badge" class="hub-badge-muted hidden" aria-live="polite">—</span>
+                        </div>
                         <p class="text-xs text-white/40 mt-1 max-w-xl">NDI capture → YOLO → Makcu aim &amp; trigger. Use <strong>Quick setup</strong> first.</p>
                     </div>
-                    <button type="button" id="ai-engine-start-btn" onclick="toggleAiEngine()"
-                            class="text-xs font-semibold rounded-lg px-4 py-2 border transition-colors
-                                   {{ 'text-red-100 bg-red-500/20 border-red-400/30 hover:bg-red-500/30' if config.get('ai_enabled') else 'text-amber-950 bg-amber-400 border-amber-300 hover:bg-amber-300' }}">
-                        {{ 'Stop AI engine' if config.get('ai_enabled') else 'Start AI engine' }}
-                    </button>
-                </div>
+                    <div class="vision-feed-wrap vision-ai-hero-feed">
+                        <canvas id="vision-feed-canvas"></canvas>
+                        <div id="vision-feed-placeholder" class="vision-feed-placeholder">
+                            Start Vision AI engine · NDI video will appear here
+                        </div>
+                    </div>
+                    <div class="vision-ai-side-col">
+                        <div id="ai-free-quota-bar" class="hidden rounded-lg border border-white/10 bg-neutral-950/50 px-3 py-2.5 space-y-2">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-[10px] uppercase tracking-widest text-white/35">Free today</span>
+                                <span id="ai-free-quota-countdown" class="text-sm font-semibold text-[#E5A93B] hub-mono tabular-nums tracking-tight">— min</span>
+                            </div>
+                            <p id="ai-free-quota-hint" class="text-[11px] text-white/45">2 hours free Vision AI per day. Supporter: monthly (30 days) or unlimited (€25+).</p>
+                        </div>
+                        <button type="button" id="ai-engine-start-btn" onclick="toggleAiEngine()"
+                                class="w-full hub-nav-btn text-xs font-semibold rounded-lg px-4 py-2 border transition-colors
+                                       {{ 'text-red-100 bg-red-500/20 border-red-400/30 hover:bg-red-500/30' if config.get('ai_enabled') else 'text-[#090A0C] bg-[#E5A93B] border-[#E5A93B] hover:opacity-90' }}">
+                            {{ 'Stop AI engine' if config.get('ai_enabled') else 'Start AI engine' }}
+                        </button>
+                        <div id="ai-vision-activate" class="hidden vision-ai-activate-card rounded-lg border border-white/10 bg-neutral-950/40 p-3 space-y-2.5">
+                            <p class="text-xs font-medium text-white/80">Activate Vision AI</p>
+                            <p class="text-[11px] text-white/45">Enter your Ko-fi supporter key — monthly or unlimited tier.</p>
+                            <input id="ai-vision-key-input" type="text" placeholder="Supporter key"
+                                   class="w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2">
+                            <button type="button" onclick="activateVisionAiKey()"
+                                    class="w-full hub-nav-btn text-xs font-semibold rounded-lg px-4 py-2 border text-[#090A0C] bg-[#E5A93B] border-[#E5A93B] hover:opacity-90 transition-colors">
+                                Activate
+                            </button>
+                            <p id="ai-vision-key-msg" class="text-[11px] text-white/40"></p>
+                        </div>
+                    </div>
+                    <div class="vision-controls vision-controls-below">
+                        <label>
+                            <span class="hub-slider-label">
+                                <span>Confidence Threshold</span>
+                                <span id="ai-vision-conf-label" class="hub-slider-value">{{ (config.get('ai_detection_conf', 0.65) * 100) | int }}%</span>
+                            </span>
+                            <input id="ai-vision-conf" type="range" min="10" max="95" step="1"
+                                   value="{{ (config.get('ai_detection_conf', 0.65) * 100) | int }}"
+                                   class="w-full">
+                        </label>
+                        <label>
+                            <span class="hub-slider-label">
+                                <span>FOV Radius</span>
+                                <span id="ai-fov-radius-label" class="hub-slider-value">{{ config.get('ai_fov_radius_px', 120) }}px</span>
+                            </span>
+                            <input id="ai-fov-radius" type="range" min="40" max="400" step="5"
+                                   value="{{ config.get('ai_fov_radius_px', 120) }}"
+                                   class="w-full">
+                        </label>
+                    </div>
+                </section>
 
-                <div id="ai-engine-status" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
-                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                <div id="ai-engine-status" class="ai-engine-status-grid text-xs">
+                    <div class="ai-engine-stat-box rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
                         <span class="text-[10px] uppercase tracking-widest text-white/35">Engine</span>
                         <p id="ai-stat-engine" class="font-medium text-white mt-0.5">—</p>
                         <p id="ai-stat-fps" class="text-[10px] text-white/45 mt-0.5 truncate">—</p>
                     </div>
-                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                    <div class="ai-engine-stat-box rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
                         <span class="text-[10px] uppercase tracking-widest text-white/35">Model</span>
                         <p id="ai-stat-model" class="font-medium text-white mt-0.5 truncate">—</p>
                         <p id="ai-stat-config" class="text-[10px] text-white/45 mt-0.5 truncate">config.json</p>
                     </div>
-                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                    <div class="ai-engine-stat-box rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
                         <span class="text-[10px] uppercase tracking-widest text-white/35">Makcu / aim key</span>
                         <p id="ai-stat-makcu" class="font-medium text-white mt-0.5">—</p>
                         <p id="ai-stat-aimkey" class="text-[10px] text-white/45 mt-0.5 truncate">—</p>
                     </div>
-                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                    <div class="ai-engine-stat-box rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
                         <span class="text-[10px] uppercase tracking-widest text-white/35">GPU / mode</span>
                         <p id="ai-stat-gpu" class="font-medium text-white mt-0.5 truncate">—</p>
                         <p id="ai-stat-movement" class="text-[10px] text-white/45 mt-0.5 truncate">—</p>
@@ -61,25 +112,23 @@
                     </p>
                 </div>
 
-                <section class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-medium text-amber-100">Ready to play</p>
-                            <p id="ai-readiness-hint" class="text-[11px] text-white/45 mt-1">Complete setup below, then use Quick setup.</p>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button type="button" onclick="runAiQuickstart('both')"
-                                    class="text-xs font-semibold text-amber-950 bg-amber-400 hover:bg-amber-300 rounded-lg px-4 py-2">Quick setup</button>
-                            <button type="button" onclick="runAiQuickstart('aim')"
-                                    class="text-xs font-semibold text-blue-950 bg-blue-400 hover:bg-blue-300 rounded-lg px-4 py-2">Aim setup</button>
-                            <button type="button" onclick="runAiQuickstart('trigger')"
-                                    class="text-xs font-semibold text-white bg-amber-600/80 hover:bg-amber-500 rounded-lg px-4 py-2">Trigger setup</button>
-                        </div>
+                <section class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-4">
+                    <div>
+                        <p class="text-sm font-medium text-amber-100">Ready to play</p>
+                        <p id="ai-readiness-hint" class="text-[11px] text-white/45 mt-1">Complete setup below, then use Quick setup.</p>
                     </div>
-                    <ul id="ai-readiness-list" class="grid sm:grid-cols-2 gap-1.5 text-[11px]"></ul>
+                    <ul id="ai-readiness-list" class="ai-readiness-grid"></ul>
+                    <div class="ai-setup-btn-row">
+                        <button type="button" onclick="runAiQuickstart('both')"
+                                class="ai-setup-btn text-xs font-semibold text-amber-950 bg-amber-400 hover:bg-amber-300 rounded-lg px-4 py-2">Quick setup</button>
+                        <button type="button" onclick="runAiQuickstart('aim')"
+                                class="ai-setup-btn text-xs font-semibold text-blue-950 bg-blue-400 hover:bg-blue-300 rounded-lg px-4 py-2">Aim setup</button>
+                        <button type="button" onclick="runAiQuickstart('trigger')"
+                                class="ai-setup-btn text-xs font-semibold text-white bg-amber-600/80 hover:bg-amber-500 rounded-lg px-4 py-2">Trigger setup</button>
+                    </div>
                 </section>
 
-                <div id="ai-engine-alert" class="hidden rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-xs text-red-200"></div>
+                <div id="ai-engine-alert" class="ai-engine-alert hidden border border-red-400/30 bg-red-500/10 px-4 py-3 text-xs text-red-200"></div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                     <section class="space-y-3 rounded-lg border border-white/10 bg-neutral-950/50 p-4">
@@ -168,18 +217,7 @@
                                 </select>
                             </label>
                         </div>
-                        <p class="text-[10px] text-white/35">CS2: pick your side — aim targets the enemy (CT → T, T → CT). Other models: choose class manually.</p>
-                        <label class="block">
-                            <span class="flex justify-between text-[10px] text-white/40">
-                                <span>Detection confidence</span>
-                                <span id="ai-det-conf-label" class="text-white/60 tabular-nums">{{ config.get('ai_detection_conf', 0.25) }}</span>
-                            </span>
-                            <input id="ai-det-conf" type="range" min="0.1" max="0.9" step="0.05"
-                                   value="{{ config.get('ai_detection_conf', 0.25) }}"
-                                   class="w-full accent-amber-500 mt-1"
-                                   oninput="document.getElementById('ai-det-conf-label').textContent=Number(this.value).toFixed(2)"
-                                   onchange="saveAiDetection()">
-                        </label>
+                        <p class="text-[10px] text-white/35">CS2: pick your side — aim targets the enemy (CT → T, T → CT). Other models: choose class manually. Confidence is set under Live Vision Feed.</p>
                     </section>
                 </div>
 
@@ -189,15 +227,15 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 border-t border-white/5 pt-5">
                     <section class="space-y-3 rounded-lg border border-blue-500/25 bg-blue-500/5 p-4">
                         <p class="text-sm font-semibold text-blue-200 uppercase tracking-wide">Aim</p>
-                        <label class="flex items-center justify-between text-xs text-white/85">
+                        <label class="hub-ai-toggle-row text-xs text-white/85">
                             <span>Aim assist enabled</span>
-                            <input type="checkbox" class="w-4 h-4 accent-blue-500"
+                            <input type="checkbox" class="hub-ai-toggle-cb w-4 h-4 accent-blue-500"
                                    {{ 'checked' if config.get('ai_aim_enabled') else '' }}
                                    onchange="saveAiToggle('Aim Assist', this.checked)">
                         </label>
-                        <label class="flex items-center justify-between text-xs text-white/85">
+                        <label class="hub-ai-toggle-row text-xs text-white/85">
                             <span>Aim always on</span>
-                            <input id="ai-aim-always" type="checkbox" class="w-4 h-4 accent-blue-500"
+                            <input id="ai-aim-always" type="checkbox" class="hub-ai-toggle-cb w-4 h-4 accent-blue-500"
                                    {{ 'checked' if config.get('ai_aim_always_on') else '' }}
                                    onchange="saveAiToggle('Always-on aim', this.checked)">
                         </label>
@@ -244,15 +282,15 @@
 
                     <section class="space-y-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-4">
                         <p class="text-sm font-semibold text-amber-200 uppercase tracking-wide">Triggerbot</p>
-                        <label class="flex items-center justify-between text-xs text-white/85">
+                        <label class="hub-ai-toggle-row text-xs text-white/85">
                             <span>Trigger enabled</span>
-                            <input type="checkbox" class="w-4 h-4 accent-amber-500"
+                            <input type="checkbox" class="hub-ai-toggle-cb w-4 h-4 accent-amber-500"
                                    {{ 'checked' if config.get('ai_trigger_enabled') else '' }}
                                    onchange="saveAiToggle('Auto Trigger', this.checked)">
                         </label>
-                        <label class="flex items-center justify-between text-xs text-white/85">
+                        <label class="hub-ai-toggle-row text-xs text-white/85">
                             <span>Trigger always on</span>
-                            <input id="ai-trigger-always" type="checkbox" class="w-4 h-4 accent-amber-500"
+                            <input id="ai-trigger-always" type="checkbox" class="hub-ai-toggle-cb w-4 h-4 accent-amber-500"
                                    {{ 'checked' if config.get('ai_trigger_always_on') else '' }}
                                    onchange="saveAiToggle('Trigger always on', this.checked)">
                         </label>
@@ -266,9 +304,9 @@
                             </select>
                         </label>
                         <label class="block text-xs text-white/70">
-                            <span class="flex justify-between">
-                                <span>Trigger radius (px)</span>
-                                <span id="ai-trigger-radius-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_radius_px', 8) }}</span>
+                            <span class="hub-slider-inline-title">
+                                Trigger radius (px):
+                                <span id="ai-trigger-radius-label" class="hub-slider-value-inline">{{ config.get('ai_trigger_radius_px', 8) }}</span>
                             </span>
                             <input id="ai-trigger-radius" type="range" min="2" max="40" step="1"
                                    value="{{ config.get('ai_trigger_radius_px', 8) }}"
@@ -277,9 +315,9 @@
                                    onchange="saveAiSlider('Trigger radius', this.value)">
                         </label>
                         <label class="block text-xs text-white/70">
-                            <span class="flex justify-between">
-                                <span>Trigger delay (ms)</span>
-                                <span id="ai-trigger-delay-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_delay_ms', 30) }}</span>
+                            <span class="hub-slider-inline-title">
+                                Trigger delay (ms):
+                                <span id="ai-trigger-delay-label" class="hub-slider-value-inline">{{ config.get('ai_trigger_delay_ms', 30) }}</span>
                             </span>
                             <input id="ai-trigger-delay" type="range" min="0" max="120" step="5"
                                    value="{{ config.get('ai_trigger_delay_ms', 30) }}"
@@ -288,9 +326,9 @@
                                    onchange="saveAiSlider('Trigger delay', this.value)">
                         </label>
                         <label class="block text-xs text-white/70">
-                            <span class="flex justify-between">
-                                <span>Trigger cooldown (ms)</span>
-                                <span id="ai-trigger-cooldown-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_cooldown_ms', 120) }}</span>
+                            <span class="hub-slider-inline-title">
+                                Trigger cooldown (ms):
+                                <span id="ai-trigger-cooldown-label" class="hub-slider-value-inline">{{ config.get('ai_trigger_cooldown_ms', 120) }}</span>
                             </span>
                             <input id="ai-trigger-cooldown" type="range" min="0" max="300" step="10"
                                    value="{{ config.get('ai_trigger_cooldown_ms', 120) }}"
@@ -299,9 +337,9 @@
                                    onchange="saveAiSlider('Trigger cooldown', this.value)">
                         </label>
                         <label class="block text-xs text-white/70">
-                            <span class="flex justify-between">
-                                <span>Prediction (ms)</span>
-                                <span id="ai-trigger-pred-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_prediction_ms', 35) }}</span>
+                            <span class="hub-slider-inline-title">
+                                Prediction (ms):
+                                <span id="ai-trigger-pred-label" class="hub-slider-value-inline">{{ config.get('ai_trigger_prediction_ms', 35) }}</span>
                             </span>
                             <input id="ai-trigger-prediction" type="range" min="0" max="120" step="5"
                                    value="{{ config.get('ai_trigger_prediction_ms', 35) }}"

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vis.css') }}">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .tab-button.active { border-color: #3b82f6; color: white; }
+        .weapon-cat-tab.active { color: white; border-color: #3b82f6; background: rgba(59,130,246,0.12); }
+        .weapon-team-tab { border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); transition: all 0.15s ease; }
+        .weapon-team-tab:hover { color: white; border-color: rgba(255,255,255,0.18); }
+        .weapon-team-tab.active.ct { color: #93c5fd; border-color: rgba(91,159,212,0.55); background: rgba(91,159,212,0.12); }
+        .weapon-team-tab.active.t { color: #fcd34d; border-color: rgba(232,165,75,0.55); background: rgba(232,165,75,0.12); }
+        .weapon-btn { flex: 0 0 auto; width: 5.5rem; padding: 0.35rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); transition: all 0.15s ease; cursor: pointer; }
+        .weapon-btn:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.06); transform: translateY(-1px); }
+        .weapon-btn.active { border-color: #3b82f6; box-shadow: 0 0 0 1px rgba(59,130,246,0.35), 0 0 16px rgba(59,130,246,0.15); background: rgba(59,130,246,0.1); }
+        .weapon-btn img { width: 100%; height: 3.25rem; object-fit: contain; border-radius: 0.5rem; pointer-events: none; }
+        .weapon-btn span { display: block; margin-top: 0.25rem; font-size: 0.625rem; font-weight: 600; color: rgba(255,255,255,0.55); text-align: center; line-height: 1.2; pointer-events: none; }
+        .weapon-btn.active span { color: #93c5fd; }
+        .ai-team-btn.active.ct { color: #93c5fd; border-color: rgba(91,159,212,0.55); background: rgba(91,159,212,0.12); }
+        .ai-team-btn.active.t { color: #fcd34d; border-color: rgba(232,165,75,0.55); background: rgba(232,165,75,0.12); }
+    </style>
+</head>
+<body class="min-h-screen bg-neutral-950 font-['Inter',sans-serif] flex flex-col">
+    <div id="boot-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/95 backdrop-blur-sm transition-opacity duration-500">
+        <div class="flex flex-col items-center gap-4 text-center">
+            <img src="{{ url_for('static', filename='KryptAim_logo.png') }}" alt="Logo" class="w-9 h-9 rounded-lg">
+            <div>
+                <p class="text-2xl font-semibold tracking-wide text-white">{{ app_name }}</p>
+                <p class="text-xs font-medium text-blue-300/90 tracking-wide">{{ app_version }} · {{ app_version_label }}</p>
+                <p class="text-sm text-white/60">Loading…</p>
+            </div>
+        </div>
+    </div>
+
+    {% include '_navbar.html' %}
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 md:px-6 py-6">
+        <div class="flex gap-2 border-b border-white/10 overflow-x-auto no-scrollbar">
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white border-b-2 border-blue-500 active" data-tab="global">Global Settings</button>
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent" data-tab="CS2">Game Engine</button>
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent" data-tab="ai-engine">KryptAim AI</button>
+        </div>
+
+        <div id="tab-content-global" class="tab-content mt-5">
+            <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-white">Global Control</p>
+                        <p class="text-xs text-white/40">Master recoil switch and toggle hotkey.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button type="button" id="recoil-keybind-btn" class="hotkey-bind-btn text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 min-w-[6.5rem] text-left"
+                                data-hotkey-field="recoil_keybind" data-hotkey-value="{{ config.recoil_keybind or 'M4' }}">
+                            <span class="hotkey-bind-label">M4</span>
+                        </button>
+                        <input id="recoil-toggle" type="checkbox" name="recoil_enabled" hx-post="/api/recoil/toggle" hx-trigger="change" hx-swap="none"
+                               class="w-4 h-4 accent-blue-500 cursor-pointer" {{ 'checked' if config.recoil_enabled else '' }}>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Require RMB</p>
+                        <p class="text-xs text-white/40">Recoil only while right mouse is held.</p>
+                    </div>
+                    <input type="checkbox" name="recoil_require_rmb" hx-post="/api/recoil/require_rmb" hx-trigger="change" hx-swap="none"
+                           {{ 'checked' if config.recoil_require_rmb else '' }} class="w-4 h-4 accent-blue-500 cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Shutdown PC on Stop</p>
+                        <p class="text-xs text-white/40">Automatically shut down Windows when closing KryptAim.</p>
+                    </div>
+                    <input type="checkbox" name="shutdown_on_app_stop" hx-post="/api/recoil/shutdown_on_exit_toggle" hx-trigger="change" hx-swap="none"
+                           {{ 'checked' if config.shutdown_on_app_stop else '' }} class="w-4 h-4 accent-red-500 cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between border-t border-white/5 pt-6">
+                    <div>
+                        <p class="text-sm font-medium text-white">Input Method</p>
+                        <p class="text-xs text-white/40">Makcu for dual-PC; Win32 for local dev test.</p>
+                    </div>
+                    <select name="recoil_input_method" hx-post="/api/recoil/input_method" hx-trigger="change" hx-target="#input-method-warning" hx-swap="innerHTML"
+                            class="text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 cursor-pointer">
+                        <option value="hardware" {{ 'selected' if active_input == 'makcu' }}>Hardware (Makcu)</option>
+                        <option value="software" {{ 'selected' if active_input == 'win32' }}>Win32 (dev)</option>
+                    </select>
+                </div>
+                <div id="input-method-warning" class="mt-2">
+                    {% if active_input != 'makcu' %}
+                    <div class="flex items-start gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200/80 text-xs">
+                        <p><strong class="text-amber-400">Dual-PC warning</strong> Win32 moves the mouse on <em>this</em> PC only.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="border-t border-white/5 pt-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-white">Randomisation</p>
+                        <input type="checkbox" name="recoil_randomisation" hx-post="/api/recoil/randomisation" hx-trigger="change" hx-swap="none"
+                               {{ 'checked' if config.recoil_randomisation else '' }} class="w-4 h-4 accent-blue-500">
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <p class="text-sm text-white">X Control</p>
+                        <input type="range" min="0" max="100" name="recoil_x_control" value="{{ config.recoil_x_control }}"
+                               hx-post="/api/recoil/x_control" hx-trigger="change" hx-swap="none" class="w-1/2 accent-blue-500">
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                        <p class="text-sm text-white">Y Control</p>
+                        <input type="range" min="0" max="100" name="recoil_y_control" value="{{ config.recoil_y_control }}"
+                               hx-post="/api/recoil/y_control" hx-trigger="change" hx-swap="none" class="w-1/2 accent-blue-500">
+                    </div>
+                </div>
+
+                <div id="license-premium-block" class="border-t border-white/5 pt-6 space-y-4 hidden">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-semibold text-white">License &amp; AI access</p>
+                            <p class="text-xs text-white/40 mt-0.5 max-w-xl">
+                                Recoil is free for everyone. <strong class="text-white/60">KryptAim AI</strong> requires a
+                                <a href="https://ko-fi.com/kava4" target="_blank" rel="noopener" class="text-blue-300 hover:text-blue-200 underline underline-offset-2">Ko-fi supporter</a> key.
+                            </p>
+                        </div>
+                        <div id="license-status" hx-get="/api/recoil/license_status" hx-trigger="load" hx-swap="innerHTML">
+                            <span class="text-[10px] font-bold text-white/35 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full uppercase tracking-tighter">Checking…</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <input id="license-key-input" type="text" value="{{ config.license_key or '' }}" placeholder="Supporter license key"
+                               class="flex-1 min-w-[12rem] text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 outline-none focus:border-blue-400/40">
+                        <button type="button" onclick="validateLicenseKey()"
+                                class="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2">
+                            Validate
+                        </button>
+                    </div>
+                    <p id="license-validate-msg" class="text-[11px] text-white/40"></p>
+                    <p class="text-[10px] text-white/30">
+                        Local dev: use <code class="text-violet-200/80">DEV-KRYPTAIM</code> with <code class="text-violet-200/80">scripts\run_dev.bat</code>.
+                    </p>
+                </div>
+
+                <div id="license-free-block" class="border-t border-white/5 pt-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-semibold text-white">AI access</p>
+                            <p class="text-xs text-white/40 mt-0.5">Recoil and AI are free right now. Supporter keys still work if premium is enabled later.</p>
+                        </div>
+                        <div id="license-status-free" hx-get="/api/recoil/license_status" hx-trigger="load" hx-swap="innerHTML">
+                            <span class="text-[10px] font-bold text-green-300 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full uppercase tracking-tighter">Free · AI unlocked</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-white/5 pt-6 space-y-3">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-semibold text-white">Updates</p>
+                            <p class="text-xs text-white/40 mt-0.5">
+                                Installed: <span id="update-current-version" class="text-white/60">{{ app_version }}</span>
+                                · <span id="update-latest-version" class="text-white/45">—</span>
+                            </p>
+                        </div>
+                        <span id="update-badge"
+                              class="hidden text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-blue-400/30 text-blue-200 bg-blue-500/10">
+                            Update available
+                        </span>
+                    </div>
+                    <p id="update-status-msg" class="text-[11px] text-white/45">Checking GitHub releases…</p>
+                    <pre id="update-notes" class="hidden text-[10px] text-white/35 whitespace-pre-wrap max-h-28 overflow-y-auto bg-black/20 rounded-lg p-2"></pre>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" id="update-check-btn" onclick="KryptAimUpdates.check(true)"
+                                class="text-xs font-semibold text-white bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-4 py-2">
+                            Check for updates
+                        </button>
+                        <button type="button" id="update-install-btn" onclick="KryptAimUpdates.install()"
+                                class="hidden text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2">
+                            Install update
+                        </button>
+                        <a id="update-release-link" href="https://github.com/Kava4/KryptAim/releases" target="_blank" rel="noopener"
+                           class="hidden text-xs font-semibold text-blue-200 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-400/30 rounded-lg px-4 py-2">
+                            View release
+                        </a>
+                    </div>
+                </div>
+
+                <div id="runtime-setup-card" class="border-t border-white/5 pt-6 space-y-4 hidden">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-semibold text-white">AI Runtime</p>
+                            <p class="text-xs text-white/40 mt-0.5 max-w-xl">
+                                One-time install for the slim app — embeddable Python + AI stack in
+                                <code class="text-white/55">%APPDATA%\KryptAim\runtime</code>.
+                            </p>
+                        </div>
+                        <span id="runtime-overall-badge"
+                              class="text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-white/10 text-white/50">
+                            —
+                        </span>
+                    </div>
+                    <ul class="space-y-2 text-xs">
+                        <li id="runtime-check-embed" class="flex items-center gap-2 text-white/45">
+                            <span class="w-4 text-center">○</span><span>Embeddable Python</span>
+                        </li>
+                        <li id="runtime-check-venv" class="flex items-center gap-2 text-white/45">
+                            <span class="w-4 text-center">○</span><span>AI virtualenv</span>
+                        </li>
+                        <li id="runtime-check-ai" class="flex items-center gap-2 text-white/45">
+                            <span class="w-4 text-center">○</span><span>AI packages (OpenCV, YOLO, NDI)</span>
+                        </li>
+                    </ul>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" id="runtime-install-btn" onclick="installAiRuntime()"
+                                class="text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded-lg px-4 py-2">
+                            Install AI runtime
+                        </button>
+                        <p id="runtime-status" class="text-xs text-white/45"></p>
+                    </div>
+                    <div id="runtime-progress" class="hidden space-y-2">
+                        <p id="runtime-phase" class="text-xs text-blue-200 font-medium"></p>
+                        <pre id="runtime-log" class="text-[10px] leading-relaxed text-white/40 max-h-28 overflow-y-auto bg-black/25 rounded-lg p-2 whitespace-pre-wrap"></pre>
+                        <p class="text-[10px] text-white/35">Log: <code id="runtime-logpath" class="text-blue-200/70"></code></p>
+                    </div>
+                </div>
+
+                <div id="runtime-bundled-note" class="border-t border-white/5 pt-6 hidden">
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                        <span class="text-green-400 text-sm">✓</span>
+                        <p class="text-xs text-green-100/90">AI runtime is bundled with this build — no separate install needed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-content-CS2" class="tab-content mt-5 hidden">
+            <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 space-y-5">
+                <div>
+                    <p class="text-sm font-semibold text-white">Counter-Strike 2</p>
+                    <p class="text-xs text-white/40">Pick a spray profile — rifles &amp; SMGs only.</p>
+                </div>
+
+                <div class="border-t border-white/10 pt-5 space-y-4">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-white/30 mb-2">Side</p>
+                        <div class="flex items-center gap-2">
+                            {% for team_id, team_label in weapon_teams.items() %}
+                            <button type="button"
+                                    class="weapon-team-tab px-4 py-2 text-xs font-bold rounded-lg {{ team_id }} {{ 'active' if active_team == team_id else '' }}"
+                                    data-team="{{ team_id }}"
+                                    onclick="switchWeaponTeam('{{ team_id }}')">
+                                {{ team_label }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-[10px] uppercase tracking-widest text-white/30 mb-2">Type</p>
+                        <div class="flex items-center gap-2 border-b border-white/10 pb-2">
+                            {% for cat_id, cat_label in weapon_categories.items() %}
+                            <button type="button"
+                                    class="weapon-cat-tab px-4 py-2 text-xs font-semibold rounded-t-lg border-b-2 border-transparent text-white/60 hover:text-white transition-colors {{ 'active' if active_category == cat_id else '' }}"
+                                    data-category="{{ cat_id }}"
+                                    onclick="switchWeaponCategory('{{ cat_id }}')">
+                                {{ cat_label }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-xs text-white/40 mb-3">Weapon</p>
+                        <div id="weapon-picker" class="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+                        <input type="hidden" id="game-weapon" name="weapon" value="{{ config.recoil_cs2_settings.cs2_weapon }}">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between border-t border-white/10 pt-5">
+                    <div>
+                        <p class="text-sm font-medium text-white">In-Game Sensitivity</p>
+                        <p class="text-xs text-white/40">Must match your CS2 settings (baseline 1.25).</p>
+                    </div>
+                    <input id="game-sensitivity" type="number" min="0.1" max="10" step="0.05" name="sensitivity"
+                           value="{{ config.recoil_cs2_settings.cs2_sensitivity }}"
+                           hx-post="/api/recoil/cs2_sensitivity" hx-trigger="change" hx-swap="none"
+                           class="w-24 text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 tabular-nums">
+                </div>
+            </div>
+        </div>
+
+        {% include '_ai_panel.html' %}
+    </main>
+
+    {% include '_footer.html' %}
+
+    {% include '_shell_scripts.html' %}
+    <script src="{{ url_for('static', filename='hotkey_bind.js') }}"></script>
+    <script>
+        const WEAPON_LABELS = {{ weapon_labels | tojson }};
+        const WEAPONS_BY_CATEGORY = {{ weapons_by_category | tojson }};
+        const WEAPONS_BY_TEAM_CATEGORY = {{ weapons_by_team_category | tojson }};
+        let ACTIVE_WEAPON = {{ config.recoil_cs2_settings.cs2_weapon | tojson }};
+        let ACTIVE_WEAPON_CATEGORY = {{ active_category | tojson }};
+        let ACTIVE_WEAPON_TEAM = {{ active_team | tojson }};
+        const WEAPON_ICON_BASE = {{ url_for('static', filename='weapons/') | tojson }};
+        const tabs = document.querySelectorAll('.tab-button');
+        tabs.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.tab;
+                tabs.forEach(b => {
+                    b.classList.remove('active', 'text-white', 'border-blue-500', 'bg-white/5');
+                    b.classList.add('text-white/70', 'border-transparent');
+                });
+                btn.classList.add('active', 'text-white', 'border-blue-500');
+                btn.classList.remove('text-white/70', 'border-transparent');
+                if (btn.closest('#mobile-menu-drawer')) btn.classList.add('bg-white/5');
+                document.querySelectorAll('.tab-content').forEach(p => p.classList.add('hidden'));
+                document.getElementById('tab-content-' + id)?.classList.remove('hidden');
+                if (id === 'ai-engine') startAiPoll();
+                const drawer = document.getElementById('mobile-menu-drawer');
+                if (drawer && !drawer.classList.contains('translate-x-full')) toggleMobileMenu();
+            });
+        });
+
+        function activateTabFromUrl() {
+            const tab = new URLSearchParams(window.location.search).get('tab');
+            if (!tab) return;
+            document.querySelector(`.tab-button[data-tab="${tab}"]`)?.click();
+        }
+
+        function weaponCategoryFor(id) {
+            if ((WEAPONS_BY_CATEGORY.smg || []).includes(id)) return 'smg';
+            return 'rifle';
+        }
+
+        function weaponTeamFor(id) {
+            const category = weaponCategoryFor(id);
+            const current = ACTIVE_WEAPON_TEAM || 'ct';
+            if (weaponsFor(current, category).includes(id)) {
+                return current;
+            }
+            for (const team of ['ct', 't']) {
+                if (weaponsFor(team, category).includes(id)) {
+                    return team;
+                }
+            }
+            return 'ct';
+        }
+
+        function weaponsFor(team, category) {
+            return (WEAPONS_BY_TEAM_CATEGORY[team] || {})[category] || [];
+        }
+
+        function syncWeaponTabs(team, category) {
+            ACTIVE_WEAPON_TEAM = team;
+            ACTIVE_WEAPON_CATEGORY = category;
+            document.querySelectorAll('.weapon-team-tab').forEach(tab => {
+                const active = tab.dataset.team === team;
+                tab.classList.toggle('active', active);
+                tab.classList.toggle('text-white', active);
+                tab.classList.toggle('text-white/55', !active);
+            });
+            document.querySelectorAll('.weapon-cat-tab').forEach(tab => {
+                const active = tab.dataset.category === category;
+                tab.classList.toggle('active', active);
+                tab.classList.toggle('text-white', active);
+                tab.classList.toggle('text-white/60', !active);
+            });
+            renderWeaponPicker(category);
+        }
+
+        function switchWeaponTeam(team) {
+            let category = ACTIVE_WEAPON_CATEGORY || 'rifle';
+            if (!weaponsFor(team, category).length) {
+                category = weaponsFor(team, 'rifle').length ? 'rifle' : 'smg';
+            }
+            syncWeaponTabs(team, category);
+        }
+
+        function switchWeaponCategory(category) {
+            syncWeaponTabs(ACTIVE_WEAPON_TEAM || 'ct', category);
+        }
+
+        function renderWeaponPicker(category) {
+            const picker = document.getElementById('weapon-picker');
+            if (!picker) return;
+            const weapons = weaponsFor(ACTIVE_WEAPON_TEAM || 'ct', category);
+            picker.innerHTML = '';
+            weapons.forEach(wid => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'weapon-btn' + (wid === ACTIVE_WEAPON ? ' active' : '');
+                btn.dataset.weapon = wid;
+                btn.title = WEAPON_LABELS[wid] || wid;
+                btn.innerHTML = `<img src="${WEAPON_ICON_BASE}${wid}.svg" alt="${WEAPON_LABELS[wid] || wid}"><span>${WEAPON_LABELS[wid] || wid}</span>`;
+                btn.addEventListener('click', () => selectWeapon(wid));
+                picker.appendChild(btn);
+            });
+        }
+
+        function selectWeapon(weaponId) {
+            if (!weaponId || weaponId === ACTIVE_WEAPON) return;
+            const prevTeam = ACTIVE_WEAPON_TEAM;
+            const prevCategory = ACTIVE_WEAPON_CATEGORY;
+            ACTIVE_WEAPON = weaponId;
+            const newTeam = weaponTeamFor(weaponId);
+            const newCategory = weaponCategoryFor(weaponId);
+            const hidden = document.getElementById('game-weapon');
+            if (hidden) hidden.value = weaponId;
+            const body = new URLSearchParams({ weapon: weaponId });
+            fetch('/api/recoil/cs2_weapon', { method: 'POST', body });
+            if (newTeam !== prevTeam || newCategory !== prevCategory) {
+                syncWeaponTabs(newTeam, newCategory);
+                return;
+            }
+            document.querySelectorAll('.weapon-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.weapon === weaponId);
+            });
+        }
+
+        function initWeaponPicker() {
+            syncWeaponTabs(
+                ACTIVE_WEAPON_TEAM || weaponTeamFor(ACTIVE_WEAPON),
+                ACTIVE_WEAPON_CATEGORY || weaponCategoryFor(ACTIVE_WEAPON),
+            );
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const boot = document.getElementById('boot-screen');
+                if (boot) { boot.style.opacity = '0'; setTimeout(() => boot.remove(), 400); }
+            }, 350);
+            activateTabFromUrl();
+            startAiPoll();
+            syncAiSettingsFromServer();
+            initWeaponPicker();
+            refreshCommunityModels();
+            KryptAimUpdates.init({ autoCheck: true });
+        });
+
+        function switchToGlobalTab() {
+            navigateToTab('global');
+        }
+
+        let aiPollTimer = null;
+        function installAiRuntime() {
+            if (!confirm('Download embeddable Python + AI dependencies to AppData? May take 10–20 minutes.')) return;
+            switchToGlobalTab();
+            fetch('/api/bootstrap/install', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cuda: true }),
+            })
+                .then(async r => {
+                    const data = await r.json();
+                    return { ok: r.ok, data };
+                })
+                .then(({ ok, data }) => {
+                    const el = document.getElementById('runtime-status');
+                    if (!ok && data.ai_access) updateAiAccess(data.ai_access);
+                    if (el) el.textContent = data.message || data.error || '—';
+                    pollAiStatus();
+                })
+                .catch(() => {
+                    const el = document.getElementById('runtime-status');
+                    if (el) el.textContent = 'Install request failed';
+                });
+        }
+
+        function setRuntimeCheck(id, ok, label) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const spans = el.querySelectorAll('span');
+            const mark = spans[0];
+            const labelEl = spans[1];
+            if (mark) {
+                mark.textContent = ok ? '✓' : '○';
+                mark.className = `w-4 text-center ${ok ? 'text-green-400' : 'text-white/25'}`;
+            }
+            if (labelEl) labelEl.textContent = label;
+            el.className = `flex items-center gap-2 ${ok ? 'text-green-300' : 'text-white/45'}`;
+        }
+
+        function updateRuntimeUi(bs) {
+            if (!bs) return;
+            const card = document.getElementById('runtime-setup-card');
+            const bundled = document.getElementById('runtime-bundled-note');
+            const aiHint = document.getElementById('ai-runtime-hint');
+
+            if (bs.bundled_ai) {
+                card?.classList.add('hidden');
+                bundled?.classList.remove('hidden');
+                aiHint?.classList.add('hidden');
+                return;
+            }
+            bundled?.classList.add('hidden');
+            card?.classList.remove('hidden');
+
+            setRuntimeCheck('runtime-check-embed', !!bs.embed_ready, 'Embeddable Python');
+            setRuntimeCheck('runtime-check-venv', !!bs.runtime_ready, 'AI virtualenv');
+            setRuntimeCheck('runtime-check-ai', !!bs.ai_available, 'AI packages (OpenCV, YOLO, NDI)');
+
+            const badge = document.getElementById('runtime-overall-badge');
+            if (badge) {
+                if (bs.ai_available) {
+                    badge.textContent = 'Ready';
+                    badge.className = 'text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-green-500/40 bg-green-500/15 text-green-300';
+                } else if (bs.install_in_progress) {
+                    badge.textContent = 'Installing';
+                    badge.className = 'text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-blue-400/40 bg-blue-500/15 text-blue-200 animate-pulse';
+                } else if (bs.install_phase === 'failed') {
+                    badge.textContent = 'Failed';
+                    badge.className = 'text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-red-500/40 bg-red-500/15 text-red-300';
+                } else if (bs.install_phase === 'done') {
+                    badge.textContent = 'Restart app';
+                    badge.className = 'text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-200';
+                } else {
+                    badge.textContent = 'Setup required';
+                    badge.className = 'text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-200';
+                }
+            }
+
+            const mins = Math.floor((bs.install_elapsed_sec || 0) / 60);
+            const secs = Math.floor((bs.install_elapsed_sec || 0) % 60);
+            const elapsed = bs.install_in_progress ? ` · ${mins}:${String(secs).padStart(2, '0')}` : '';
+            const statusEl = document.getElementById('runtime-status');
+            if (statusEl) {
+                if (bs.install_in_progress && bs.install_message) {
+                    statusEl.textContent = bs.install_message + elapsed;
+                } else if (bs.install_phase === 'done') {
+                    statusEl.textContent = bs.install_message || 'Done — restart KryptAim';
+                } else if (bs.install_error || bs.install_phase === 'failed') {
+                    statusEl.textContent = bs.install_error || bs.install_message || 'Install failed';
+                } else if (bs.ai_available) {
+                    statusEl.textContent = 'All checks passed';
+                } else {
+                    statusEl.textContent = '';
+                }
+            }
+
+            const progress = document.getElementById('runtime-progress');
+            if (progress) {
+                const show = !!(bs.install_in_progress || bs.install_phase === 'done' || bs.install_phase === 'failed');
+                progress.classList.toggle('hidden', !show);
+            }
+            const phaseEl = document.getElementById('runtime-phase');
+            if (phaseEl) {
+                if (bs.install_in_progress) {
+                    phaseEl.textContent = `Step: ${(bs.install_phase || '').replace(/_/g, ' ')}${elapsed}`;
+                } else if (bs.install_phase === 'done') {
+                    phaseEl.textContent = 'Install complete';
+                } else if (bs.install_phase === 'failed') {
+                    phaseEl.textContent = 'Install failed';
+                } else {
+                    phaseEl.textContent = '';
+                }
+            }
+            const logEl = document.getElementById('runtime-log');
+            if (logEl) {
+                const tail = (bs.install_log_tail || []).join('\n');
+                logEl.textContent = tail || (bs.install_in_progress ? 'Waiting for log output…' : '');
+            }
+            const logPathEl = document.getElementById('runtime-logpath');
+            if (logPathEl) {
+                logPathEl.textContent = bs.install_log || '%APPDATA%\\KryptAim\\runtime\\install.log';
+            }
+            const btn = document.getElementById('runtime-install-btn');
+            if (btn) {
+                btn.disabled = !!bs.install_in_progress || !!bs.ai_available;
+                if (bs.install_phase === 'done') {
+                    btn.textContent = 'Installed — restart app';
+                } else if (bs.ai_available) {
+                    btn.textContent = 'Installed';
+                } else if (!bs.install_in_progress) {
+                    btn.textContent = 'Install AI runtime';
+                }
+            }
+
+            if (aiHint) {
+                aiHint.classList.toggle('hidden', !bs.needs_bootstrap || bs.install_in_progress);
+            }
+        }
+
+        function startAiPoll() {
+            if (aiPollTimer) return;
+            pollAiStatus();
+            aiPollTimer = setInterval(pollAiStatus, 2000);
+        }
+
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text ?? '—';
+        }
+
+        function updateAiAccess(access) {
+            const lock = document.getElementById('ai-donor-lock');
+            const content = document.getElementById('ai-donor-content');
+            const msg = document.getElementById('ai-donor-lock-msg');
+            const startBtn = document.getElementById('ai-engine-start-btn');
+            const premiumBlock = document.getElementById('license-premium-block');
+            const freeBlock = document.getElementById('license-free-block');
+            if (!access) return;
+
+            const premium = access.premium_required !== false;
+            if (premiumBlock) premiumBlock.classList.toggle('hidden', !premium);
+            if (freeBlock) freeBlock.classList.toggle('hidden', premium);
+
+            if (!premium) {
+                if (lock) lock.classList.add('hidden');
+                if (content) {
+                    content.classList.remove('pointer-events-none', 'opacity-40');
+                }
+                if (startBtn) startBtn.disabled = false;
+                return;
+            }
+
+            if (lock) lock.classList.toggle('hidden', !!access.allowed);
+            if (msg && access.message) msg.textContent = access.message;
+            if (content) {
+                content.classList.toggle('pointer-events-none', !access.allowed);
+                content.classList.toggle('opacity-40', !access.allowed);
+            }
+            if (startBtn) startBtn.disabled = !access.allowed;
+        }
+        window.updateAiAccess = updateAiAccess;
+
+        function refreshLicenseBadge() {
+            if (typeof htmx === 'undefined') return;
+            htmx.ajax('GET', '/api/recoil/license_status', { target: '#license-status', swap: 'innerHTML' });
+            htmx.ajax('GET', '/api/recoil/license_status', { target: '#license-status-free', swap: 'innerHTML' });
+        }
+
+        function validateLicenseKey() {
+            const input = document.getElementById('license-key-input');
+            const msg = document.getElementById('license-validate-msg');
+            const key = (input?.value || '').trim();
+            if (!key) {
+                if (msg) msg.textContent = 'Enter your supporter key from Ko-fi.';
+                return;
+            }
+            if (msg) msg.textContent = 'Validating…';
+            const body = new URLSearchParams({ license_key: key });
+            fetch('/api/access/validate_license', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (msg) {
+                        msg.textContent = data.allowed
+                            ? 'License accepted — AI unlocked. Restart KryptAim if the engine was already running.'
+                            : (data.message || 'License not valid for AI.');
+                        msg.classList.toggle('text-green-300', !!data.allowed);
+                        msg.classList.toggle('text-amber-300', !data.allowed);
+                    }
+                    updateAiAccess(data);
+                    refreshLicenseBadge();
+                    pollAiStatus();
+                })
+                .catch(() => { if (msg) msg.textContent = 'Validation request failed.'; });
+        }
+
+        function pollAiStatus() {
+            fetch('/api/ai/status').then(r => r.json()).then(data => {
+                if (!data.success) return;
+                updateAiAccess(data.ai_access || {});
+                setText('ai-stat-engine', data.enabled ? 'On' : 'Off');
+                setText('ai-stat-fps', `${data.fps || 0} fps · inf ${data.latency_inference_ms || 0}ms`);
+                setText('ai-stat-model', data.model_loaded ? (data.active_model || '—') : `${data.active_model || 'None'} ✗`);
+                setText('ai-stat-makcu', data.makcu_connected ? 'Connected' : (data.makcu_dev_fallback ? 'Dev fallback' : 'Not connected'));
+                const makcuEl = document.getElementById('ai-stat-makcu');
+                if (makcuEl) {
+                    makcuEl.classList.toggle('text-green-400', !!data.makcu_connected);
+                    makcuEl.classList.toggle('text-amber-300', !!data.makcu_dev_fallback);
+                    makcuEl.classList.toggle('text-red-300', !data.makcu_connected && !data.makcu_dev_fallback);
+                }
+                setText('ai-stat-gpu', data.cuda_available ? (data.cuda_device_name || 'CUDA') : 'CPU');
+                setText('ai-stat-movement', data.assist_mode || data.movement_mode || '—');
+                const keys = (data.makcu_buttons_pressed || []).join('+') || '—';
+                setText('ai-stat-aimkey', `${data.aim_key_active ? 'yes' : 'no'} · ${keys}`);
+
+                const btn = document.getElementById('ai-engine-start-btn');
+                if (btn) {
+                    btn.textContent = data.enabled ? 'Stop AI engine' : 'Start AI engine';
+                    btn.className = data.enabled
+                        ? 'text-xs font-semibold rounded-lg px-4 py-2 border text-red-100 bg-red-500/20 border-red-400/30 hover:bg-red-500/30'
+                        : 'text-xs font-semibold rounded-lg px-4 py-2 border text-amber-950 bg-amber-400 border-amber-300 hover:bg-amber-300';
+                }
+
+                syncAiModels(data.models || [], data.active_model);
+                syncAiNdi(data.ndi_sources || [], data.ndi_source);
+                syncReadiness(data.readiness || []);
+                syncAiTargetClasses(data);
+
+                updateRuntimeUi(data.bootstrap || {});
+
+                const alert = document.getElementById('ai-engine-alert');
+                if (alert) {
+                    const msgs = [];
+                    if (data.last_error) msgs.push(data.last_error);
+                    if (!data.makcu_connected && !data.makcu_dev_fallback) msgs.push('Connect Makcu on this PC.');
+                    if (data.makcu_dev_fallback) msgs.push('Dev mode: local mouse only — not dual-PC Makcu.');
+                    if (data.enabled && !data.model_loaded) msgs.push('Select or upload a YOLO model.');
+                    if (msgs.length) { alert.textContent = msgs.join(' '); alert.classList.remove('hidden'); }
+                    else { alert.classList.add('hidden'); alert.textContent = ''; }
+                }
+            }).catch(() => {});
+        }
+
+        function syncAiModels(models, active) {
+            const sel = document.getElementById('ai-active-model');
+            if (!sel) return;
+            const cur = sel.value;
+            sel.innerHTML = '<option value="">— Select model —</option>';
+            models.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name; opt.textContent = name;
+                if (name === active) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (cur && !models.includes(cur)) sel.value = cur;
+        }
+
+        function syncAiNdi(sources, active) {
+            const sel = document.getElementById('ai-ndi-source');
+            if (!sel) return;
+            const cur = sel.value || active || '';
+            sel.innerHTML = '<option value="">— select —</option>';
+            sources.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name; opt.textContent = name;
+                if (name === cur || name === active) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            setText('ai-ndi-status', `NDI: ${sources.length} source(s)`);
+        }
+
+        function syncReadiness(items) {
+            const list = document.getElementById('ai-readiness-list');
+            if (!list) return;
+            list.innerHTML = '';
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = item.ok ? 'text-green-300' : 'text-amber-200';
+                li.textContent = (item.ok ? '✓ ' : '○ ') + item.label;
+                list.appendChild(li);
+            });
+        }
+
+        function toggleAiEngine() {
+            fetch('/api/ai/status').then(r => r.json()).then(data => {
+                if (data.ai_access && !data.ai_access.allowed) {
+                    alert(data.ai_access.message || 'AI requires a supporter license.');
+                    updateAiAccess(data.ai_access);
+                    return;
+                }
+                const next = !data.enabled;
+                const body = new URLSearchParams({ enabled: next ? 'on' : 'off' });
+                fetch('/api/ai/enable', { method: 'POST', body })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (!resp.success) alert(resp.message || 'Could not change AI engine state.');
+                        pollAiStatus();
+                    });
+            });
+        }
+
+        function runAiQuickstart(preset) {
+            const body = new URLSearchParams({ preset: preset || 'both' });
+            fetch('/api/ai/quickstart', { method: 'POST', body })
+                .then(r => r.json())
+                .then(() => { pollAiStatus(); syncAiSettingsFromServer(); });
+        }
+
+        function syncAiSettingsFromServer() {
+            fetch('/api/ai/settings').then(r => r.json()).then(data => {
+                if (!data.success) return;
+                const toggles = data.toggles || {};
+                document.querySelectorAll('[onchange*="saveAiToggle"]').forEach(el => {
+                    const m = el.getAttribute('onchange')?.match(/saveAiToggle\('([^']+)'/);
+                    if (!m || el.type !== 'checkbox') return;
+                    if (m[1] in toggles) el.checked = !!toggles[m[1]];
+                });
+                const sliders = data.sliders || {};
+                const sliderMap = {
+                    'ai-trigger-radius': ['Trigger radius', 'ai-trigger-radius-label'],
+                    'ai-trigger-delay': ['Trigger delay', 'ai-trigger-delay-label'],
+                    'ai-trigger-cooldown': ['Trigger cooldown', 'ai-trigger-cooldown-label'],
+                    'ai-trigger-prediction': ['Prediction', 'ai-trigger-pred-label'],
+                    'ai-aim-speed': ['Aim speed', 'ai-aim-speed-label'],
+                    'ai-aim-max': ['Aim max px', 'ai-aim-max-label'],
+                    'ai-det-conf': ['Detection conf', 'ai-det-conf-label'],
+                };
+                Object.entries(sliderMap).forEach(([id, [key, labelId]]) => {
+                    const el = document.getElementById(id);
+                    if (!el || sliders[key] === undefined) return;
+                    el.value = sliders[key];
+                    const lab = document.getElementById(labelId);
+                    if (lab) lab.textContent = key === 'Detection conf'
+                        ? Number(sliders[key]).toFixed(2)
+                        : (key === 'Aim speed' ? Number(sliders[key]).toFixed(1) : sliders[key]);
+                });
+                const dd = data.dropdowns || {};
+                if (dd['Assist mode']) {
+                    const m = document.getElementById('ai-assist-mode');
+                    if (m) m.value = dd['Assist mode'];
+                }
+                if (dd['Aim point']) {
+                    const p = document.getElementById('ai-aim-point');
+                    if (p) p.value = dd['Aim point'];
+                }
+                if (dd['Aim key']) {
+                    const k = document.getElementById('ai-aim-key');
+                    if (k) k.value = String(dd['Aim key']).toUpperCase();
+                }
+                if (dd['Trigger key']) {
+                    const k = document.getElementById('ai-trigger-key');
+                    if (k) k.value = String(dd['Trigger key']).toUpperCase();
+                }
+            }).catch(() => {});
+        }
+
+        function refreshAiNdi() {
+            fetch('/api/ai/ndi/refresh', { method: 'POST' }).then(r => r.json()).then(() => pollAiStatus());
+        }
+
+        function saveAiCapture() {
+            const body = new URLSearchParams({
+                capture_mode: 'ndi',
+                ndi_source: document.getElementById('ai-ndi-source')?.value || '',
+                main_pc_width: document.getElementById('ai-main-pc-width')?.value || '1920',
+                main_pc_height: document.getElementById('ai-main-pc-height')?.value || '1080',
+            });
+            fetch('/api/ai/capture', { method: 'POST', body });
+        }
+
+        function saveAiDetection() {
+            const body = new URLSearchParams({
+                conf: document.getElementById('ai-det-conf')?.value || '0.25',
+                ai_player_class: document.getElementById('ai-player-class')?.value || '',
+                ai_head_class: document.getElementById('ai-head-class')?.value || '',
+                ai_my_team: document.getElementById('ai-my-team')?.value || '',
+            });
+            fetch('/api/ai/detection', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => { if (data.success) syncAiTargetClasses(data); });
+        }
+
+        function setAiMyTeam(team) {
+            const hidden = document.getElementById('ai-my-team');
+            if (hidden) hidden.value = team;
+            document.querySelectorAll('[data-ai-team]').forEach(btn => {
+                btn.classList.remove('active', 'ct', 't');
+                if (btn.dataset.aiTeam === team) btn.classList.add('active', team);
+            });
+            saveAiDetection();
+        }
+
+        function syncAiTeamButtons(team) {
+            const value = (team || document.getElementById('ai-my-team')?.value || '').toLowerCase();
+            document.querySelectorAll('[data-ai-team]').forEach(btn => {
+                btn.classList.remove('active', 'ct', 't');
+                if (btn.dataset.aiTeam === value) btn.classList.add('active', value);
+            });
+        }
+
+        function syncAiTargetClasses(data) {
+            const box = document.getElementById('ai-available-classes');
+            const playerSel = document.getElementById('ai-player-class');
+            const headSel = document.getElementById('ai-head-class');
+            const teamPicker = document.getElementById('ai-team-picker');
+            const details = data.model_class_details || [];
+            const names = data.model_classes || [];
+            const player = data.ai_player_class ?? playerSel?.value ?? '';
+            const head = data.ai_head_class ?? headSel?.value ?? '';
+            const myTeam = (data.ai_my_team ?? document.getElementById('ai-my-team')?.value ?? '').toLowerCase();
+
+            if (document.getElementById('ai-my-team') && data.ai_my_team !== undefined) {
+                document.getElementById('ai-my-team').value = myTeam;
+            }
+            syncAiTeamButtons(myTeam);
+
+            if (box) {
+                if (!details.length && !names.length) {
+                    box.textContent = 'Load a model to see classes (e.g. Class 0: CT · Class 1: T).';
+                } else if (details.length) {
+                    box.textContent = 'Model classes: ' + details.map(c => `${c.id}: ${c.name}`).join(' · ');
+                } else {
+                    box.textContent = 'Model classes: ' + names.map((n, i) => `${i}: ${n}`).join(' · ');
+                }
+            }
+
+            const options = details.length
+                ? details.map(c => ({ value: String(c.name), label: String(c.name) }))
+                : names.map(n => ({ value: String(n), label: String(n) }));
+
+            if (teamPicker) {
+                teamPicker.classList.toggle('hidden', !data.has_ct_t);
+            }
+
+            if (playerSel) {
+                const cur = player || '';
+                playerSel.innerHTML = '<option value="">— All / auto —</option>';
+                options.forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.textContent = o.label;
+                    if (o.value === cur) opt.selected = true;
+                    playerSel.appendChild(opt);
+                });
+            }
+            if (headSel) {
+                const cur = head || '';
+                headSel.innerHTML = '<option value="">None</option>';
+                options.forEach(o => {
+                    const opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.textContent = o.label;
+                    if (o.value === cur) opt.selected = true;
+                    headSel.appendChild(opt);
+                });
+            }
+        }
+
+        function saveAiAssist() {
+            const body = new URLSearchParams({
+                assist_mode: document.getElementById('ai-assist-mode')?.value || 'trigger',
+                aim_point: document.getElementById('ai-aim-point')?.value || 'head',
+            });
+            fetch('/api/ai/detection', { method: 'POST', body });
+        }
+
+        function saveAiToggle(name, checked) {
+            const body = new URLSearchParams({ toggle: name, value: checked ? 'on' : 'off' });
+            fetch('/api/ai/toggle', { method: 'POST', body });
+        }
+
+        function saveAiDropdown(name, value) {
+            const body = new URLSearchParams({ dropdown: name, value: value });
+            fetch('/api/ai/dropdown', { method: 'POST', body });
+        }
+
+        function saveAiSlider(name, value) {
+            const body = new URLSearchParams({ slider: name, value: String(value) });
+            fetch('/api/ai/slider', { method: 'POST', body });
+        }
+
+        function selectAiModel(name) {
+            if (!name) return;
+            const body = new URLSearchParams({ model: name });
+            fetch('/api/ai/model/select', { method: 'POST', body }).then(() => pollAiStatus());
+        }
+
+        function uploadAiModel(input) {
+            if (!input.files?.length) return;
+            const fd = new FormData();
+            fd.append('model_file', input.files[0]);
+            fetch('/api/ai/models/upload', { method: 'POST', body: fd }).then(() => pollAiStatus());
+            input.value = '';
+        }
+
+        function openCommunityModels() {
+            document.getElementById('ai-community-modal')?.classList.remove('hidden');
+            refreshCommunityModels();
+        }
+
+        function closeCommunityModels() {
+            document.getElementById('ai-community-modal')?.classList.add('hidden');
+        }
+
+        function formatModelSize(bytes) {
+            const n = Number(bytes) || 0;
+            if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)} MB`;
+            if (n >= 1000) return `${Math.round(n / 1000)} KB`;
+            return n ? `${n} B` : '';
+        }
+
+        function updateCommunityButton(data) {
+            const btn = document.getElementById('ai-community-btn');
+            if (!btn || !data) return;
+            const base = 'text-xs px-3 py-1.5 rounded-lg border ';
+            if (!data.online) {
+                btn.className = base + 'border-amber-500/30 bg-amber-500/10 text-amber-200';
+                btn.textContent = 'Community models';
+                btn.title = data.error || 'Cloud catalog offline';
+            } else if (data.all_installed) {
+                btn.className = base + 'border-green-500/40 bg-green-500/15 text-green-200';
+                btn.textContent = 'Community models ✓';
+                btn.title = 'All community models installed';
+            } else if ((data.available || []).length) {
+                btn.className = base + 'border-blue-400/30 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20';
+                btn.textContent = `Community models (${data.available.length})`;
+                btn.title = 'Download ready-made models';
+            } else {
+                btn.className = base + 'border-blue-400/30 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20';
+                btn.textContent = 'Community models';
+                btn.title = 'Browse community catalog';
+            }
+        }
+
+        function renderCommunityModelRow(entry, { downloadable }) {
+            const li = document.createElement('li');
+            li.className = 'flex items-start justify-between gap-3 rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2';
+            const meta = document.createElement('div');
+            meta.className = 'min-w-0';
+            const title = document.createElement('p');
+            title.className = 'font-medium text-white truncate';
+            title.textContent = entry.title || entry.filename;
+            const sub = document.createElement('p');
+            sub.className = 'text-[10px] text-white/40 mt-0.5 truncate';
+            const bits = [entry.filename];
+            const size = formatModelSize(entry.size_bytes);
+            if (size) bits.push(size);
+            if (entry.game) bits.push(String(entry.game).toUpperCase());
+            if (entry.source) bits.push(entry.source === 'aimmy' ? 'Aimmy' : (entry.source === 'aimsync' ? 'KryptAim' : entry.source));
+            sub.textContent = bits.join(' · ');
+            meta.appendChild(title);
+            if (entry.description) {
+                const desc = document.createElement('p');
+                desc.className = 'text-[10px] text-white/35 mt-1';
+                desc.textContent = entry.description;
+                meta.appendChild(desc);
+            }
+            meta.appendChild(sub);
+            li.appendChild(meta);
+            if (downloadable) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'shrink-0 text-[10px] font-semibold px-2.5 py-1 rounded-md bg-blue-600 hover:bg-blue-500 text-white';
+                btn.textContent = 'Download';
+                btn.onclick = () => downloadCommunityModel(entry.filename, btn);
+                li.appendChild(btn);
+            } else {
+                const ok = document.createElement('span');
+                ok.className = 'shrink-0 text-green-400 text-sm';
+                ok.textContent = '✓';
+                li.appendChild(ok);
+            }
+            return li;
+        }
+
+        function refreshCommunityModels() {
+            const statusEl = document.getElementById('ai-community-status');
+            const hintEl = document.getElementById('ai-community-hint');
+            const availEl = document.getElementById('ai-community-available');
+            const instEl = document.getElementById('ai-community-installed');
+            const allOk = document.getElementById('ai-community-all-ok');
+            if (statusEl) statusEl.textContent = 'Loading catalog…';
+            fetch('/api/ai/community/models')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        if (statusEl) statusEl.textContent = data.message || 'Could not load catalog';
+                        return;
+                    }
+                    updateCommunityButton(data);
+                    if (statusEl) {
+                        statusEl.textContent = data.online
+                            ? `${(data.catalog || []).length} in catalog · ${(data.local_models || []).length} local`
+                            : (data.error || 'Cloud offline');
+                    }
+                    if (allOk) allOk.classList.toggle('hidden', !data.all_installed);
+                    if (availEl) {
+                        availEl.innerHTML = '';
+                        const items = data.available || [];
+                        if (!items.length) {
+                            availEl.innerHTML = '<li class="text-white/30">Nothing new — all catalog models are already local.</li>';
+                        } else {
+                            items.forEach(entry => availEl.appendChild(renderCommunityModelRow(entry, { downloadable: true })));
+                        }
+                    }
+                    if (instEl) {
+                        instEl.innerHTML = '';
+                        const items = data.installed || [];
+                        if (!items.length) {
+                            instEl.innerHTML = '<li class="text-white/30">No community models installed yet.</li>';
+                        } else {
+                            items.forEach(entry => instEl.appendChild(renderCommunityModelRow(entry, { downloadable: false })));
+                        }
+                    }
+                    if (hintEl) {
+                        if (!data.online) {
+                            hintEl.textContent = 'Could not reach GitHub catalogs (KryptAim / Aimmy). Check internet or try again later.';
+                        } else if (data.empty_catalog) {
+                            hintEl.textContent = 'No models listed yet — add entries to models/catalog.json on GitHub or wait for Aimmy CS2 models.';
+                        } else {
+                            hintEl.textContent = 'KryptAim models from GitHub + CS2 models from Aimmy. Saves to %APPDATA%\\KryptAim\\models\\';
+                        }
+                    }
+                })
+                .catch(() => {
+                    if (statusEl) statusEl.textContent = 'Request failed';
+                });
+        }
+
+        function downloadCommunityModel(filename, btn) {
+            if (!filename) return;
+            const original = btn?.textContent;
+            if (btn) { btn.disabled = true; btn.textContent = '…'; }
+            const body = new URLSearchParams({ filename });
+            fetch('/api/ai/community/download', { method: 'POST', body })
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert(data.message || 'Download failed');
+                        return;
+                    }
+                    if (data.model) selectAiModel(data.model);
+                    refreshCommunityModels();
+                    pollAiStatus();
+                })
+                .catch(() => alert('Download failed'))
+                .finally(() => {
+                    if (btn) { btn.disabled = false; btn.textContent = original || 'Download'; }
+                });
+        }
+    </script>
+</body>
+</html>

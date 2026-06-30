@@ -20,7 +20,7 @@ from app.core.paths import is_frozen
 
 logger = logging.getLogger('KryptAim.updates')
 
-DEFAULT_REPO = env_get('UPDATES_REPO', 'AimSyncCore/KryptAim')
+DEFAULT_REPO = env_get('UPDATES_REPO', 'Kava4/KryptAim')
 _PREFERRED_ASSETS = (
     APP_EXE_NAME,
     'KryptAim.exe',

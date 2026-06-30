@@ -1,0 +1,370 @@
+        <div id="tab-content-ai-engine" class="tab-content mt-5 hidden">
+            <div class="bg-neutral-900 border border-amber-400/20 rounded-xl p-6 space-y-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <p class="text-lg font-semibold text-white">KryptAim AI</p>
+                        <p class="text-xs text-white/40 mt-1 max-w-xl">NDI capture → YOLO → Makcu aim &amp; trigger. Use <strong>Quick setup</strong> first.</p>
+                    </div>
+                    <button type="button" id="ai-engine-start-btn" onclick="toggleAiEngine()"
+                            class="text-xs font-semibold rounded-lg px-4 py-2 border transition-colors
+                                   {{ 'text-red-100 bg-red-500/20 border-red-400/30 hover:bg-red-500/30' if config.get('ai_enabled') else 'text-amber-950 bg-amber-400 border-amber-300 hover:bg-amber-300' }}">
+                        {{ 'Stop AI engine' if config.get('ai_enabled') else 'Start AI engine' }}
+                    </button>
+                </div>
+
+                <div id="ai-engine-status" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                        <span class="text-[10px] uppercase tracking-widest text-white/35">Engine</span>
+                        <p id="ai-stat-engine" class="font-medium text-white mt-0.5">—</p>
+                        <p id="ai-stat-fps" class="text-[10px] text-white/45 mt-0.5 truncate">—</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                        <span class="text-[10px] uppercase tracking-widest text-white/35">Model</span>
+                        <p id="ai-stat-model" class="font-medium text-white mt-0.5 truncate">—</p>
+                        <p id="ai-stat-config" class="text-[10px] text-white/45 mt-0.5 truncate">config.json</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                        <span class="text-[10px] uppercase tracking-widest text-white/35">Makcu / aim key</span>
+                        <p id="ai-stat-makcu" class="font-medium text-white mt-0.5">—</p>
+                        <p id="ai-stat-aimkey" class="text-[10px] text-white/45 mt-0.5 truncate">—</p>
+                    </div>
+                    <div class="rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-2">
+                        <span class="text-[10px] uppercase tracking-widest text-white/35">GPU / mode</span>
+                        <p id="ai-stat-gpu" class="font-medium text-white mt-0.5 truncate">—</p>
+                        <p id="ai-stat-movement" class="text-[10px] text-white/45 mt-0.5 truncate">—</p>
+                    </div>
+                </div>
+
+                <div id="ai-donor-lock" class="hidden rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-3">
+                    <p class="text-sm font-semibold text-amber-100">AI is for supporters only</p>
+                    <p id="ai-donor-lock-msg" class="text-xs text-white/55">Enter your Ko-fi supporter key in Global Settings to unlock KryptAim AI.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="switchToGlobalTab()"
+                                class="text-xs font-semibold text-amber-950 bg-amber-400 hover:bg-amber-300 rounded-lg px-4 py-2">
+                            Open Global Settings
+                        </button>
+                        <a href="https://ko-fi.com/kava4" target="_blank" rel="noopener"
+                           class="text-xs font-semibold text-white bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-4 py-2">
+                            Support on Ko-fi
+                        </a>
+                    </div>
+                </div>
+
+                <div id="ai-donor-content">
+
+                <div id="ai-runtime-hint" class="hidden rounded-xl border border-amber-500/25 bg-amber-500/10 p-4">
+                    <p class="text-sm font-medium text-amber-100">AI runtime not installed</p>
+                    <p class="text-xs text-white/50 mt-1">
+                        Open <button type="button" onclick="switchToGlobalTab()"
+                                class="text-amber-200 underline underline-offset-2 hover:text-amber-100">Global Settings</button>
+                        → <strong class="text-amber-100/90">AI Runtime</strong> to install, then restart KryptAim.
+                    </p>
+                </div>
+
+                <section class="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p class="text-sm font-medium text-amber-100">Ready to play</p>
+                            <p id="ai-readiness-hint" class="text-[11px] text-white/45 mt-1">Complete setup below, then use Quick setup.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="runAiQuickstart('both')"
+                                    class="text-xs font-semibold text-amber-950 bg-amber-400 hover:bg-amber-300 rounded-lg px-4 py-2">Quick setup</button>
+                            <button type="button" onclick="runAiQuickstart('aim')"
+                                    class="text-xs font-semibold text-blue-950 bg-blue-400 hover:bg-blue-300 rounded-lg px-4 py-2">Aim setup</button>
+                            <button type="button" onclick="runAiQuickstart('trigger')"
+                                    class="text-xs font-semibold text-white bg-amber-600/80 hover:bg-amber-500 rounded-lg px-4 py-2">Trigger setup</button>
+                        </div>
+                    </div>
+                    <ul id="ai-readiness-list" class="grid sm:grid-cols-2 gap-1.5 text-[11px]"></ul>
+                </section>
+
+                <div id="ai-engine-alert" class="hidden rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-xs text-red-200"></div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                    <section class="space-y-3 rounded-lg border border-white/10 bg-neutral-950/50 p-4">
+                        <p class="text-sm font-semibold text-emerald-400/90 uppercase tracking-wide">Capture</p>
+                        <label class="block">
+                            <span class="text-[10px] text-white/40">NDI source</span>
+                            <div class="flex gap-2 mt-1">
+                                <select id="ai-ndi-source" class="flex-1 text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2"
+                                        onchange="saveAiCapture()">
+                                    <option value="">— select —</option>
+                                </select>
+                                <button type="button" onclick="refreshAiNdi()"
+                                        class="text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 rounded-lg px-3 py-2">Refresh</button>
+                            </div>
+                        </label>
+                        <div class="flex flex-wrap gap-3">
+                            <label class="block">
+                                <span class="text-[10px] text-white/35">Gaming width</span>
+                                <input id="ai-main-pc-width" type="number" min="640" max="7680"
+                                       value="{{ config.get('ai_main_pc_width', 1920) }}"
+                                       class="mt-1 w-24 text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5"
+                                       onchange="saveAiCapture()">
+                            </label>
+                            <label class="block">
+                                <span class="text-[10px] text-white/35">Gaming height</span>
+                                <input id="ai-main-pc-height" type="number" min="480" max="4320"
+                                       value="{{ config.get('ai_main_pc_height', 1080) }}"
+                                       class="mt-1 w-24 text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5"
+                                       onchange="saveAiCapture()">
+                            </label>
+                        </div>
+                        <p id="ai-ndi-status" class="text-[10px] text-white/40">NDI: —</p>
+                    </section>
+
+                    <section class="space-y-3 rounded-lg border border-white/10 bg-neutral-950/50 p-4">
+                        <p class="text-sm font-semibold text-emerald-400/90 uppercase tracking-wide">Model</p>
+                        <select id="ai-active-model" class="w-full text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2"
+                                onchange="selectAiModel(this.value)">
+                            <option value="">— Select model —</option>
+                        </select>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="inline-flex text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-200 cursor-pointer">
+                                Upload .pt / .onnx
+                                <input type="file" accept=".onnx,.pt,.engine" class="hidden" onchange="uploadAiModel(this)">
+                            </label>
+                            <button type="button" id="ai-community-btn" onclick="openCommunityModels()"
+                                    class="text-xs px-3 py-1.5 rounded-lg border border-blue-400/30 bg-blue-500/10 text-blue-200 hover:bg-blue-500/20"
+                                    title="Download models from GitHub / Aimmy">
+                                Community models
+                            </button>
+                        </div>
+                        <p id="ai-available-classes" class="text-[10px] text-white/45 font-mono leading-relaxed min-h-[1.25rem]">Load a model to see classes.</p>
+                        <input type="hidden" id="ai-my-team" value="{{ config.get('ai_my_team', '') }}">
+                        <div id="ai-team-picker" class="hidden space-y-2">
+                            <p class="text-[10px] text-white/40">Your team <span class="text-white/25">(targets enemy class)</span></p>
+                            <div class="flex gap-2">
+                                <button type="button" data-ai-team="ct" onclick="setAiMyTeam('ct')"
+                                        class="ai-team-btn flex-1 text-xs font-semibold rounded-lg px-3 py-2 border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-colors">
+                                    CT
+                                </button>
+                                <button type="button" data-ai-team="t" onclick="setAiMyTeam('t')"
+                                        class="ai-team-btn flex-1 text-xs font-semibold rounded-lg px-3 py-2 border border-white/10 text-white/60 hover:text-white hover:border-white/20 transition-colors">
+                                    T
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="block text-xs text-white/70">
+                                <span class="text-white/40">Target body class</span>
+                                <select id="ai-player-class" class="mt-1 w-full bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5 text-white/80"
+                                        onchange="saveAiDetection()">
+                                    <option value="">— All / auto —</option>
+                                    {% if config.get('ai_player_class') %}
+                                    <option value="{{ config.get('ai_player_class') }}" selected>{{ config.get('ai_player_class') }}</option>
+                                    {% endif %}
+                                </select>
+                            </label>
+                            <label class="block text-xs text-white/70">
+                                <span class="text-white/40">Head class</span>
+                                <select id="ai-head-class" class="mt-1 w-full bg-neutral-800 border border-white/10 rounded-lg px-2 py-1.5 text-white/80"
+                                        onchange="saveAiDetection()">
+                                    <option value="">None</option>
+                                    {% if config.get('ai_head_class') %}
+                                    <option value="{{ config.get('ai_head_class') }}" selected>{{ config.get('ai_head_class') }}</option>
+                                    {% endif %}
+                                </select>
+                            </label>
+                        </div>
+                        <p class="text-[10px] text-white/35">CS2: pick your side — aim targets the enemy (CT → T, T → CT). Other models: choose class manually.</p>
+                        <label class="block">
+                            <span class="flex justify-between text-[10px] text-white/40">
+                                <span>Detection confidence</span>
+                                <span id="ai-det-conf-label" class="text-white/60 tabular-nums">{{ config.get('ai_detection_conf', 0.25) }}</span>
+                            </span>
+                            <input id="ai-det-conf" type="range" min="0.1" max="0.9" step="0.05"
+                                   value="{{ config.get('ai_detection_conf', 0.25) }}"
+                                   class="w-full accent-amber-500 mt-1"
+                                   oninput="document.getElementById('ai-det-conf-label').textContent=Number(this.value).toFixed(2)"
+                                   onchange="saveAiDetection()">
+                        </label>
+                    </section>
+                </div>
+
+                {% set ai_aim_key = (config.get('ai_aim_keybind') or 'M4')|upper %}
+                {% set ai_trig_key = (config.get('ai_trigger_keybind') or 'M4')|upper %}
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 border-t border-white/5 pt-5">
+                    <section class="space-y-3 rounded-lg border border-blue-500/25 bg-blue-500/5 p-4">
+                        <p class="text-sm font-semibold text-blue-200 uppercase tracking-wide">Aim</p>
+                        <label class="flex items-center justify-between text-xs text-white/85">
+                            <span>Aim assist enabled</span>
+                            <input type="checkbox" class="w-4 h-4 accent-blue-500"
+                                   {{ 'checked' if config.get('ai_aim_enabled') else '' }}
+                                   onchange="saveAiToggle('Aim Assist', this.checked)">
+                        </label>
+                        <label class="flex items-center justify-between text-xs text-white/85">
+                            <span>Aim always on</span>
+                            <input id="ai-aim-always" type="checkbox" class="w-4 h-4 accent-blue-500"
+                                   {{ 'checked' if config.get('ai_aim_always_on') else '' }}
+                                   onchange="saveAiToggle('Always-on aim', this.checked)">
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="text-white/40">Aim key (Makcu)</span>
+                            <select id="ai-aim-key" class="mt-1 w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 text-white/80"
+                                    onchange="saveAiDropdown('Aim key', this.value)">
+                                {% for val, label in [('LMB','Left'), ('RMB','Right'), ('MMB','Middle'), ('M4','Side 4'), ('M5','Side 5')] %}
+                                <option value="{{ val }}" {{ 'selected' if ai_aim_key == val else '' }}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="text-white/40">Aim point</span>
+                            <select id="ai-aim-point" class="mt-1 w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 text-white/80"
+                                    onchange="saveAiAssist()">
+                                <option value="head" {{ 'selected' if config.get('ai_aim_point', 'head') == 'head' }}>Head</option>
+                                <option value="body" {{ 'selected' if config.get('ai_aim_point') == 'body' }}>Body</option>
+                            </select>
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="flex justify-between">
+                                <span>Aim speed</span>
+                                <span id="ai-aim-speed-label" class="text-white/60 tabular-nums">{{ config.get('ai_aim_speed', 1.0) }}</span>
+                            </span>
+                            <input id="ai-aim-speed" type="range" min="0.2" max="3" step="0.1"
+                                   value="{{ config.get('ai_aim_speed', 1.0) }}"
+                                   class="w-full accent-blue-500 mt-1"
+                                   oninput="document.getElementById('ai-aim-speed-label').textContent=Number(this.value).toFixed(1)"
+                                   onchange="saveAiSlider('Aim speed', this.value)">
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="flex justify-between">
+                                <span>Aim max px / frame</span>
+                                <span id="ai-aim-max-label" class="text-white/60 tabular-nums">{{ config.get('ai_aim_max_px', 280) }}</span>
+                            </span>
+                            <input id="ai-aim-max" type="range" min="40" max="500" step="10"
+                                   value="{{ config.get('ai_aim_max_px', 280) }}"
+                                   class="w-full accent-blue-500 mt-1"
+                                   oninput="document.getElementById('ai-aim-max-label').textContent=this.value"
+                                   onchange="saveAiSlider('Aim max px', this.value)">
+                        </label>
+                    </section>
+
+                    <section class="space-y-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-4">
+                        <p class="text-sm font-semibold text-amber-200 uppercase tracking-wide">Triggerbot</p>
+                        <label class="flex items-center justify-between text-xs text-white/85">
+                            <span>Trigger enabled</span>
+                            <input type="checkbox" class="w-4 h-4 accent-amber-500"
+                                   {{ 'checked' if config.get('ai_trigger_enabled') else '' }}
+                                   onchange="saveAiToggle('Auto Trigger', this.checked)">
+                        </label>
+                        <label class="flex items-center justify-between text-xs text-white/85">
+                            <span>Trigger always on</span>
+                            <input id="ai-trigger-always" type="checkbox" class="w-4 h-4 accent-amber-500"
+                                   {{ 'checked' if config.get('ai_trigger_always_on') else '' }}
+                                   onchange="saveAiToggle('Trigger always on', this.checked)">
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="text-white/40">Trigger key (Makcu)</span>
+                            <select id="ai-trigger-key" class="mt-1 w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 text-white/80"
+                                    onchange="saveAiDropdown('Trigger key', this.value)">
+                                {% for val, label in [('LMB','Left'), ('RMB','Right'), ('MMB','Middle'), ('M4','Side 4'), ('M5','Side 5')] %}
+                                <option value="{{ val }}" {{ 'selected' if ai_trig_key == val else '' }}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="flex justify-between">
+                                <span>Trigger radius (px)</span>
+                                <span id="ai-trigger-radius-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_radius_px', 8) }}</span>
+                            </span>
+                            <input id="ai-trigger-radius" type="range" min="2" max="40" step="1"
+                                   value="{{ config.get('ai_trigger_radius_px', 8) }}"
+                                   class="w-full accent-amber-500 mt-1"
+                                   oninput="document.getElementById('ai-trigger-radius-label').textContent=this.value"
+                                   onchange="saveAiSlider('Trigger radius', this.value)">
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="flex justify-between">
+                                <span>Trigger delay (ms)</span>
+                                <span id="ai-trigger-delay-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_delay_ms', 30) }}</span>
+                            </span>
+                            <input id="ai-trigger-delay" type="range" min="0" max="120" step="5"
+                                   value="{{ config.get('ai_trigger_delay_ms', 30) }}"
+                                   class="w-full accent-amber-500 mt-1"
+                                   oninput="document.getElementById('ai-trigger-delay-label').textContent=this.value"
+                                   onchange="saveAiSlider('Trigger delay', this.value)">
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="flex justify-between">
+                                <span>Trigger cooldown (ms)</span>
+                                <span id="ai-trigger-cooldown-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_cooldown_ms', 120) }}</span>
+                            </span>
+                            <input id="ai-trigger-cooldown" type="range" min="0" max="300" step="10"
+                                   value="{{ config.get('ai_trigger_cooldown_ms', 120) }}"
+                                   class="w-full accent-amber-500 mt-1"
+                                   oninput="document.getElementById('ai-trigger-cooldown-label').textContent=this.value"
+                                   onchange="saveAiSlider('Trigger cooldown', this.value)">
+                        </label>
+                        <label class="block text-xs text-white/70">
+                            <span class="flex justify-between">
+                                <span>Prediction (ms)</span>
+                                <span id="ai-trigger-pred-label" class="text-white/60 tabular-nums">{{ config.get('ai_trigger_prediction_ms', 35) }}</span>
+                            </span>
+                            <input id="ai-trigger-prediction" type="range" min="0" max="120" step="5"
+                                   value="{{ config.get('ai_trigger_prediction_ms', 35) }}"
+                                   class="w-full accent-amber-500 mt-1"
+                                   oninput="document.getElementById('ai-trigger-pred-label').textContent=this.value"
+                                   onchange="saveAiSlider('Prediction', this.value)">
+                        </label>
+                    </section>
+                </div>
+
+                <section class="space-y-3 border-t border-white/5 pt-5">
+                    <p class="text-sm font-semibold text-white">Assist mode</p>
+                    <label class="block text-xs max-w-xs">
+                        <span class="text-white/40">Combined mode</span>
+                        <select id="ai-assist-mode" class="mt-1 w-full bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 text-white/80"
+                                onchange="saveAiAssist()">
+                            <option value="trigger" {{ 'selected' if config.get('ai_assist_mode') == 'trigger' }}>Trigger only</option>
+                            <option value="aim" {{ 'selected' if config.get('ai_assist_mode') == 'aim' }}>Aim only</option>
+                            <option value="both" {{ 'selected' if config.get('ai_assist_mode') == 'both' }}>Aim + Trigger</option>
+                        </select>
+                    </label>
+                </section>
+
+                </div>
+
+            <div id="ai-community-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                 onclick="if (event.target === this) closeCommunityModels()">
+                <div class="w-full max-w-lg rounded-xl border border-white/10 bg-neutral-900 shadow-2xl overflow-hidden"
+                     role="dialog" aria-labelledby="ai-community-title">
+                    <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-white/10">
+                        <div>
+                            <p id="ai-community-title" class="text-sm font-semibold text-white">Community models</p>
+                            <p id="ai-community-status" class="text-[11px] text-white/45 mt-0.5">—</p>
+                        </div>
+                        <button type="button" onclick="closeCommunityModels()"
+                                class="text-white/40 hover:text-white text-lg leading-none px-2" aria-label="Close">×</button>
+                    </div>
+                    <div class="px-5 py-4 max-h-[min(24rem,60vh)] overflow-y-auto space-y-4">
+                        <div id="ai-community-all-ok" class="hidden flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-xs text-green-200">
+                            <span class="text-green-400">✓</span>
+                            <span>All community models are installed and ready to load.</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-widest text-white/35 mb-2">Available to download</p>
+                            <ul id="ai-community-available" class="space-y-2 text-xs"></ul>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase tracking-widest text-white/35 mb-2">Installed</p>
+                            <ul id="ai-community-installed" class="space-y-1.5 text-xs"></ul>
+                        </div>
+                        <p id="ai-community-hint" class="text-[10px] text-white/35"></p>
+                    </div>
+                    <div class="flex justify-end gap-2 px-5 py-3 border-t border-white/10 bg-neutral-950/50">
+                        <button type="button" onclick="refreshCommunityModels()"
+                                class="text-xs px-3 py-1.5 rounded-lg border border-white/10 text-white/70 hover:text-white">
+                            Refresh
+                        </button>
+                        <button type="button" onclick="closeCommunityModels()"
+                                class="text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/15">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>

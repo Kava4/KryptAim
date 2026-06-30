@@ -9,9 +9,9 @@ def test_list_github_projects_excludes_aimsync(monkeypatch):
     sample = [
         {
             'name': 'KryptAim',
-            'full_name': 'AimSyncCore/KryptAim',
+            'full_name': 'Kava4/KryptAim',
             'description': 'Current app',
-            'html_url': 'https://github.com/AimSyncCore/KryptAim',
+            'html_url': 'https://github.com/Kava4/KryptAim',
             'stargazers_count': 10,
             'language': 'Python',
             'updated_at': '2026-01-01T00:00:00Z',
@@ -20,9 +20,9 @@ def test_list_github_projects_excludes_aimsync(monkeypatch):
         },
         {
             'name': 'Other',
-            'full_name': 'AimSyncCore/Other',
+            'full_name': 'Kava4/Other',
             'description': 'Side project',
-            'html_url': 'https://github.com/AimSyncCore/Other',
+            'html_url': 'https://github.com/Kava4/Other',
             'stargazers_count': 1,
             'language': 'TypeScript',
             'updated_at': '2026-01-02T00:00:00Z',
@@ -43,9 +43,9 @@ def test_list_github_projects_excludes_aimsync(monkeypatch):
 def test_featured_projects_use_curated_copy(monkeypatch):
     sample = [{
         'name': 'cs2_webradar',
-        'full_name': 'AimSyncCore/cs2_webradar',
+        'full_name': 'Kava4/cs2_webradar',
         'description': 'Short GitHub blurb',
-        'html_url': 'https://github.com/AimSyncCore/cs2_webradar',
+        'html_url': 'https://github.com/Kava4/cs2_webradar',
         'stargazers_count': 1,
         'language': 'C++',
         'updated_at': '2026-06-01T00:00:00Z',
@@ -56,13 +56,13 @@ def test_featured_projects_use_curated_copy(monkeypatch):
     monkeypatch.setattr(projects_mod, '_repo_items', lambda _t, _n: sample)
     monkeypatch.setattr(projects_mod, '_load_config', lambda: {
         'featured': [{
-            'repo': 'AimSyncCore/cs2_webradar',
+            'repo': 'Kava4/cs2_webradar',
             'name': 'KryptAim WebRadar',
             'description': 'Live CS2 web radar with 44 maps.',
             'order': 1,
             'tags': ['CS2'],
         }],
-        'sources': [{'type': 'org', 'name': 'AimSyncCore'}],
+        'sources': [{'type': 'org', 'name': 'Kava4'}],
         'exclude_repos': ['KryptAim'],
         'exclude_forks': True,
     })

@@ -11,6 +11,7 @@ import webbrowser
 from pathlib import Path
 
 from app.core.config import config_dir
+from app.core.paths import app_root
 from app.core.runtime import dev_mode_enabled
 from app.makcu.manager import makcu_manager
 from app.runtime.worker import recoil_worker
@@ -69,17 +70,26 @@ def _acquire_single_instance() -> bool:
 
 def _start_ai_worker(stop_event: threading.Event, logger: logging.Logger) -> None:
     from app.bootstrap.runtime import is_ai_available
+    from app.core.ai_access import resolve_ai_access
+    from app.core.ai_free_quota import get_ai_free_quota_manager
     from app.core.config import load_config, save_config
-    from app.core.licensing import ai_access_status
 
-    access = ai_access_status()
-    if not access.get('allowed'):
+    access = resolve_ai_access()
+    if access.get('premium_required') and not access.get('allowed'):
         config = load_config()
         if config.get('ai_enabled'):
             config['ai_enabled'] = False
             save_config(config)
         logger.info('AI locked — supporter license required (%s)', access.get('message') or 'no key')
         return
+
+    if not access.get('allowed'):
+        config = load_config()
+        if config.get('ai_enabled'):
+            config['ai_enabled'] = False
+            save_config(config)
+        get_ai_free_quota_manager().sync_engine_state(False)
+        logger.info('Vision AI unavailable (%s)', access.get('message') or 'quota exhausted')
 
     if not is_ai_available():
         logger.info(

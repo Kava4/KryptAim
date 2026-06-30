@@ -40,7 +40,7 @@ Required before the AI engine can run (lite build only).
 
 ## Updates
 
-- **Check for updates** — compares with [GitHub Releases](https://github.com/AimSyncCore/KryptAim/releases).
+- **Check for updates** — compares with [GitHub Releases](https://github.com/Kava4/KryptAim/releases).
 - **Install update** — downloads new `KryptAim.exe` and restarts (built exe only).
 
 Version source: `release/version.json` in the repo.

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="KryptAim">
+  <defs>
+    <linearGradient id="silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5f7fa"/>
+      <stop offset="100%" stop-color="#9aa4ae"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0c56a"/>
+      <stop offset="100%" stop-color="#c9851f"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="60" cy="52" r="34" fill="none" stroke="url(#silver)" stroke-width="2.5" stroke-dasharray="54 60" stroke-dashoffset="0"/>
+  <circle cx="60" cy="52" r="34" fill="none" stroke="url(#gold)" stroke-width="2.5" stroke-dasharray="54 60" stroke-dashoffset="54"/>
+  <rect x="58" y="16" width="4" height="8" rx="1" fill="url(#silver)"/>
+  <rect x="86" y="50" width="8" height="4" rx="1" fill="url(#gold)"/>
+  <rect x="58" y="80" width="4" height="8" rx="1" fill="url(#gold)"/>
+  <rect x="26" y="50" width="8" height="4" rx="1" fill="url(#silver)"/>
+  <path d="M44 28 L44 76 L58 76 L58 54 L72 76 L88 76 L70 50 L86 28 L70 28 L58 46 L58 28 Z" fill="url(#silver)"/>
+  <path d="M38 78 L92 26" stroke="url(#gold)" stroke-width="3" stroke-linecap="round" filter="url(#glow)"/>
+  <circle cx="60" cy="52" r="2.5" fill="url(#gold)"/>
+</svg>

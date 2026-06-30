@@ -30,7 +30,7 @@ def _load_config() -> dict[str, Any]:
         except Exception as exc:
             logger.warning('Could not read %s: %s', path, exc)
     return {
-        'sources': [{'type': 'org', 'name': os.environ.get('KRYPTAIM_GITHUB_ORG', 'AimSyncCore')}],
+        'sources': [{'type': 'org', 'name': os.environ.get('KRYPTAIM_GITHUB_ORG', 'Kava4')}],
         'exclude_repos': ['KryptAim'],
         'exclude_forks': True,
         'featured': [],

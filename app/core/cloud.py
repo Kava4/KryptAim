@@ -84,6 +84,40 @@ def submit_feedback(payload: dict[str, Any]) -> tuple[dict[str, Any] | None, str
     return _post_json('feedback', payload, timeout=10)
 
 
+def validate_supporter_key(*, key: str, hwid: str) -> tuple[dict[str, Any] | None, str | None]:
+    data, error = _post_json('license/validate', {'key': key, 'hwid': hwid}, timeout=10)
+    if error:
+        return None, error
+    if not isinstance(data, dict):
+        return None, 'Invalid license response'
+    return data, None
+
+
+def fetch_ai_quota_status(*, hwid: str) -> tuple[dict[str, Any] | None, str | None]:
+    """Read free Vision AI daily quota for this HWID."""
+    data, error = _post_json('quota/status', {'hwid': hwid}, timeout=8)
+    if error:
+        return None, error
+    if not isinstance(data, dict) or not data.get('ok'):
+        return None, str((data or {}).get('error') or 'Invalid quota response')
+    return data, None
+
+
+def post_ai_quota_tick(*, hwid: str, delta_seconds: float) -> tuple[dict[str, Any] | None, str | None]:
+    """Increment cloud quota usage (engine runtime seconds)."""
+    safe_delta = max(0.0, min(600.0, float(delta_seconds)))
+    data, error = _post_json(
+        'quota/tick',
+        {'hwid': hwid, 'delta_seconds': round(safe_delta, 2)},
+        timeout=8,
+    )
+    if error:
+        return None, error
+    if not isinstance(data, dict) or not data.get('ok'):
+        return None, str((data or {}).get('error') or 'Invalid quota tick response')
+    return data, None
+
+
 def download_community_model_bytes(name: str, *, download_url: str = '') -> tuple[bytes | None, str | None]:
     safe = urllib.parse.quote(name, safe='')
     if download_url:

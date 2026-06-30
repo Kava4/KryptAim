@@ -15,7 +15,7 @@ AIMMY_REPO = 'Babyhamsta/Aimmy'
 AIMMY_REF = 'Aimmy-V2'
 AIMMY_MODELS_PATH = 'models'
 
-KRYPTAIM_REPO = os.environ.get('KRYPTAIM_MODELS_REPO', 'AimSyncCore/KryptAim')
+KRYPTAIM_REPO = os.environ.get('KRYPTAIM_MODELS_REPO', 'Kava4/KryptAim')
 KRYPTAIM_REF = os.environ.get('KRYPTAIM_MODELS_REF', 'main')
 KRYPTAIM_CATALOG_PATH = os.environ.get('KRYPTAIM_MODELS_CATALOG', 'models/catalog.json')
 KRYPTAIM_MODELS_PATH = 'models'

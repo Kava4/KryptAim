@@ -132,6 +132,7 @@
 
     function openSupportCodeModal(provider) {
         activeSupportProvider = provider;
+        if (typeof global.closeHubSupportMenu === 'function') global.closeHubSupportMenu();
         const modal = document.getElementById('support-code-modal');
         const title = document.getElementById('support-code-title');
         const hint = document.getElementById('support-code-hint');
@@ -199,11 +200,11 @@
 
     function showStoppedScreen(willShutdownPC) {
         const closeDelayMs = 3500;
-        const logoUrl = cfg().logoUrl || '/static/KryptAim_logo.png';
+        const logoUrl = cfg().logoUrl || '/static/KryptAim_mark.svg';
         document.body.innerHTML = `
             <div class="min-h-screen bg-neutral-950 flex items-center justify-center text-center p-6">
                 <div class="flex flex-col items-center gap-4 max-w-sm">
-                    <img src="${logoUrl}" alt="KryptAim" class="h-36 md:h-44 w-auto max-w-[320px] object-contain mb-2 opacity-95">
+                    <img src="${logoUrl}" alt="KryptAim" class="h-36 md:h-44 w-auto max-w-[320px] object-contain mb-2 opacity-95" style="background: transparent;">
                     <h1 class="text-2xl font-bold text-white mb-2">KryptAim Stopped</h1>
                     <p class="text-white/40 text-sm">The hardware connection has been released.</p>
                     ${willShutdownPC
@@ -255,7 +256,12 @@
             window.location.href = `/?tab=${encodeURIComponent(tab)}`;
             return;
         }
-        document.querySelector(`.tab-button[data-tab="${tab}"]`)?.click();
+        if (typeof global.setActiveHubTab === 'function') {
+            global.setActiveHubTab(tab);
+        } else {
+            document.querySelector(`.hub-nav-btn[data-tab="${tab}"]`)?.click()
+                || document.querySelector(`.tab-button[data-tab="${tab}"]`)?.click();
+        }
         toggleMobileMenu(true);
     }
 

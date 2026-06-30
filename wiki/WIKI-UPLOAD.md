@@ -3,10 +3,10 @@
 GitHub Wiki is a **separate git repository**:
 
 ```
-https://github.com/AimSyncCore/KryptAim.wiki.git
+https://github.com/Kava4/KryptAim.wiki.git
 ```
 
-Live wiki: https://github.com/AimSyncCore/KryptAim/wiki
+Live wiki: https://github.com/Kava4/KryptAim/wiki
 
 ## Automatic sync (recommended)
 
@@ -25,7 +25,7 @@ Requires the wiki git repo to exist (create the first page once from the GitHub 
 ## One-time manual setup (if Action fails)
 
 ```bash
-git clone https://github.com/AimSyncCore/KryptAim.wiki.git
+git clone https://github.com/Kava4/KryptAim.wiki.git
 cd KryptAim.wiki
 ```
 

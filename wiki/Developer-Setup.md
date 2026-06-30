@@ -1,6 +1,6 @@
 # Developer setup
 
-Clone [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim) (branch **Beta**).
+Clone [Kava4/KryptAim](https://github.com/Kava4/KryptAim) (branch **Beta**).
 
 ---
 
@@ -71,7 +71,7 @@ Bootstrap: `app/bootstrap/embed_python.py`, `app/bootstrap/runtime.py`
 
 1. Bump `release/version.json`
 2. Build + `scripts\package_release.bat`
-3. Create GitHub Release on [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim/releases) with tag `vX.Y.Z`
+3. Create GitHub Release on [Kava4/KryptAim](https://github.com/Kava4/KryptAim/releases) with tag `vX.Y.Z`
 4. Attach `KryptAim.exe` or `KryptAim.zip`
 5. Push `release/app-config.json` if changing remote flags (e.g. AI premium gate)
 

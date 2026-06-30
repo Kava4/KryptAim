@@ -4,7 +4,7 @@
 
 Dashboard URL after launch: `http://<your-LAN-IP>:5000`
 
-Repository: [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim)
+Repository: [Kava4/KryptAim](https://github.com/Kava4/KryptAim)
 
 ---
 
@@ -55,8 +55,8 @@ Repository: [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim)
 
 ## Links
 
-- [GitHub repository](https://github.com/AimSyncCore/KryptAim)
-- [Releases](https://github.com/AimSyncCore/KryptAim/releases)
+- [GitHub repository](https://github.com/Kava4/KryptAim)
+- [Releases](https://github.com/Kava4/KryptAim/releases)
 - [Ko-fi support](https://ko-fi.com/kava4)
 
 ---

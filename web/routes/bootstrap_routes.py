@@ -7,7 +7,7 @@ import threading
 from flask import Blueprint, jsonify, request
 
 from app.bootstrap.runtime import bootstrap_status, install_runtime
-from app.core.licensing import ai_access_status
+from app.core.ai_access import resolve_ai_access
 
 bootstrap_bp = Blueprint('bootstrap', __name__, url_prefix='/api/bootstrap')
 
@@ -27,7 +27,7 @@ def status():
 def install():
     global _install_thread
 
-    access = ai_access_status()
+    access = resolve_ai_access()
     if not access.get('allowed'):
         return jsonify(
             {

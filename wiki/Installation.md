@@ -2,7 +2,7 @@
 
 KryptAim runs on **Windows 10/11**. Use either **venv + source** (developers) or **slim `.exe`** (end users).
 
-Repository: [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim)
+Repository: [Kava4/KryptAim](https://github.com/Kava4/KryptAim)
 
 ---
 
@@ -24,7 +24,7 @@ Repository: [AimSyncCore/KryptAim](https://github.com/AimSyncCore/KryptAim)
 1. Clone the repo:
 
 ```bat
-git clone -b Beta https://github.com/AimSyncCore/KryptAim.git
+git clone -b Beta https://github.com/Kava4/KryptAim.git
 cd KryptAim
 ```
 
@@ -64,7 +64,7 @@ Supported: `.onnx`, `.pt`, `.engine`
 
 ## Slim `.exe` (recommended for end users)
 
-Download from [Releases](https://github.com/AimSyncCore/KryptAim/releases).
+Download from [Releases](https://github.com/Kava4/KryptAim/releases).
 
 1. Extract `KryptAim.exe` (single file, ~15–120 MB).
 2. Run it — recoil works immediately.

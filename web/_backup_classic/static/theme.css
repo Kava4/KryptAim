@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+#vis-tooltip {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(10, 10, 16, 0.85) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    border-radius: 8px !important;
+    font-family: ui-monospace, monospace;
+    letter-spacing: 0.01em;
+    line-height: 1.6 !important;
+}
+
+#vis-canvas {
+    transition: opacity 0.2s;
+}

@@ -2,41 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>Projects · {{ app_name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='kryptaim-hub.css') }}">
 </head>
-<body class="min-h-screen bg-neutral-950 font-['Inter',sans-serif] flex flex-col text-white">
-    {% include '_navbar.html' %}
+<body class="hub-theme min-h-screen flex flex-col">
+    {% set hub_standalone = true %}
+    <div class="hub-layout flex-1">
+        {% include '_hub_sidebar.html' %}
+        <div class="hub-main">
+            <div class="hub-mobile-bar">
+                <button type="button" onclick="toggleHubSidebar()" class="text-white/80 text-sm font-semibold">☰ Menu</button>
+                <span class="hub-brand" style="margin:0;padding:0;border:0">Projects</span>
+                <span class="w-8"></span>
+            </div>
 
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 md:px-6 py-8 md:py-10">
-        <div class="mb-8">
-            <a href="/" class="inline-flex items-center gap-1.5 text-xs font-medium text-white/45 hover:text-white/80 transition-colors mb-4">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Back to dashboard
-            </a>
-            <h1 class="text-2xl md:text-3xl font-semibold tracking-tight">Our Projects</h1>
-            <p class="text-sm text-white/45 mt-2 max-w-2xl">
-                Other open-source work from our GitHub — tools, experiments, and side projects alongside {{ app_name }}.
-            </p>
+            <main class="hub-content">
+                <div class="mb-8">
+                    <p class="hub-section-title">GitHub</p>
+                    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-white">Our Projects</h1>
+                    <p class="text-sm text-white/45 mt-2 max-w-2xl">
+                        Other open-source work from our GitHub — tools, experiments, and side projects alongside {{ app_name }}.
+                    </p>
+                </div>
+
+                <div id="projects-status" class="text-xs text-white/40 mb-4 hub-mono">Loading repositories from GitHub…</div>
+                <div id="projects-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+                <div id="projects-empty" class="hidden rounded-xl border border-white/10 bg-neutral-900/60 p-8 text-center hub-card">
+                    <p class="text-sm text-white/50">No public repositories found right now.</p>
+                    <a href="https://github.com/Kava4" target="_blank" rel="noopener"
+                       class="inline-block mt-4 text-xs font-semibold text-[#E5A93B] hover:opacity-90">Browse GitHub →</a>
+                </div>
+            </main>
+
+            <footer class="hub-content pt-0 pb-8">
+                <div class="border-t border-white/10 pt-6 flex flex-wrap items-center justify-between gap-4">
+                    <p class="text-white/35 text-xs">More from our GitHub — open source tools & experiments.</p>
+                    <p class="text-white/20 text-[11px] uppercase tracking-widest font-medium">© 2026 {{ app_name }}</p>
+                </div>
+            </footer>
         </div>
+    </div>
 
-        <div id="projects-status" class="text-xs text-white/40 mb-4">Loading repositories from GitHub…</div>
-        <div id="projects-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
-        <div id="projects-empty" class="hidden rounded-2xl border border-white/10 bg-white/[0.03] p-8 text-center">
-            <p class="text-sm text-white/50">No public repositories found right now.</p>
-            <a href="https://github.com/AimSyncCore" target="_blank" rel="noopener"
-               class="inline-block mt-4 text-xs font-semibold text-blue-300 hover:text-blue-200">Browse GitHub →</a>
-        </div>
-    </main>
-
-    {% include '_footer.html' %}
-
+    <div class="classic-navbar-wrap">{% include '_navbar.html' %}</div>
     {% include '_shell_scripts.html' %}
+    <script src="{{ url_for('static', filename='hub-nav.js') }}"></script>
     <script>
         function escapeHtml(value) {
             return String(value || '')
@@ -68,19 +83,19 @@
                     ? `<span class="text-[10px] font-semibold text-emerald-300/90">Live demo</span>`
                     : '';
                 const featured = project.featured
-                    ? `<span class="text-[10px] font-semibold uppercase tracking-wide text-blue-300/80">Featured</span>`
+                    ? `<span class="text-[10px] font-semibold uppercase tracking-wide text-[#E5A93B]/90">Featured</span>`
                     : '';
                 return `
                     <a href="${escapeHtml(project.url)}" target="_blank" rel="noopener"
-                       class="group flex flex-col h-full rounded-2xl border border-white/10 bg-neutral-900/60 hover:border-blue-400/30 hover:bg-neutral-900 transition-all p-5">
+                       class="group flex flex-col h-full rounded-xl border border-white/10 bg-neutral-900/60 hover:border-[#E5A93B]/35 hover:bg-neutral-900 transition-all p-5 hub-card">
                         <div class="flex items-start justify-between gap-3 mb-2">
                             <div class="min-w-0">
-                                <h2 class="text-base font-semibold text-white group-hover:text-blue-200 transition-colors">${escapeHtml(project.name)}</h2>
+                                <h2 class="text-base font-semibold text-white group-hover:text-[#E5A93B] transition-colors">${escapeHtml(project.name)}</h2>
                                 ${project.repo_name && project.repo_name !== project.name
-                                    ? `<p class="text-[10px] text-white/30 mt-0.5 truncate">${escapeHtml(project.repo_name)}</p>`
+                                    ? `<p class="text-[10px] text-white/30 mt-0.5 truncate hub-mono">${escapeHtml(project.repo_name)}</p>`
                                     : ''}
                             </div>
-                            <svg class="w-4 h-4 text-white/25 group-hover:text-blue-300/70 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-white/25 group-hover:text-[#E5A93B]/70 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path d="M7 17L17 7M7 7h10v10" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </div>
@@ -89,7 +104,7 @@
                             ${featured}
                             ${demo}
                             ${language}
-                            <span class="text-[10px] text-white/35">★ ${stars}</span>
+                            <span class="text-[10px] text-white/35 hub-mono">★ ${stars}</span>
                             ${topics}
                         </div>
                         ${project.demo_url ? `
@@ -125,6 +140,7 @@
         }
 
         window.addEventListener('load', () => {
+            if (typeof initHubNav === 'function') initHubNav();
             KryptAimUpdates.init({ autoCheck: true });
             loadProjects(false);
         });

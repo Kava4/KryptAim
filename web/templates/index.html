@@ -2,38 +2,187 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>{{ app_name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='kryptaim-hub.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='vis.css') }}">
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .tab-button.active { border-color: #3b82f6; color: white; }
-        .weapon-cat-tab.active { color: white; border-color: #3b82f6; background: rgba(59,130,246,0.12); }
-        .weapon-team-tab { border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); transition: all 0.15s ease; }
+        .tab-button.active { border-color: #E5A93B; color: white; }
+        .weapon-cat-tab {
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.55);
+            border-radius: 6px;
+            transition: all 0.15s ease;
+        }
+        .weapon-cat-tab:hover { color: white; border-color: rgba(255,255,255,0.18); }
+        .weapon-cat-tab.active { color: white; border-color: #E5A93B; background: rgba(229, 169, 59, 0.12); }
+        .weapon-team-tab { border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.55); transition: all 0.15s ease; border-radius: 6px; }
         .weapon-team-tab:hover { color: white; border-color: rgba(255,255,255,0.18); }
         .weapon-team-tab.active.ct { color: #93c5fd; border-color: rgba(91,159,212,0.55); background: rgba(91,159,212,0.12); }
         .weapon-team-tab.active.t { color: #fcd34d; border-color: rgba(232,165,75,0.55); background: rgba(232,165,75,0.12); }
-        .weapon-btn { flex: 0 0 auto; width: 5.5rem; padding: 0.35rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); transition: all 0.15s ease; cursor: pointer; }
+        .weapon-filter-rail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            flex-shrink: 0;
+            width: 5.5rem;
+            padding: 0.4rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+        }
+        .weapon-team-toggle {
+            display: inline-flex;
+            gap: 0.35rem;
+            padding: 0.35rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 8px;
+            margin-bottom: 0.65rem;
+        }
+        .weapon-team-toggle .weapon-team-tab { min-width: 3.25rem; }
+        .weapon-quick-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.75rem;
+            min-height: 2rem;
+        }
+        .weapon-quick-bar:empty { display: none; }
+        .weapon-rail-label {
+            display: block;
+            padding: 0;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            line-height: 1.2;
+        }
+        .weapon-rail-label--recent {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.38);
+            flex-shrink: 0;
+            min-width: 3.25rem;
+        }
+        .weapon-rail-label--team {
+            font-size: 0.8125rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            margin: 0.85rem 0 0.5rem;
+        }
+        .weapon-team-block:first-child .weapon-rail-label--team { margin-top: 0; }
+        .weapon-rail-label--team.team-ct { color: rgba(147, 197, 253, 0.95); }
+        .weapon-rail-label--team.team-t { color: rgba(252, 211, 77, 0.95); }
+        .weapon-rail-label--cat {
+            font-size: 0.625rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(108, 122, 137, 0.58);
+            margin: 0 0 0.35rem;
+        }
+        .weapon-team-block.team-ct {
+            margin-bottom: 1.35rem;
+            padding-bottom: 0.2rem;
+        }
+        .weapon-quick-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.3rem 0.55rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.55);
+            font-size: 0.625rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.12s ease;
+        }
+        .weapon-quick-btn:hover { color: white; border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.06); }
+        .weapon-quick-btn.active {
+            border-color: #E5A93B;
+            background: rgba(229, 169, 59, 0.08);
+            color: #E5A93B;
+            box-shadow: 0 0 0 1px rgba(229, 169, 59, 0.35), 0 0 12px rgba(229, 169, 59, 0.12);
+        }
+        .weapon-quick-btn.active img {
+            opacity: 1;
+            filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.18));
+        }
+        .weapon-quick-btn img {
+            height: 14px;
+            width: auto;
+            max-width: 2.75rem;
+            object-fit: contain;
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+        .weapon-picker-panel { flex: 1; min-width: 0; }
+        .weapon-picker-section { margin-bottom: 0.65rem; }
+        .weapon-picker-section:last-child { margin-bottom: 0; }
+        .weapon-picker-layout {
+            display: block;
+        }
+        .weapon-btn {
+            width: 100%;
+            height: 90px;
+            min-width: 0;
+            max-width: 110px;
+            justify-self: start;
+            padding: 0.35rem 0.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            transition: all 0.15s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .weapon-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.5rem; width: 100%; }
+        .randomisation-sliders.is-locked { opacity: 0.4; pointer-events: none; filter: grayscale(0.15); }
+        .randomisation-sliders.is-locked input[type="range"] { cursor: not-allowed; }
         .weapon-btn:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.06); transform: translateY(-1px); }
-        .weapon-btn.active { border-color: #3b82f6; box-shadow: 0 0 0 1px rgba(59,130,246,0.35), 0 0 16px rgba(59,130,246,0.15); background: rgba(59,130,246,0.1); }
-        .weapon-btn img { width: 100%; height: 3.25rem; object-fit: contain; border-radius: 0.5rem; pointer-events: none; }
-        .weapon-btn span { display: block; margin-top: 0.25rem; font-size: 0.625rem; font-weight: 600; color: rgba(255,255,255,0.55); text-align: center; line-height: 1.2; pointer-events: none; }
-        .weapon-btn.active span { color: #93c5fd; }
+        .weapon-btn.active {
+            border-color: #E5A93B;
+            box-shadow: 0 0 0 1px rgba(229,169,59,0.35), 0 0 16px rgba(229,169,59,0.12);
+            background: rgba(229, 169, 59, 0.04);
+        }
+        .weapon-btn img {
+            width: auto;
+            height: 2.35rem;
+            max-width: 92%;
+            object-fit: contain;
+            border-radius: 0.35rem;
+            pointer-events: none;
+            opacity: 0.5;
+            transition: opacity 0.15s ease, filter 0.15s ease;
+        }
+        .weapon-btn.active img {
+            opacity: 1;
+            filter: drop-shadow(0 0 4px rgba(255,255,255,0.2));
+        }
+        .weapon-btn span { display: block; margin-top: 0.2rem; font-size: 0.625rem; font-weight: 600; color: rgba(255,255,255,0.45); text-align: center; line-height: 1.2; pointer-events: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .weapon-btn.active span { color: #E5A93B; }
         .ai-team-btn.active.ct { color: #93c5fd; border-color: rgba(91,159,212,0.55); background: rgba(91,159,212,0.12); }
         .ai-team-btn.active.t { color: #fcd34d; border-color: rgba(232,165,75,0.55); background: rgba(232,165,75,0.12); }
     </style>
 </head>
-<body class="min-h-screen bg-neutral-950 font-['Inter',sans-serif] flex flex-col">
+<body class="hub-theme min-h-screen flex flex-col">
     <div id="boot-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/95 backdrop-blur-sm transition-opacity duration-500">
         <div class="flex flex-col items-center gap-4 text-center">
-            <img src="{{ url_for('static', filename='KryptAim_logo.png') }}" alt="Logo" class="w-9 h-9 rounded-lg">
+            <img src="{{ url_for('static', filename='KryptAim_mark.svg') }}" alt="Logo" class="w-14 h-14">
             <div>
                 <p class="text-2xl font-semibold tracking-wide text-white">{{ app_name }}</p>
                 <p class="text-xs font-medium text-blue-300/90 tracking-wide">{{ app_version }} · {{ app_version_label }}</p>
@@ -42,17 +191,31 @@
         </div>
     </div>
 
-    {% include '_navbar.html' %}
+    <div class="hub-layout flex-1">
+        {% include '_hub_sidebar.html' %}
+        <div class="hub-main">
+            <div class="hub-mobile-bar">
+                <button type="button" onclick="toggleHubSidebar()" class="text-white/80 text-sm font-semibold">☰ Menu</button>
+                <span class="hub-brand" style="margin:0;padding:0;border:0"><span>Krypt</span>Aim Hub</span>
+                <button type="button" onclick="toggleQRModal()" class="text-white/50 text-xs">QR</button>
+            </div>
 
-    <main class="flex-1 max-w-6xl w-full mx-auto px-4 md:px-6 py-6">
-        <div class="flex gap-2 border-b border-white/10 overflow-x-auto no-scrollbar">
-            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white border-b-2 border-blue-500 active" data-tab="global">Global Settings</button>
-            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent" data-tab="CS2">Game Engine</button>
-            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent" data-tab="ai-engine">KryptAim AI</button>
-        </div>
+            <div class="classic-navbar-wrap">{% include '_navbar.html' %}</div>
+
+            <div class="hub-content">
 
         <div id="tab-content-global" class="tab-content mt-5">
             <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 space-y-6">
+                <div id="license-free-block" class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/5">
+                    <div>
+                        <p class="text-sm font-semibold text-white">AI access</p>
+                        <p class="text-xs text-white/40 mt-0.5">Recoil and AI are free right now. Supporter keys still work if premium is enabled later.</p>
+                    </div>
+                    <div id="license-status-free" hx-get="/api/recoil/license_status" hx-trigger="load" hx-swap="innerHTML">
+                        <span class="hub-badge-muted">Free · AI unlocked</span>
+                    </div>
+                </div>
+
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-semibold text-white">Global Control</p>
@@ -101,21 +264,26 @@
                     </div>
                     {% endif %}
                 </div>
-                <div class="border-t border-white/5 pt-6 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-white">Randomisation</p>
-                        <input type="checkbox" name="recoil_randomisation" hx-post="/api/recoil/randomisation" hx-trigger="change" hx-swap="none"
-                               {{ 'checked' if config.recoil_randomisation else '' }} class="w-4 h-4 accent-blue-500">
+                <div class="border-t border-white/5 pt-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input id="recoil-randomisation-toggle" type="checkbox" name="recoil_randomisation" hx-post="/api/recoil/randomisation" hx-trigger="change" hx-swap="none"
+                                   {{ 'checked' if config.recoil_randomisation else '' }} class="w-4 h-4 accent-[#E5A93B]">
+                            <span class="text-sm font-medium text-white">Randomisation</span>
+                        </label>
+                        <span class="text-xs text-white/35">Adds subtle variance to spray control</span>
                     </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <p class="text-sm text-white">X Control</p>
-                        <input type="range" min="0" max="100" name="recoil_x_control" value="{{ config.recoil_x_control }}"
-                               hx-post="/api/recoil/x_control" hx-trigger="change" hx-swap="none" class="w-1/2 accent-blue-500">
-                    </div>
-                    <div class="flex items-center justify-between gap-4">
-                        <p class="text-sm text-white">Y Control</p>
-                        <input type="range" min="0" max="100" name="recoil_y_control" value="{{ config.recoil_y_control }}"
-                               hx-post="/api/recoil/y_control" hx-trigger="change" hx-swap="none" class="w-1/2 accent-blue-500">
+                    <div id="randomisation-sliders" class="randomisation-sliders space-y-3 pl-0.5 {{ '' if config.recoil_randomisation else 'is-locked' }}">
+                        <label class="block space-y-1.5">
+                            <span class="text-xs text-white/55">X Control</span>
+                            <input type="range" min="0" max="100" name="recoil_x_control" value="{{ config.recoil_x_control }}"
+                                   hx-post="/api/recoil/x_control" hx-trigger="change" hx-swap="none" class="w-full max-w-md accent-[#E5A93B]">
+                        </label>
+                        <label class="block space-y-1.5">
+                            <span class="text-xs text-white/55">Y Control</span>
+                            <input type="range" min="0" max="100" name="recoil_y_control" value="{{ config.recoil_y_control }}"
+                                   hx-post="/api/recoil/y_control" hx-trigger="change" hx-swap="none" class="w-full max-w-md accent-[#E5A93B]">
+                        </label>
                     </div>
                 </div>
 
@@ -146,18 +314,6 @@
                     </p>
                 </div>
 
-                <div id="license-free-block" class="border-t border-white/5 pt-6">
-                    <div class="flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                            <p class="text-sm font-semibold text-white">AI access</p>
-                            <p class="text-xs text-white/40 mt-0.5">Recoil and AI are free right now. Supporter keys still work if premium is enabled later.</p>
-                        </div>
-                        <div id="license-status-free" hx-get="/api/recoil/license_status" hx-trigger="load" hx-swap="innerHTML">
-                            <span class="text-[10px] font-bold text-green-300 bg-green-400/10 border border-green-400/20 px-2 py-0.5 rounded-full uppercase tracking-tighter">Free · AI unlocked</span>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="border-t border-white/5 pt-6 space-y-3">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -183,7 +339,7 @@
                                 class="hidden text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2">
                             Install update
                         </button>
-                        <a id="update-release-link" href="https://github.com/AimSyncCore/KryptAim/releases" target="_blank" rel="noopener"
+                        <a id="update-release-link" href="https://github.com/Kava4/KryptAim/releases" target="_blank" rel="noopener"
                            class="hidden text-xs font-semibold text-blue-200 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-400/30 rounded-lg px-4 py-2">
                             View release
                         </a>
@@ -242,64 +398,44 @@
             <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 space-y-5">
                 <div>
                     <p class="text-sm font-semibold text-white">Counter-Strike 2</p>
-                    <p class="text-xs text-white/40">Pick a spray profile — rifles &amp; SMGs only.</p>
+                    <p class="text-xs text-white/40">Tap any gun — profile loads instantly, no filters.</p>
                 </div>
 
-                <div class="border-t border-white/10 pt-5 space-y-4">
-                    <div>
-                        <p class="text-[10px] uppercase tracking-widest text-white/30 mb-2">Side</p>
-                        <div class="flex items-center gap-2">
-                            {% for team_id, team_label in weapon_teams.items() %}
-                            <button type="button"
-                                    class="weapon-team-tab px-4 py-2 text-xs font-bold rounded-lg {{ team_id }} {{ 'active' if active_team == team_id else '' }}"
-                                    data-team="{{ team_id }}"
-                                    onclick="switchWeaponTeam('{{ team_id }}')">
-                                {{ team_label }}
-                            </button>
-                            {% endfor %}
+                <div class="border-t border-white/10 pt-5">
+                    <div class="weapon-picker-layout">
+                        <div class="weapon-picker-panel">
+                            <div id="weapon-quick-bar" class="weapon-quick-bar" aria-label="Recent weapons"></div>
+                            <div id="weapon-picker"></div>
                         </div>
-                    </div>
-
-                    <div>
-                        <p class="text-[10px] uppercase tracking-widest text-white/30 mb-2">Type</p>
-                        <div class="flex items-center gap-2 border-b border-white/10 pb-2">
-                            {% for cat_id, cat_label in weapon_categories.items() %}
-                            <button type="button"
-                                    class="weapon-cat-tab px-4 py-2 text-xs font-semibold rounded-t-lg border-b-2 border-transparent text-white/60 hover:text-white transition-colors {{ 'active' if active_category == cat_id else '' }}"
-                                    data-category="{{ cat_id }}"
-                                    onclick="switchWeaponCategory('{{ cat_id }}')">
-                                {{ cat_label }}
-                            </button>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div>
-                        <p class="text-xs text-white/40 mb-3">Weapon</p>
-                        <div id="weapon-picker" class="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar pb-1"></div>
                         <input type="hidden" id="game-weapon" name="weapon" value="{{ config.recoil_cs2_settings.cs2_weapon }}">
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between border-t border-white/10 pt-5">
-                    <div>
-                        <p class="text-sm font-medium text-white">In-Game Sensitivity</p>
-                        <p class="text-xs text-white/40">Must match your CS2 settings (baseline 1.25).</p>
+                <div class="border-t border-white/10 pt-5">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white">In-Game Sensitivity</p>
+                            <p class="text-xs text-white/40 mt-0.5">Must match your CS2 settings (baseline 1.25).</p>
+                        </div>
+                        <input id="game-sensitivity" type="number" min="0.1" max="10" step="0.05" name="sensitivity"
+                               value="{{ config.recoil_cs2_settings.cs2_sensitivity }}"
+                               hx-post="/api/recoil/cs2_sensitivity" hx-trigger="change" hx-swap="none"
+                               class="w-28 shrink-0 text-xs text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2 tabular-nums hub-mono">
                     </div>
-                    <input id="game-sensitivity" type="number" min="0.1" max="10" step="0.05" name="sensitivity"
-                           value="{{ config.recoil_cs2_settings.cs2_sensitivity }}"
-                           hx-post="/api/recoil/cs2_sensitivity" hx-trigger="change" hx-swap="none"
-                           class="w-24 text-xs text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-1.5 tabular-nums">
                 </div>
             </div>
         </div>
 
         {% include '_ai_panel.html' %}
-    </main>
+            </div>
 
     {% include '_footer.html' %}
+        </div>
+    </div>
 
     {% include '_shell_scripts.html' %}
+    <script src="{{ url_for('static', filename='hub-nav.js') }}"></script>
+    <script src="{{ url_for('static', filename='vision-feed.js') }}"></script>
     <script src="{{ url_for('static', filename='hotkey_bind.js') }}"></script>
     <script>
         const WEAPON_LABELS = {{ weapon_labels | tojson }};
@@ -309,7 +445,10 @@
         let ACTIVE_WEAPON_CATEGORY = {{ active_category | tojson }};
         let ACTIVE_WEAPON_TEAM = {{ active_team | tojson }};
         const WEAPON_ICON_BASE = {{ url_for('static', filename='weapons/') | tojson }};
-        const tabs = document.querySelectorAll('.tab-button');
+        const WEAPON_TEAMS = {{ weapon_teams | tojson }};
+        const WEAPON_CATEGORY_LABELS = {{ weapon_categories | tojson }};
+        const RECENT_WEAPONS_KEY = 'kryptaim_recent_weapons';
+        const tabs = document.querySelectorAll('.tab-button:not(.hub-nav-btn)');
         tabs.forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.dataset.tab;
@@ -357,75 +496,130 @@
             return (WEAPONS_BY_TEAM_CATEGORY[team] || {})[category] || [];
         }
 
-        function syncWeaponTabs(team, category) {
+        function syncWeaponState(team, category) {
             ACTIVE_WEAPON_TEAM = team;
-            ACTIVE_WEAPON_CATEGORY = category;
-            document.querySelectorAll('.weapon-team-tab').forEach(tab => {
-                const active = tab.dataset.team === team;
-                tab.classList.toggle('active', active);
-                tab.classList.toggle('text-white', active);
-                tab.classList.toggle('text-white/55', !active);
-            });
-            document.querySelectorAll('.weapon-cat-tab').forEach(tab => {
-                const active = tab.dataset.category === category;
-                tab.classList.toggle('active', active);
-                tab.classList.toggle('text-white', active);
-                tab.classList.toggle('text-white/60', !active);
-            });
-            renderWeaponPicker(category);
+            ACTIVE_WEAPON_CATEGORY = category || weaponCategoryFor(ACTIVE_WEAPON);
+            renderWeaponPicker();
+            renderQuickWeapons();
+            syncWeaponActiveUi(ACTIVE_WEAPON);
         }
 
-        function switchWeaponTeam(team) {
-            let category = ACTIVE_WEAPON_CATEGORY || 'rifle';
-            if (!weaponsFor(team, category).length) {
-                category = weaponsFor(team, 'rifle').length ? 'rifle' : 'smg';
-            }
-            syncWeaponTabs(team, category);
+        function createWeaponButton(wid) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'weapon-btn' + (wid === ACTIVE_WEAPON ? ' active' : '');
+            btn.dataset.weapon = wid;
+            btn.title = WEAPON_LABELS[wid] || wid;
+            btn.innerHTML = `<img src="${WEAPON_ICON_BASE}${wid}.svg" alt="${WEAPON_LABELS[wid] || wid}"><span>${WEAPON_LABELS[wid] || wid}</span>`;
+            btn.addEventListener('click', () => selectWeapon(wid));
+            return btn;
         }
 
-        function switchWeaponCategory(category) {
-            syncWeaponTabs(ACTIVE_WEAPON_TEAM || 'ct', category);
-        }
-
-        function renderWeaponPicker(category) {
+        function renderWeaponPicker() {
             const picker = document.getElementById('weapon-picker');
             if (!picker) return;
-            const weapons = weaponsFor(ACTIVE_WEAPON_TEAM || 'ct', category);
             picker.innerHTML = '';
-            weapons.forEach(wid => {
+            ['ct', 't'].forEach(team => {
+                const teamWeapons = ['rifle', 'smg'].flatMap(cat => weaponsFor(team, cat));
+                if (!teamWeapons.length) return;
+
+                const block = document.createElement('div');
+                block.className = `weapon-team-block team-${team}`;
+
+                const teamHeading = document.createElement('p');
+                teamHeading.className = `weapon-rail-label weapon-rail-label--team team-${team}`;
+                teamHeading.textContent = WEAPON_TEAMS[team] || team.toUpperCase();
+                block.appendChild(teamHeading);
+
+                ['rifle', 'smg'].forEach(cat => {
+                    const weapons = weaponsFor(team, cat);
+                    if (!weapons.length) return;
+                    const section = document.createElement('div');
+                    section.className = 'weapon-picker-section';
+                    const label = document.createElement('p');
+                    label.className = 'weapon-rail-label weapon-rail-label--cat';
+                    label.textContent = WEAPON_CATEGORY_LABELS[cat] || cat;
+                    section.appendChild(label);
+                    const grid = document.createElement('div');
+                    grid.className = 'weapon-picker-grid';
+                    const shown = new Set();
+                    weapons.forEach(wid => {
+                        if (shown.has(wid)) return;
+                        shown.add(wid);
+                        grid.appendChild(createWeaponButton(wid));
+                    });
+                    section.appendChild(grid);
+                    block.appendChild(section);
+                });
+                picker.appendChild(block);
+            });
+        }
+
+        function readRecentWeapons() {
+            try {
+                const raw = localStorage.getItem(RECENT_WEAPONS_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed.filter(id => WEAPON_LABELS[id]) : [];
+            } catch (_err) {
+                return [];
+            }
+        }
+
+        function pushRecentWeapon(id) {
+            if (!id || !WEAPON_LABELS[id]) return;
+            const recent = [id, ...readRecentWeapons().filter(x => x !== id)].slice(0, 4);
+            try { localStorage.setItem(RECENT_WEAPONS_KEY, JSON.stringify(recent)); } catch (_err) { /* ignore */ }
+        }
+
+        function renderQuickWeapons() {
+            const bar = document.getElementById('weapon-quick-bar');
+            if (!bar) return;
+            const recent = readRecentWeapons().slice(0, 3);
+            if (!recent.length) {
+                bar.innerHTML = '';
+                return;
+            }
+            bar.innerHTML = '';
+            const heading = document.createElement('span');
+            heading.className = 'weapon-rail-label weapon-rail-label--recent';
+            heading.textContent = 'Recent';
+            bar.appendChild(heading);
+            recent.forEach(wid => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'weapon-btn' + (wid === ACTIVE_WEAPON ? ' active' : '');
                 btn.dataset.weapon = wid;
+                btn.className = 'weapon-quick-btn' + (wid === ACTIVE_WEAPON ? ' active' : '');
                 btn.title = WEAPON_LABELS[wid] || wid;
-                btn.innerHTML = `<img src="${WEAPON_ICON_BASE}${wid}.svg" alt="${WEAPON_LABELS[wid] || wid}"><span>${WEAPON_LABELS[wid] || wid}</span>`;
+                btn.innerHTML = `<img src="${WEAPON_ICON_BASE}${wid}.svg" alt=""><span>${WEAPON_LABELS[wid] || wid}</span>`;
                 btn.addEventListener('click', () => selectWeapon(wid));
-                picker.appendChild(btn);
+                bar.appendChild(btn);
+            });
+        }
+
+        function syncWeaponActiveUi(weaponId) {
+            document.querySelectorAll('.weapon-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.weapon === weaponId);
+            });
+            document.querySelectorAll('.weapon-quick-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.weapon === weaponId);
             });
         }
 
         function selectWeapon(weaponId) {
             if (!weaponId || weaponId === ACTIVE_WEAPON) return;
-            const prevTeam = ACTIVE_WEAPON_TEAM;
-            const prevCategory = ACTIVE_WEAPON_CATEGORY;
             ACTIVE_WEAPON = weaponId;
-            const newTeam = weaponTeamFor(weaponId);
-            const newCategory = weaponCategoryFor(weaponId);
+            ACTIVE_WEAPON_TEAM = weaponTeamFor(weaponId);
+            ACTIVE_WEAPON_CATEGORY = weaponCategoryFor(weaponId);
             const hidden = document.getElementById('game-weapon');
             if (hidden) hidden.value = weaponId;
-            const body = new URLSearchParams({ weapon: weaponId });
-            fetch('/api/recoil/cs2_weapon', { method: 'POST', body });
-            if (newTeam !== prevTeam || newCategory !== prevCategory) {
-                syncWeaponTabs(newTeam, newCategory);
-                return;
-            }
-            document.querySelectorAll('.weapon-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.weapon === weaponId);
-            });
+            fetch('/api/recoil/cs2_weapon', { method: 'POST', body: new URLSearchParams({ weapon: weaponId }) });
+            pushRecentWeapon(weaponId);
+            renderQuickWeapons();
+            syncWeaponActiveUi(weaponId);
         }
 
         function initWeaponPicker() {
-            syncWeaponTabs(
+            syncWeaponState(
                 ACTIVE_WEAPON_TEAM || weaponTeamFor(ACTIVE_WEAPON),
                 ACTIVE_WEAPON_CATEGORY || weaponCategoryFor(ACTIVE_WEAPON),
             );
@@ -436,13 +630,57 @@
                 const boot = document.getElementById('boot-screen');
                 if (boot) { boot.style.opacity = '0'; setTimeout(() => boot.remove(), 400); }
             }, 350);
-            activateTabFromUrl();
+            if (typeof initHubNav === 'function') initHubNav();
+            else activateTabFromUrl();
             startAiPoll();
             syncAiSettingsFromServer();
             initWeaponPicker();
             refreshCommunityModels();
+            syncRandomisationSliders();
+            const randToggle = document.getElementById('recoil-randomisation-toggle');
+            if (randToggle) randToggle.addEventListener('change', syncRandomisationSliders);
+            document.body.addEventListener('htmx:afterRequest', (e) => {
+                const path = e.detail?.pathInfo?.requestPath || '';
+                if (path.includes('/api/recoil/randomisation')) syncRandomisationSliders();
+            });
             KryptAimUpdates.init({ autoCheck: true });
         });
+
+        function updateHubRuntimeMode(connected, devFallback) {
+            const sidebar = document.getElementById('hub-sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('hub-mode-dev', 'hub-mode-prod', 'hub-mode-offline');
+                if (connected) sidebar.classList.add('hub-mode-prod');
+                else if (devFallback) sidebar.classList.add('hub-mode-dev');
+                else sidebar.classList.add('hub-mode-offline');
+            }
+            const st = document.getElementById('hub-makcu-status');
+            if (st) {
+                if (connected) {
+                    st.textContent = 'Connected';
+                    st.className = 'hub-mono hub-status-connected';
+                } else if (devFallback) {
+                    st.textContent = 'Dev fallback';
+                    st.className = 'hub-mono hub-status-dev';
+                } else {
+                    st.textContent = 'Disconnected';
+                    st.className = 'hub-mono hub-status-disconnected';
+                }
+            }
+        }
+
+        function syncRandomisationSliders() {
+            const toggle = document.getElementById('recoil-randomisation-toggle');
+            const sliders = document.getElementById('randomisation-sliders');
+            if (!toggle || !sliders) return;
+            sliders.classList.toggle('is-locked', !toggle.checked);
+        }
+
+        function getAiDetectionConf() {
+            const vision = document.getElementById('ai-vision-conf');
+            if (vision) return (parseInt(vision.value, 10) / 100).toFixed(2);
+            return '0.65';
+        }
 
         function switchToGlobalTab() {
             navigateToTab('global');
@@ -598,6 +836,57 @@
             if (el) el.textContent = text ?? '—';
         }
 
+        function renderAiLicenseBadge(access) {
+            const badge = document.getElementById('ai-vision-license-badge');
+            if (!badge) return;
+            if (!access) {
+                badge.classList.add('hidden');
+                return;
+            }
+
+            badge.classList.remove('hidden', 'hub-badge-unlimited', 'hub-badge-monthly', 'hub-badge-locked');
+            const quota = access.free_quota || {};
+
+            if (access.dev && access.allowed) {
+                badge.textContent = 'Dev · AI unlocked';
+                badge.className = 'hub-badge-muted';
+                return;
+            }
+
+            if (access.donor_unlock && access.allowed) {
+                const unlimited = access.supporter_plan === 'unlimited' || !!quota.unlimited;
+                if (unlimited) {
+                    badge.textContent = 'Supporter · Unlimited';
+                    badge.className = 'hub-badge-muted hub-badge-unlimited';
+                } else {
+                    const days = access.days_left;
+                    badge.textContent = days != null
+                        ? `Supporter · ${days} days left`
+                        : 'Supporter · Monthly';
+                    badge.className = 'hub-badge-muted hub-badge-monthly';
+                }
+                return;
+            }
+
+            if (quota.applies) {
+                const mins = Math.max(0, parseInt(quota.remaining_minutes, 10) || 0);
+                badge.textContent = quota.exhausted
+                    ? 'Free · limit reached'
+                    : `Free · ${mins} min left today`;
+                badge.className = 'hub-badge-muted';
+                return;
+            }
+
+            if (access.premium_required && !access.allowed) {
+                badge.textContent = 'No active license';
+                badge.className = 'hub-badge-muted hub-badge-locked';
+                return;
+            }
+
+            badge.textContent = 'Free · AI unlocked';
+            badge.className = 'hub-badge-muted';
+        }
+
         function updateAiAccess(access) {
             const lock = document.getElementById('ai-donor-lock');
             const content = document.getElementById('ai-donor-content');
@@ -605,18 +894,39 @@
             const startBtn = document.getElementById('ai-engine-start-btn');
             const premiumBlock = document.getElementById('license-premium-block');
             const freeBlock = document.getElementById('license-free-block');
+            const quotaBar = document.getElementById('ai-free-quota-bar');
+            const quotaCountdown = document.getElementById('ai-free-quota-countdown');
+            const quotaHint = document.getElementById('ai-free-quota-hint');
+            const activateBox = document.getElementById('ai-vision-activate');
             if (!access) return;
 
             const premium = access.premium_required !== false;
+            const quota = access.free_quota || {};
+            const quotaApplies = !!quota.applies && !access.donor_unlock;
+
             if (premiumBlock) premiumBlock.classList.toggle('hidden', !premium);
             if (freeBlock) freeBlock.classList.toggle('hidden', premium);
 
+            if (quotaBar) quotaBar.classList.toggle('hidden', !quotaApplies);
+            if (activateBox) activateBox.classList.toggle('hidden', premium || !quotaApplies || !!access.donor_unlock);
+            if (quotaApplies && quotaCountdown) {
+                const mins = Math.max(0, parseInt(quota.remaining_minutes, 10) || 0);
+                quotaCountdown.textContent = quota.exhausted ? '0 min' : `${mins} min`;
+                quotaCountdown.classList.toggle('text-red-300', !!quota.exhausted);
+                quotaCountdown.classList.toggle('text-[#E5A93B]', !quota.exhausted);
+            }
+            if (quotaApplies && quotaHint) {
+                const limit = quota.limit_minutes || 120;
+                quotaHint.textContent = quota.exhausted
+                    ? `Daily free limit reached (${limit} min). Activate with a supporter key (monthly or unlimited).`
+                    : `${limit} min free Vision AI per day — pauses when engine stops. Supporter: monthly or unlimited (€25+).`;
+            }
+
             if (!premium) {
                 if (lock) lock.classList.add('hidden');
-                if (content) {
-                    content.classList.remove('pointer-events-none', 'opacity-40');
-                }
-                if (startBtn) startBtn.disabled = false;
+                if (content) content.classList.remove('pointer-events-none', 'opacity-40');
+                if (startBtn) startBtn.disabled = !access.allowed;
+                renderAiLicenseBadge(access);
                 return;
             }
 
@@ -627,8 +937,45 @@
                 content.classList.toggle('opacity-40', !access.allowed);
             }
             if (startBtn) startBtn.disabled = !access.allowed;
+            renderAiLicenseBadge(access);
         }
         window.updateAiAccess = updateAiAccess;
+
+        function activateVisionAiKey() {
+            const input = document.getElementById('ai-vision-key-input');
+            const msg = document.getElementById('ai-vision-key-msg');
+            const key = (input?.value || '').trim();
+            if (!key) {
+                if (msg) msg.textContent = 'Enter your supporter key from Ko-fi.';
+                return;
+            }
+            if (msg) msg.textContent = 'Validating…';
+            fetch('/api/access/validate_license', {
+                method: 'POST',
+                body: new URLSearchParams({ license_key: key }),
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (msg) {
+                        const unlocked = !!(data.allowed && data.donor_unlock);
+                        const fq = data.free_quota || {};
+                        let text = data.message || 'Key not valid.';
+                        if (unlocked) {
+                            if (fq.unlimited) text = 'Activated — unlimited Vision AI unlocked.';
+                            else if (data.days_left != null) text = `Activated — monthly supporter (${data.days_left} days left).`;
+                            else text = 'Activated — monthly supporter (30 days from first use).';
+                        }
+                        msg.textContent = text;
+                        msg.classList.toggle('text-green-300', unlocked);
+                        msg.classList.toggle('text-amber-300', !unlocked);
+                    }
+                    updateAiAccess(data);
+                    refreshLicenseBadge();
+                    pollAiStatus();
+                })
+                .catch(() => { if (msg) msg.textContent = 'Activation request failed.'; });
+        }
+        window.activateVisionAiKey = activateVisionAiKey;
 
         function refreshLicenseBadge() {
             if (typeof htmx === 'undefined') return;
@@ -671,6 +1018,9 @@
                 setText('ai-stat-fps', `${data.fps || 0} fps · inf ${data.latency_inference_ms || 0}ms`);
                 setText('ai-stat-model', data.model_loaded ? (data.active_model || '—') : `${data.active_model || 'None'} ✗`);
                 setText('ai-stat-makcu', data.makcu_connected ? 'Connected' : (data.makcu_dev_fallback ? 'Dev fallback' : 'Not connected'));
+                updateHubRuntimeMode(!!data.makcu_connected, !!data.makcu_dev_fallback);
+                const portEl = document.getElementById('hub-makcu-port');
+                if (portEl) portEl.textContent = data.makcu_port || (data.makcu_dev_fallback ? 'DEV' : '—');
                 const makcuEl = document.getElementById('ai-stat-makcu');
                 if (makcuEl) {
                     makcuEl.classList.toggle('text-green-400', !!data.makcu_connected);
@@ -762,7 +1112,10 @@
                 fetch('/api/ai/enable', { method: 'POST', body })
                     .then(r => r.json())
                     .then(resp => {
-                        if (!resp.success) alert(resp.message || 'Could not change AI engine state.');
+                        if (!resp.success) {
+                            alert(resp.message || 'Could not change AI engine state.');
+                            if (resp.ai_access) updateAiAccess(resp.ai_access);
+                        }
                         pollAiStatus();
                     });
             });
@@ -792,17 +1145,21 @@
                     'ai-trigger-prediction': ['Prediction', 'ai-trigger-pred-label'],
                     'ai-aim-speed': ['Aim speed', 'ai-aim-speed-label'],
                     'ai-aim-max': ['Aim max px', 'ai-aim-max-label'],
-                    'ai-det-conf': ['Detection conf', 'ai-det-conf-label'],
                 };
                 Object.entries(sliderMap).forEach(([id, [key, labelId]]) => {
                     const el = document.getElementById(id);
                     if (!el || sliders[key] === undefined) return;
                     el.value = sliders[key];
                     const lab = document.getElementById(labelId);
-                    if (lab) lab.textContent = key === 'Detection conf'
-                        ? Number(sliders[key]).toFixed(2)
-                        : (key === 'Aim speed' ? Number(sliders[key]).toFixed(1) : sliders[key]);
+                    if (lab) lab.textContent = key === 'Aim speed' ? Number(sliders[key]).toFixed(1) : sliders[key];
                 });
+                if (sliders['Detection conf'] !== undefined) {
+                    const confPct = Math.round(parseFloat(sliders['Detection conf']) * 100);
+                    const vision = document.getElementById('ai-vision-conf');
+                    const visionLabel = document.getElementById('ai-vision-conf-label');
+                    if (vision) vision.value = confPct;
+                    if (visionLabel) visionLabel.textContent = `${confPct}%`;
+                }
                 const dd = data.dropdowns || {};
                 if (dd['Assist mode']) {
                     const m = document.getElementById('ai-assist-mode');
@@ -839,7 +1196,7 @@
 
         function saveAiDetection() {
             const body = new URLSearchParams({
-                conf: document.getElementById('ai-det-conf')?.value || '0.25',
+                conf: getAiDetectionConf(),
                 ai_player_class: document.getElementById('ai-player-class')?.value || '',
                 ai_head_class: document.getElementById('ai-head-class')?.value || '',
                 ai_my_team: document.getElementById('ai-my-team')?.value || '',

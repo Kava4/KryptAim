@@ -2,7 +2,7 @@
         <div class="max-w-6xl mx-auto px-4 md:px-6">
             <div class="flex items-center justify-between h-16 gap-3">
                 <a href="/" class="flex items-center gap-2.5 flex-shrink-0" title="{{ app_name }} {{ app_version }}">
-                    <img src="{{ url_for('static', filename='KryptAim_logo.png') }}" alt="KryptAim Logo" class="h-12 w-auto">
+                    <img src="{{ url_for('static', filename='KryptAim_mark.svg') }}" alt="KryptAim Logo" class="h-11 w-11">
                     <span class="sm:hidden text-[10px] font-semibold text-blue-300/90">{{ app_version }}</span>
                     <span class="hidden sm:inline-flex flex-col leading-tight">
                         <span class="text-sm font-semibold text-white">{{ app_name }}</span>
@@ -67,26 +67,26 @@
         </div>
     </nav>
 
-    <div id="qr-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+    <div id="qr-modal" class="hub-modal-overlay fixed inset-0 z-[70] hidden flex items-center justify-center">
+        <div class="hub-modal bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-white">Connect Mobile</h3>
+                <h3 class="hub-modal-title">Connect Mobile</h3>
                 <button type="button" onclick="toggleQRModal()" class="text-white/40 hover:text-white p-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
             </div>
             <div class="flex flex-col items-center gap-6">
                 <div id="qrcode-container" class="bg-white p-4 rounded-xl shadow-inner overflow-hidden"></div>
-                <p class="text-sm font-medium text-white/80">Scan with your phone camera</p>
-                <button type="button" onclick="toggleQRModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl">Close</button>
+                <p class="text-sm font-medium text-white/70">Scan with your phone camera</p>
+                <button type="button" onclick="toggleQRModal()" class="hub-btn-primary">Close</button>
             </div>
         </div>
     </div>
 
-    <div id="feedback-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
+    <div id="feedback-modal" class="hub-modal-overlay fixed inset-0 z-[70] hidden flex items-center justify-center">
+        <div class="hub-modal bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-white">Send Feedback</h3>
+                <h3 class="hub-modal-title">Send Feedback</h3>
                 <button type="button" onclick="toggleFeedbackModal()" class="text-white/40 hover:text-white p-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
@@ -102,41 +102,35 @@
                       class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-4 resize-y"></textarea>
             <input type="text" id="contact-info-input" placeholder="Discord or email (optional)"
                    class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-4">
-            <button type="button" onclick="sendFeedback(event)" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold py-2.5 rounded-xl">Send Feedback</button>
+            <button type="button" onclick="sendFeedback(event)" class="hub-btn-primary">Send Feedback</button>
         </div>
     </div>
 
-    <div id="stop-app-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+    <div id="stop-app-modal" class="hub-modal-overlay fixed inset-0 z-[70] hidden flex items-center justify-center">
+        <div class="hub-modal bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
             <div class="flex items-start gap-4 mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
+                <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center flex-shrink-0">
                     <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-white">Stop KryptAim?</h3>
+                    <h3 class="hub-modal-title">Stop KryptAim?</h3>
                     <p class="text-sm text-white/45 mt-1">The Makcu connection will be released and the background engine will shut down.</p>
                     <p id="stop-app-shutdown-note" class="hidden text-xs text-amber-300/90 mt-2">PC shutdown is enabled in Global Settings — your computer will shut down after stop.</p>
                 </div>
             </div>
             <div class="flex gap-3">
-                <button type="button" onclick="closeStopAppModal()"
-                        class="flex-1 rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/10 transition-colors">
-                    Cancel
-                </button>
-                <button type="button" id="stop-app-confirm-btn" onclick="confirmStopApplication()"
-                        class="flex-1 rounded-xl border border-red-400/30 bg-red-500/15 py-2.5 text-sm font-semibold text-red-100 hover:bg-red-500/25 transition-colors">
-                    Stop App
-                </button>
+                <button type="button" onclick="closeStopAppModal()" class="hub-btn-ghost">Cancel</button>
+                <button type="button" id="stop-app-confirm-btn" onclick="confirmStopApplication()" class="hub-btn-danger">Stop App</button>
             </div>
         </div>
     </div>
 
-    <div id="support-code-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/60 backdrop-blur-sm">
-        <div class="bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+    <div id="support-code-modal" class="hub-modal-overlay fixed inset-0 z-[70] hidden flex items-center justify-center">
+        <div class="hub-modal bg-neutral-900 border border-white/10 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
             <div class="flex items-center justify-between mb-6">
-                <h3 id="support-code-title" class="text-lg font-bold text-white">Submit code</h3>
+                <h3 id="support-code-title" class="hub-modal-title">Submit code</h3>
                 <button type="button" onclick="closeSupportCodeModal()" class="text-white/40 hover:text-white p-1">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
@@ -146,10 +140,7 @@
                    class="w-full text-sm text-white/80 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-3 font-mono tracking-wide">
             <input type="text" id="support-code-contact-input" placeholder="Discord username (optional)"
                    class="w-full text-sm text-white/70 bg-neutral-800 border border-white/10 rounded-lg px-3 py-2.5 mb-4">
-            <button type="button" id="support-code-submit-btn" onclick="sendSupportCode(event)"
-                    class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-2.5 rounded-xl">
-                Send code
-            </button>
+            <button type="button" id="support-code-submit-btn" onclick="sendSupportCode(event)" class="hub-btn-primary">Send code</button>
         </div>
     </div>
 

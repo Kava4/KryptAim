@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KryptAim · Key Admin</title>
+  <style>
+    :root {
+      --bg: #090a0c;
+      --panel: #111317;
+      --border: #1d2127;
+      --accent: #e5a93b;
+      --text: #fff;
+      --muted: #6c7a89;
+      --danger: #f87171;
+      --ok: #00e676;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      font-size: 14px;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    h1 { font-size: 1.25rem; margin: 0 0 0.25rem; }
+    .sub { color: var(--muted); font-size: 12px; margin-bottom: 1.5rem; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 0 0 1rem; }
+    label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 0.35rem; }
+    input, select, textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 0.55rem 0.65rem;
+      font-size: 13px;
+      margin-bottom: 0.85rem;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+    .btn {
+      border: none;
+      border-radius: 6px;
+      padding: 0.55rem 1rem;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #090a0c; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.35); color: #fecaca; }
+    .btn-sm { padding: 0.35rem 0.55rem; font-size: 11px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .msg { font-size: 12px; margin-top: 0.5rem; min-height: 1.2em; }
+    .msg.ok { color: var(--ok); }
+    .msg.err { color: var(--danger); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { color: var(--muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .mono { font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
+    .pill {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .pill-monthly { background: rgba(59,130,246,0.15); color: #93c5fd; }
+    .pill-unlimited { background: rgba(229,169,59,0.15); color: var(--accent); }
+    .pill-revoked { background: rgba(248,113,113,0.12); color: #fca5a5; }
+    .pill-active { background: rgba(0,230,118,0.12); color: var(--ok); }
+    .hidden { display: none !important; }
+    .login-box { max-width: 380px; margin: 4rem auto; }
+    .key-result {
+      background: var(--bg);
+      border: 1px dashed var(--accent);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .key-result .mono { font-size: 15px; color: var(--accent); word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="login-view" class="login-box card">
+      <h1>KryptAim Key Admin</h1>
+      <p class="sub">Supporter keys · monthly &amp; unlimited</p>
+      <label for="admin-secret">Admin secret</label>
+      <input id="admin-secret" type="password" placeholder="ADMIN_SECRET from Vercel" autocomplete="current-password">
+      <button type="button" class="btn btn-primary" style="width:100%" id="btn-login">Unlock</button>
+      <p id="login-msg" class="msg err"></p>
+    </div>
+
+    <div id="app-view" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <h1>Key Admin</h1>
+          <p class="sub">Create &amp; manage supporter keys</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-logout">Lock</button>
+      </div>
+
+      <div class="card">
+        <h2>Create key</h2>
+        <div class="row">
+          <div>
+            <label for="create-label">Label / name</label>
+            <input id="create-label" type="text" placeholder="Supporter name">
+          </div>
+          <div>
+            <label for="create-plan">Plan</label>
+            <select id="create-plan">
+              <option value="monthly">Monthly (&lt; €25 · 30 days)</option>
+              <option value="unlimited">Unlimited (€25+)</option>
+            </select>
+          </div>
+        </div>
+        <label for="create-custom">Custom key (optional)</label>
+        <input id="create-custom" type="text" placeholder="Leave empty → auto KR-XXXX-YYYY-ZZZZ" class="mono">
+        <label for="create-notes">Notes (optional)</label>
+        <input id="create-notes" type="text" placeholder="Ko-fi email, amount, etc.">
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="btn-create">Generate key</button>
+        </div>
+        <div id="create-result" class="key-result hidden">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:0.35rem;">New key — copy &amp; send to supporter</div>
+          <div class="mono" id="created-key"></div>
+          <div class="actions" style="margin-top:0.5rem;">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-key">Copy key</button>
+          </div>
+        </div>
+        <p id="create-msg" class="msg"></p>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h2 style="margin:0">All keys</h2>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-refresh">Refresh</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Plan</th>
+                <th>Label</th>
+                <th>Status</th>
+                <th>HWID</th>
+                <th>Expires</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="keys-body">
+              <tr><td colspan="7" style="color:var(--muted)">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="list-msg" class="msg"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'kryptaim_admin_secret';
+    const apiBase = () => `${location.origin}/api`;
+
+    function $(id) { return document.getElementById(id); }
+
+    function secret() {
+      return sessionStorage.getItem(STORAGE_KEY) || '';
+    }
+
+    function setSecret(value) {
+      if (value) sessionStorage.setItem(STORAGE_KEY, value);
+      else sessionStorage.removeItem(STORAGE_KEY);
+    }
+
+    function showView(loggedIn) {
+      $('login-view').classList.toggle('hidden', loggedIn);
+      $('app-view').classList.toggle('hidden', !loggedIn);
+    }
+
+    async function adminFetch(path, { method = 'GET', body } = {}) {
+      const res = await fetch(`${apiBase()}${path}`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-secret': secret(),
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      let data = {};
+      try { data = await res.json(); } catch (_) {}
+      if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
+      return data;
+    }
+
+    async function verifyLogin() {
+      await adminFetch('/admin/keys/list?limit=1');
+      showView(true);
+      $('login-msg').textContent = '';
+      loadKeys();
+    }
+
+    $('btn-login').addEventListener('click', async () => {
+      const val = $('admin-secret').value.trim();
+      if (!val) {
+        $('login-msg').textContent = 'Enter admin secret.';
+        return;
+      }
+      setSecret(val);
+      $('login-msg').textContent = 'Checking…';
+      try {
+        await verifyLogin();
+      } catch (e) {
+        setSecret('');
+        $('login-msg').textContent = e.message || 'Invalid secret or admin routes not deployed.';
+      }
+    });
+
+    $('admin-secret').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') $('btn-login').click();
+    });
+
+    $('btn-logout').addEventListener('click', () => {
+      setSecret('');
+      $('admin-secret').value = '';
+      showView(false);
+    });
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      try {
+        return new Date(iso).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+      } catch (_) { return iso; }
+    }
+
+    function planPill(plan) {
+      const p = (plan || 'monthly').toLowerCase();
+      const cls = p === 'unlimited' ? 'pill-unlimited' : 'pill-monthly';
+      return `<span class="pill ${cls}">${p}</span>`;
+    }
+
+    function statusPill(status) {
+      const s = (status || 'active').toLowerCase();
+      const cls = s === 'active' ? 'pill-active' : 'pill-revoked';
+      return `<span class="pill ${cls}">${s}</span>`;
+    }
+
+    async function loadKeys() {
+      $('list-msg').textContent = '';
+      $('keys-body').innerHTML = '<tr><td colspan="7" style="color:var(--muted)">Loading…</td></tr>';
+      try {
+        const data = await adminFetch('/admin/keys/list?limit=100');
+        const keys = data.keys || [];
+        if (!keys.length) {
+          $('keys-body').innerHTML = '<tr><td colspan="7" style="color:var(--muted)">No keys yet.</td></tr>';
+          return;
+        }
+        $('keys-body').innerHTML = keys.map((k) => {
+          const hw = k.hwid ? `<span class="mono" title="${k.hwid}">${k.hwid.slice(0, 8)}…</span>` : '—';
+          const exp = k.plan === 'unlimited' ? 'Never' : fmtDate(k.expires_at);
+          return `<tr>
+            <td class="mono">${k.license_key}</td>
+            <td>${planPill(k.plan)}</td>
+            <td>${escapeHtml(k.label || '')}</td>
+            <td>${statusPill(k.status)}</td>
+            <td>${hw}</td>
+            <td>${exp}</td>
+            <td>
+              <div class="actions">
+                <button type="button" class="btn btn-ghost btn-sm" data-copy="${k.license_key}">Copy</button>
+                ${k.status === 'active' ? `<button type="button" class="btn btn-danger btn-sm" data-revoke="${k.license_key}">Revoke</button>` : ''}
+                ${k.hwid ? `<button type="button" class="btn btn-ghost btn-sm" data-reset="${k.license_key}">Reset PC</button>` : ''}
+                <button type="button" class="btn btn-danger btn-sm" data-delete="${k.license_key}">Delete</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch (e) {
+        $('keys-body').innerHTML = '';
+        $('list-msg').textContent = e.message;
+        $('list-msg').className = 'msg err';
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    $('btn-refresh').addEventListener('click', loadKeys);
+
+    $('btn-create').addEventListener('click', async () => {
+      $('create-msg').textContent = 'Creating…';
+      $('create-msg').className = 'msg';
+      $('create-result').classList.add('hidden');
+      try {
+        const body = {
+          label: $('create-label').value.trim() || 'Supporter',
+          plan: $('create-plan').value,
+          notes: $('create-notes').value.trim() || undefined,
+        };
+        const custom = $('create-custom').value.trim();
+        if (custom) body.license_key = custom.toUpperCase();
+        const data = await adminFetch('/admin/keys/create', { method: 'POST', body });
+        const key = data.key?.license_key || '';
+        $('created-key').textContent = key;
+        $('create-result').classList.remove('hidden');
+        $('create-msg').textContent = `Created ${data.key?.plan || 'monthly'} key.`;
+        $('create-msg').className = 'msg ok';
+        $('create-label').value = '';
+        $('create-custom').value = '';
+        $('create-notes').value = '';
+        loadKeys();
+      } catch (e) {
+        $('create-msg').textContent = e.message;
+        $('create-msg').className = 'msg err';
+      }
+    });
+
+    $('btn-copy-key').addEventListener('click', () => {
+      const t = $('created-key').textContent;
+      if (t) navigator.clipboard.writeText(t).then(() => {
+        $('create-msg').textContent = 'Copied to clipboard.';
+        $('create-msg').className = 'msg ok';
+      });
+    });
+
+    $('keys-body').addEventListener('click', async (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const copy = btn.dataset.copy;
+      const revoke = btn.dataset.revoke;
+      const reset = btn.dataset.reset;
+      const del = btn.dataset.delete;
+      if (copy) {
+        await navigator.clipboard.writeText(copy);
+        $('list-msg').textContent = 'Key copied.';
+        $('list-msg').className = 'msg ok';
+        return;
+      }
+      if (revoke && confirm(`Revoke key ${revoke}?`)) {
+        try {
+          await adminFetch('/admin/keys/revoke', { method: 'POST', body: { license_key: revoke } });
+          loadKeys();
+        } catch (err) {
+          $('list-msg').textContent = err.message;
+          $('list-msg').className = 'msg err';
+        }
+      }
+      if (reset && confirm(`Reset PC binding for ${reset}? Supporter can activate on a new machine.`)) {
+        try {
+          await adminFetch('/admin/keys/reset-hwid', { method: 'POST', body: { license_key: reset } });
+          loadKeys();
+        } catch (err) {
+          $('list-msg').textContent = err.message;
+          $('list-msg').className = 'msg err';
+        }
+      }
+      if (del && confirm(`Permanently delete key ${del}?\n\nThis cannot be undone. Use Revoke if you only want to disable access.`)) {
+        try {
+          await adminFetch('/admin/keys/delete', { method: 'POST', body: { license_key: del } });
+          $('list-msg').textContent = 'Key deleted.';
+          $('list-msg').className = 'msg ok';
+          loadKeys();
+        } catch (err) {
+          $('list-msg').textContent = err.message;
+          $('list-msg').className = 'msg err';
+        }
+      }
+    });
+
+    if (secret()) {
+      verifyLogin().catch(() => showView(false));
+    }
+  </script>
+</body>
+</html>

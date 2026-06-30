@@ -93,8 +93,10 @@ def create_app() -> Flask:
             for team_id in WeaponData.TEAM_LABELS
         }
         active_input = config.get('mouse_input_method', 'makcu')
+        ui = (request.args.get('ui') or os.environ.get('KRYPTAIM_UI', 'hub')).strip().lower()
+        template = 'index_classic.html' if ui == 'classic' else 'index.html'
         return render_template(
-            'index.html',
+            template,
             config=config,
             weapons=weapons_by_category.get(active_category, []),
             weapon_labels=labels,

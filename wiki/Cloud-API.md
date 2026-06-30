@@ -11,12 +11,27 @@ Base URL (default): `https://project-mkgdr.vercel.app/api`
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
 | `/license/validate` | POST | Validate supporter key + HWID |
+| `/quota/status` | POST | Read free Vision AI daily quota (HWID) |
+| `/quota/tick` | POST | Add engine runtime seconds (HWID) |
 
 Used when **AI premium mode** is enabled. Recoil stays free.
 
 Override: env `KRYPTAIM_CLOUD_API`
 
 Local proxy: `POST /api/access/validate_license`
+
+### Free tier quota (2h/day)
+
+When `ai_premium_only` is **false**, Vision AI is free with a **120 min/day** limit tracked per HWID.
+
+- **Cloud (Supabase)** is the source of truth when online
+- Local `ai_free_usage.json` is cache + offline fallback
+- Disable cloud sync: env `AI_FREE_QUOTA_CLOUD_OFF=1`
+- Disable quota entirely: env `AI_FREE_QUOTA_OFF=1`
+
+Deploy cloud routes: see `cloud-api/README.md` in the repo.
+
+Supporter keys bypass quota (unlimited) via `/license/validate`.
 
 ---
 
@@ -25,7 +40,7 @@ Local proxy: `POST /api/access/validate_license`
 Fetched from GitHub (cached ~5 min):
 
 ```
-https://raw.githubusercontent.com/AimSyncCore/KryptAim/Beta/release/app-config.json
+https://raw.githubusercontent.com/Kava4/KryptAim/Beta/release/app-config.json
 ```
 
 Example:
@@ -48,7 +63,7 @@ Not served from Vercel. The app reads:
 
 | Source | Content |
 |--------|---------|
-| [AimSyncCore/KryptAim/models](https://github.com/AimSyncCore/KryptAim/tree/Beta/models) | Official catalog + `catalog.json` |
+| [Kava4/KryptAim/models](https://github.com/Kava4/KryptAim/tree/Beta/models) | Official catalog + `catalog.json` |
 | [Aimmy models](https://github.com/Babyhamsta/Aimmy/tree/Aimmy-V2/models) | CS2 `.onnx` files (filtered) |
 
 Local routes:

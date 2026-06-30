@@ -5,7 +5,7 @@ from __future__ import annotations
 from flask import Blueprint, jsonify, render_template_string, request
 
 from app.core.config import load_config, save_config
-from app.core.licensing import ai_access_status
+from app.core.ai_access import resolve_ai_access
 from app.recoil.engine import invalidate_config_cache, reset_recoil_state
 from app.recoil.weapon_data import WeaponData
 from web.input_status import get_input_status
@@ -193,10 +193,23 @@ def cs2_weapon_options():
 
 def _render_license_badge(data: dict) -> str:
     if not data.get('premium_required'):
-        return (
-            '<span class="text-[10px] font-bold text-green-300 bg-green-400/10 border border-green-400/20 '
-            'px-2 py-0.5 rounded-full uppercase tracking-tighter">Free · AI unlocked</span>'
-        )
+        quota = data.get('free_quota') or {}
+        if quota.get('applies') and not quota.get('unlimited'):
+            mins = int(quota.get('remaining_minutes') or 0)
+            if quota.get('exhausted'):
+                label = 'Free · limit reached'
+            else:
+                label = f'Free · {mins} min left'
+            return f'<span class="hub-badge-muted">{label}</span>'
+        if data.get('donor_unlock'):
+            plan = str(data.get('supporter_plan') or data.get('free_quota', {}).get('plan') or '')
+            if plan == 'unlimited' or data.get('free_quota', {}).get('unlimited'):
+                return '<span class="hub-badge-muted">Supporter · unlimited</span>'
+            days = data.get('days_left')
+            if days is not None:
+                return f'<span class="hub-badge-muted">Supporter · {int(days)} days left</span>'
+            return '<span class="hub-badge-muted">Supporter · monthly</span>'
+        return '<span class="hub-badge-muted">Free · AI unlocked</span>'
     if data.get('allowed') and str(data.get('tier', '')).lower() == 'dev':
         return (
             '<span class="text-[10px] font-bold text-violet-300 bg-violet-400/10 border border-violet-400/20 '
@@ -224,4 +237,4 @@ def _render_license_badge(data: dict) -> str:
 
 @recoil_bp.route('/license_status', methods=['GET'])
 def license_status():
-    return _render_license_badge(ai_access_status())
+    return _render_license_badge(resolve_ai_access())

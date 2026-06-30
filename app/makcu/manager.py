@@ -21,6 +21,7 @@ class MakcuManager:
     is_connected_flag = False
     dev_mode = False
     last_error = ''
+    device_port = ''
     _dev_allowed = False
 
     @classmethod
@@ -38,6 +39,7 @@ class MakcuManager:
     @staticmethod
     def connect():
         MakcuManager.last_error = ''
+        MakcuManager.device_port = ''
         MakcuManager.dev_mode = False
         with MakcuManager.connection_lock:
             if MakcuManager.controller is not None:
@@ -64,6 +66,13 @@ class MakcuManager:
                 MakcuManager.controller.set_button_callback(on_button_event)
                 MakcuManager.controller.enable_button_monitoring(True)
                 MakcuManager.is_connected_flag = True
+                ctrl = MakcuManager.controller
+                port = (
+                    getattr(ctrl, 'port', None)
+                    or getattr(ctrl, 'com_port', None)
+                    or getattr(ctrl, 'device', None)
+                )
+                MakcuManager.device_port = str(port) if port else 'COM?'
                 print('[MAKCU] Connected')
             except Exception as exc:
                 MakcuManager.last_error = str(exc)

@@ -39,7 +39,7 @@ class RecoilPanel(QWidget):
 
         card, body = settings_card(
             'Game Engine',
-            'CS2 spray rifles & SMGs — pistols/snipers on KryptAim AI tab.',
+            'CS2 spray rifles & SMGs — pistols/snipers on AimSync AI tab.',
         )
 
         self._category = QComboBox()

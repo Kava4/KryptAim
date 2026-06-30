@@ -6,7 +6,7 @@ import json
 import logging
 from pathlib import Path
 
-logger = logging.getLogger('KryptAim.ai.class_names')
+logger = logging.getLogger('AimSync.ai.class_names')
 
 _FILENAME_PRESETS: list[tuple[str, dict[int, str]]] = (
     ('cs2', {0: 'CT', 1: 'T'}),

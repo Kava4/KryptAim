@@ -14,5 +14,5 @@ echo.
 build-venv\Scripts\python.exe build_app.py
 if errorlevel 1 pause & exit /b 1
 echo.
-echo Done: dist\KryptAim\KryptAim.exe
+echo Done: dist\AimSync\AimSync.exe
 pause

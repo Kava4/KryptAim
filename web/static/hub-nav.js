@@ -10,9 +10,9 @@
         document.getElementById('tab-content-' + tabId)?.classList.remove('hidden');
         if (tabId === 'ai-engine') {
             if (typeof global.startAiPoll === 'function') global.startAiPoll();
-            if (global.KryptAimVisionFeed) global.KryptAimVisionFeed.start();
-        } else if (global.KryptAimVisionFeed) {
-            global.KryptAimVisionFeed.stop();
+            if (global.AimSyncVisionFeed) global.AimSyncVisionFeed.start();
+        } else if (global.AimSyncVisionFeed) {
+            global.AimSyncVisionFeed.stop();
         }
         closeHubSidebar();
     }

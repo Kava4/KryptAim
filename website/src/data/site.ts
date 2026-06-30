@@ -1,7 +1,7 @@
 export const LINKS = {
-  github: 'https://github.com/Kava4/KryptAim',
-  releases: 'https://github.com/Kava4/KryptAim/releases',
-  wiki: 'https://github.com/Kava4/KryptAim/wiki',
+  github: 'https://github.com/Kava4/AimSync',
+  releases: 'https://github.com/Kava4/AimSync/releases',
+  wiki: 'https://github.com/Kava4/AimSync/wiki',
   kofi: 'https://ko-fi.com/kava4',
   paypal: 'https://paypal.me/kava4',
 } as const

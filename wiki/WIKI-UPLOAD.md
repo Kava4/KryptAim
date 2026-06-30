@@ -3,10 +3,10 @@
 GitHub Wiki is a **separate git repository**:
 
 ```
-https://github.com/Kava4/KryptAim.wiki.git
+https://github.com/Kava4/AimSync.wiki.git
 ```
 
-Live wiki: https://github.com/Kava4/KryptAim/wiki
+Live wiki: https://github.com/Kava4/AimSync/wiki
 
 ## Automatic sync (recommended)
 
@@ -25,8 +25,8 @@ Requires the wiki git repo to exist (create the first page once from the GitHub 
 ## One-time manual setup (if Action fails)
 
 ```bash
-git clone https://github.com/Kava4/KryptAim.wiki.git
-cd KryptAim.wiki
+git clone https://github.com/Kava4/AimSync.wiki.git
+cd AimSync.wiki
 ```
 
 Copy every `.md` file from this `wiki/` folder into the clone **except** `WIKI-UPLOAD.md`.
@@ -38,7 +38,7 @@ Required files:
 
 ```bash
 git add .
-git commit -m "Initial KryptAim wiki"
+git commit -m "Initial AimSync wiki"
 git push
 ```
 

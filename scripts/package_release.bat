@@ -6,9 +6,9 @@ cd /d "%~dp0.."
 
 
 
-if exist "dist\KryptAim.exe" goto :onefile
+if exist "dist\AimSync.exe" goto :onefile
 
-if exist "dist\KryptAim\KryptAim.exe" goto :onedir
+if exist "dist\AimSync\AimSync.exe" goto :onedir
 
 echo [ERROR] No build found - run scripts\build_app.bat first.
 
@@ -18,19 +18,19 @@ exit /b 1
 
 :onefile
 
-if exist "dist\KryptAim.zip" del /f "dist\KryptAim.zip"
+if exist "dist\AimSync.zip" del /f "dist\AimSync.zip"
 
-powershell -NoProfile -Command "Compress-Archive -LiteralPath 'dist\KryptAim.exe' -DestinationPath 'dist\KryptAim.zip' -Force"
+powershell -NoProfile -Command "Compress-Archive -LiteralPath 'dist\AimSync.exe' -DestinationPath 'dist\AimSync.zip' -Force"
 
 if errorlevel 1 (
 
-    echo [WARN] zip failed - exe ready: dist\KryptAim.exe
+    echo [WARN] zip failed - exe ready: dist\AimSync.exe
 
     exit /b 1
 
 )
 
-echo Created: dist\KryptAim.zip  (contains KryptAim.exe only)
+echo Created: dist\AimSync.zip  (contains AimSync.exe only)
 
 exit /b 0
 
@@ -38,19 +38,19 @@ exit /b 0
 
 :onedir
 
-if exist "dist\KryptAim.zip" del /f "dist\KryptAim.zip"
+if exist "dist\AimSync.zip" del /f "dist\AimSync.zip"
 
-powershell -NoProfile -Command "Compress-Archive -LiteralPath 'dist\KryptAim' -DestinationPath 'dist\KryptAim.zip' -Force"
+powershell -NoProfile -Command "Compress-Archive -LiteralPath 'dist\AimSync' -DestinationPath 'dist\AimSync.zip' -Force"
 
 if errorlevel 1 (
 
-    echo [WARN] zip failed - folder ready: dist\KryptAim\
+    echo [WARN] zip failed - folder ready: dist\AimSync\
 
     exit /b 1
 
 )
 
-echo Created: dist\KryptAim.zip  (full onedir bundle)
+echo Created: dist\AimSync.zip  (full onedir bundle)
 
 exit /b 0
 

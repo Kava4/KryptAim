@@ -19,6 +19,6 @@ if errorlevel 1 (
 )
 
 echo.
-echo Done: dist\KryptAim.exe  (single file, no _internal)
+echo Done: dist\AimSync.exe  (single file, no _internal)
 echo Zip:   scripts\package_release.bat
 pause

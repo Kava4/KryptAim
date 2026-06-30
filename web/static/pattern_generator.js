@@ -496,7 +496,7 @@
         }
 
         window.open("/", "_blank");
-        setStatus("Opened KryptAim tab. Pattern is queued for import.", false);
+        setStatus("Opened AimSync tab. Pattern is queued for import.", false);
       } catch (err) {
         setStatus(err.message || "Failed to send pattern to Recoil Lab.", true);
       }

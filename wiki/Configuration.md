@@ -7,7 +7,7 @@ Settings persist in `config.json`.
 ## File location
 
 ```
-%APPDATA%\KryptAim\config.json
+%APPDATA%\AimSync\config.json
 ```
 
 Defaults defined in `app/core/config.py` (`DEFAULTS`).
@@ -60,9 +60,9 @@ Defaults defined in `app/core/config.py` (`DEFAULTS`).
 
 | Data | Path |
 |------|------|
-| Models | `%APPDATA%\KryptAim\models\` |
-| AI runtime | `%APPDATA%\KryptAim\runtime\` |
-| Updates | `%APPDATA%\KryptAim\updates\` |
+| Models | `%APPDATA%\AimSync\models\` |
+| AI runtime | `%APPDATA%\AimSync\runtime\` |
+| Updates | `%APPDATA%\AimSync\updates\` |
 
 ---
 

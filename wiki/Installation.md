@@ -1,14 +1,14 @@
 # Installation
 
-KryptAim runs on **Windows 10/11**. Use either **venv + source** (developers) or **slim `.exe`** (end users).
+AimSync runs on **Windows 10/11**. Use either **venv + source** (developers) or **slim `.exe`** (end users).
 
-Repository: [Kava4/KryptAim](https://github.com/Kava4/KryptAim)
+Repository: [Kava4/AimSync](https://github.com/Kava4/AimSync)
 
 ---
 
 ## Requirements
 
-| Component | KryptAim PC | Gaming PC |
+| Component | AimSync PC | Gaming PC |
 |-----------|------------|-----------|
 | Windows 10/11 | Yes | Yes |
 | Python 3.10+ | Yes (source only) | No |
@@ -24,8 +24,8 @@ Repository: [Kava4/KryptAim](https://github.com/Kava4/KryptAim)
 1. Clone the repo:
 
 ```bat
-git clone -b Beta https://github.com/Kava4/KryptAim.git
-cd KryptAim
+git clone -b Beta https://github.com/Kava4/AimSync.git
+cd AimSync
 ```
 
 2. First-time setup:
@@ -55,7 +55,7 @@ scripts\run_dev.bat
 Download from **AI tab → Community models** (GitHub + Aimmy CS2 catalog), or place files in:
 
 ```
-%APPDATA%\KryptAim\models\
+%APPDATA%\AimSync\models\
 ```
 
 Supported: `.onnx`, `.pt`, `.engine`
@@ -64,9 +64,9 @@ Supported: `.onnx`, `.pt`, `.engine`
 
 ## Slim `.exe` (recommended for end users)
 
-Download from [Releases](https://github.com/Kava4/KryptAim/releases).
+Download from [Releases](https://github.com/Kava4/AimSync/releases).
 
-1. Extract `KryptAim.exe` (single file, ~15–120 MB).
+1. Extract `AimSync.exe` (single file, ~15–120 MB).
 2. Run it — recoil works immediately.
 3. **Global Settings → AI Runtime → Install AI runtime** (10–20 min, one-time).
 4. Restart, then configure NDI + model in the **AI** tab.
@@ -81,7 +81,7 @@ Maintainers: `scripts\build_app_full.bat` — bundles AI stack (~GB), no bootstr
 
 ## Updates
 
-**Global Settings → Updates → Check for updates** (GitHub Releases). In-app install replaces `KryptAim.exe` and restarts.
+**Global Settings → Updates → Check for updates** (GitHub Releases). In-app install replaces `AimSync.exe` and restarts.
 
 ---
 

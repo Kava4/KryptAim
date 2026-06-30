@@ -14,14 +14,14 @@ main.py
         └── AI worker thread         → NDI + YOLO + aim/trigger (when runtime ready)
 ```
 
-Single-instance mutex: `KryptAim_Rebuild_v1`
+Single-instance mutex: `AimSync_Rebuild_v1`
 
 ---
 
 ## Layout
 
 ```
-KryptAim/
+AimSync/
 ├── main.py
 ├── app/
 │   ├── core/          # config, cloud, licensing, updates, feature flags
@@ -52,7 +52,7 @@ Legacy monolith is **not** in the repo (local `.backup-legacy/` only).
 config.json → app/recoil/engine.py → Makcu move(dx, dy)
 ```
 
-CS2 weapon profiles in `app/recoil/` + `%APPDATA%\KryptAim\config.json`.
+CS2 weapon profiles in `app/recoil/` + `%APPDATA%\AimSync\config.json`.
 
 ---
 
@@ -69,20 +69,20 @@ Key modules:
 - `app/ai/engine.py` — main loop
 - `app/ai/model_sources.py` — GitHub + Aimmy model catalog
 
-Slim exe: AI packages live in `%APPDATA%\KryptAim\runtime\` after bootstrap.
+Slim exe: AI packages live in `%APPDATA%\AimSync\runtime\` after bootstrap.
 
 ---
 
 ## Config
 
-`app/core/config.py` — `DEFAULTS` merged into `%APPDATA%\KryptAim\config.json`.
+`app/core/config.py` — `DEFAULTS` merged into `%APPDATA%\AimSync\config.json`.
 
 ---
 
 ## UI
 
 - **Tailwind CSS** + **HTMX** + vanilla JS
-- Tabs: Global Settings · Game Engine (CS2) · KryptAim AI
+- Tabs: Global Settings · Game Engine (CS2) · AimSync AI
 - Templates: `web/templates/`
 
 ---

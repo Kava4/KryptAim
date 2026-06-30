@@ -1,6 +1,6 @@
 # Developer setup
 
-Clone [Kava4/KryptAim](https://github.com/Kava4/KryptAim) (branch **Beta**).
+Clone [Kava4/AimSync](https://github.com/Kava4/AimSync) (branch **Beta**).
 
 ---
 
@@ -32,7 +32,7 @@ Tests:
 .venv\Scripts\python.exe -m pytest tests\
 ```
 
-Config & logs: `%APPDATA%\KryptAim\`
+Config & logs: `%APPDATA%\AimSync\`
 
 ---
 
@@ -61,7 +61,7 @@ scripts\build_app_full.bat
 
 Debug console build: `scripts\build_debug.bat`
 
-Output: `dist\KryptAim.exe` (lite) or `dist\KryptAim\` (full onedir)
+Output: `dist\AimSync.exe` (lite) or `dist\AimSync\` (full onedir)
 
 Bootstrap: `app/bootstrap/embed_python.py`, `app/bootstrap/runtime.py`
 
@@ -71,8 +71,8 @@ Bootstrap: `app/bootstrap/embed_python.py`, `app/bootstrap/runtime.py`
 
 1. Bump `release/version.json`
 2. Build + `scripts\package_release.bat`
-3. Create GitHub Release on [Kava4/KryptAim](https://github.com/Kava4/KryptAim/releases) with tag `vX.Y.Z`
-4. Attach `KryptAim.exe` or `KryptAim.zip`
+3. Create GitHub Release on [Kava4/AimSync](https://github.com/Kava4/AimSync/releases) with tag `vX.Y.Z`
+4. Attach `AimSync.exe` or `AimSync.zip`
 5. Push `release/app-config.json` if changing remote flags (e.g. AI premium gate)
 
 Wiki auto-syncs from `wiki/` on push (see `.github/workflows/wiki-sync.yml`).

@@ -1,7 +1,7 @@
-"""PyInstaller build → dist/KryptAim/KryptAim.exe
+"""PyInstaller build → dist/AimSync/AimSync.exe
 
 Profiles (KRYPTAIM_BUILD_PROFILE):
-  lite  — ~50–120 MB: Flask + Makcu + recoil. AI deps install to %%APPDATA%%\\KryptAim\\runtime
+  lite  — ~50–120 MB: Flask + Makcu + recoil. AI deps install to %%APPDATA%%\\AimSync\\runtime
   full  — ~2–4 GB: bundles torch/ultralytics/onnx (offline, no bootstrap)
 """
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 ENTRY = ROOT / 'main.py'
-ICON = ROOT / 'web' / 'static' / 'KryptAim_logo.ico'
+ICON = ROOT / 'web' / 'static' / 'AimSync_logo.ico'
 
 _LITE_EXCLUDES = (
     'torch',
@@ -46,8 +46,8 @@ def _add_data(src: Path, dest: str, out: list[str]) -> None:
 def dist_exe_path(profile: str | None = None) -> Path:
     profile = profile or build_profile()
     if profile == 'lite':
-        return ROOT / 'dist' / 'KryptAim.exe'
-    return ROOT / 'dist' / 'KryptAim' / 'KryptAim.exe'
+        return ROOT / 'dist' / 'AimSync.exe'
+    return ROOT / 'dist' / 'AimSync' / 'AimSync.exe'
 
 
 def _maybe_clean() -> None:
@@ -56,9 +56,9 @@ def _maybe_clean() -> None:
     profile = build_profile()
     targets: list[Path] = [ROOT / 'build']
     if profile == 'lite':
-        targets.extend((ROOT / 'dist' / 'KryptAim.exe', ROOT / 'dist' / 'KryptAim'))
+        targets.extend((ROOT / 'dist' / 'AimSync.exe', ROOT / 'dist' / 'AimSync'))
     else:
-        targets.append(ROOT / 'dist' / 'KryptAim')
+        targets.append(ROOT / 'dist' / 'AimSync')
     for path in targets:
         if path.is_dir():
             shutil.rmtree(path, ignore_errors=True)
@@ -69,11 +69,11 @@ def _maybe_clean() -> None:
 def _remove_stale_dist(profile: str) -> None:
     """Drop leftover output from the other layout (onedir vs onefile)."""
     if profile == 'lite':
-        stale = ROOT / 'dist' / 'KryptAim'
+        stale = ROOT / 'dist' / 'AimSync'
         if stale.is_dir():
             shutil.rmtree(stale, ignore_errors=True)
     else:
-        stale = ROOT / 'dist' / 'KryptAim.exe'
+        stale = ROOT / 'dist' / 'AimSync.exe'
         if stale.is_file():
             stale.unlink(missing_ok=True)
 
@@ -94,7 +94,7 @@ def build_args() -> list[str]:
 
     args = [
         str(ENTRY),
-        '--name=KryptAim',
+        '--name=AimSync',
         layout,
         '--noconfirm',
         f'--distpath={ROOT / "dist"}',
@@ -201,7 +201,7 @@ def main() -> int:
 
     print(f'[build] profile={profile}')
     if profile == 'lite':
-        print('[build] Slim exe — AI stack installs to %APPDATA%\\KryptAim\\runtime on first use')
+        print('[build] Slim exe — AI stack installs to %APPDATA%\\AimSync\\runtime on first use')
     else:
         print('[build] Full exe — bundles CUDA stack (large download)')
     layout = 'onefile' if profile == 'lite' else 'onedir'
@@ -210,7 +210,7 @@ def main() -> int:
 
     exe = dist_exe_path(profile)
     if not exe.is_file():
-        print('ERROR: build finished but KryptAim.exe is missing')
+        print('ERROR: build finished but AimSync.exe is missing')
         return 1
 
     _remove_stale_dist(profile)

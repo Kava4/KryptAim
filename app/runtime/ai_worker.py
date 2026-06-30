@@ -12,7 +12,7 @@ from app.ai.ndi_control import request_ndi_refresh
 from app.core.ai_free_quota import get_ai_free_quota_manager
 from app.core.config import load_config, save_config
 
-logger = logging.getLogger('KryptAim.rebuild.AiWorker')
+logger = logging.getLogger('AimSync.rebuild.AiWorker')
 
 
 def ai_worker(stop_event: threading.Event) -> None:

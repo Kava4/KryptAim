@@ -33,7 +33,7 @@
 <body class="min-h-screen bg-neutral-950 font-['Inter',sans-serif] flex flex-col">
     <div id="boot-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/95 backdrop-blur-sm transition-opacity duration-500">
         <div class="flex flex-col items-center gap-4 text-center">
-            <img src="{{ url_for('static', filename='KryptAim_logo.png') }}" alt="Logo" class="w-9 h-9 rounded-lg">
+            <img src="{{ url_for('static', filename='AimSync_logo.png') }}" alt="Logo" class="w-9 h-9 rounded-lg">
             <div>
                 <p class="text-2xl font-semibold tracking-wide text-white">{{ app_name }}</p>
                 <p class="text-xs font-medium text-blue-300/90 tracking-wide">{{ app_version }} · {{ app_version_label }}</p>
@@ -48,7 +48,7 @@
         <div class="flex gap-2 border-b border-white/10 overflow-x-auto no-scrollbar">
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white border-b-2 border-blue-500 active" data-tab="global">Global Settings</button>
             <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent" data-tab="CS2">Game Engine</button>
-            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent" data-tab="ai-engine">KryptAim AI</button>
+            <button class="tab-button flex-shrink-0 px-4 py-2 text-sm font-medium text-white/70 hover:text-white border-b-2 border-transparent" data-tab="ai-engine">AimSync AI</button>
         </div>
 
         <div id="tab-content-global" class="tab-content mt-5">
@@ -78,7 +78,7 @@
                 <div class="flex items-center justify-between border-t border-white/5 pt-6">
                     <div>
                         <p class="text-sm font-medium text-white">Shutdown PC on Stop</p>
-                        <p class="text-xs text-white/40">Automatically shut down Windows when closing KryptAim.</p>
+                        <p class="text-xs text-white/40">Automatically shut down Windows when closing AimSync.</p>
                     </div>
                     <input type="checkbox" name="shutdown_on_app_stop" hx-post="/api/recoil/shutdown_on_exit_toggle" hx-trigger="change" hx-swap="none"
                            {{ 'checked' if config.shutdown_on_app_stop else '' }} class="w-4 h-4 accent-red-500 cursor-pointer">
@@ -124,7 +124,7 @@
                         <div>
                             <p class="text-sm font-semibold text-white">License &amp; AI access</p>
                             <p class="text-xs text-white/40 mt-0.5 max-w-xl">
-                                Recoil is free for everyone. <strong class="text-white/60">KryptAim AI</strong> requires a
+                                Recoil is free for everyone. <strong class="text-white/60">AimSync AI</strong> requires a
                                 <a href="https://ko-fi.com/kava4" target="_blank" rel="noopener" class="text-blue-300 hover:text-blue-200 underline underline-offset-2">Ko-fi supporter</a> key.
                             </p>
                         </div>
@@ -175,15 +175,15 @@
                     <p id="update-status-msg" class="text-[11px] text-white/45">Checking GitHub releases…</p>
                     <pre id="update-notes" class="hidden text-[10px] text-white/35 whitespace-pre-wrap max-h-28 overflow-y-auto bg-black/20 rounded-lg p-2"></pre>
                     <div class="flex flex-wrap gap-2">
-                        <button type="button" id="update-check-btn" onclick="KryptAimUpdates.check(true)"
+                        <button type="button" id="update-check-btn" onclick="AimSyncUpdates.check(true)"
                                 class="text-xs font-semibold text-white bg-white/10 hover:bg-white/15 border border-white/10 rounded-lg px-4 py-2">
                             Check for updates
                         </button>
-                        <button type="button" id="update-install-btn" onclick="KryptAimUpdates.install()"
+                        <button type="button" id="update-install-btn" onclick="AimSyncUpdates.install()"
                                 class="hidden text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg px-4 py-2">
                             Install update
                         </button>
-                        <a id="update-release-link" href="https://github.com/Kava4/KryptAim/releases" target="_blank" rel="noopener"
+                        <a id="update-release-link" href="https://github.com/Kava4/AimSync/releases" target="_blank" rel="noopener"
                            class="hidden text-xs font-semibold text-blue-200 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-400/30 rounded-lg px-4 py-2">
                             View release
                         </a>
@@ -196,7 +196,7 @@
                             <p class="text-sm font-semibold text-white">AI Runtime</p>
                             <p class="text-xs text-white/40 mt-0.5 max-w-xl">
                                 One-time install for the slim app — embeddable Python + AI stack in
-                                <code class="text-white/55">%APPDATA%\KryptAim\runtime</code>.
+                                <code class="text-white/55">%APPDATA%\AimSync\runtime</code>.
                             </p>
                         </div>
                         <span id="runtime-overall-badge"
@@ -441,7 +441,7 @@
             syncAiSettingsFromServer();
             initWeaponPicker();
             refreshCommunityModels();
-            KryptAimUpdates.init({ autoCheck: true });
+            AimSyncUpdates.init({ autoCheck: true });
         });
 
         function switchToGlobalTab() {
@@ -534,7 +534,7 @@
                 if (bs.install_in_progress && bs.install_message) {
                     statusEl.textContent = bs.install_message + elapsed;
                 } else if (bs.install_phase === 'done') {
-                    statusEl.textContent = bs.install_message || 'Done — restart KryptAim';
+                    statusEl.textContent = bs.install_message || 'Done — restart AimSync';
                 } else if (bs.install_error || bs.install_phase === 'failed') {
                     statusEl.textContent = bs.install_error || bs.install_message || 'Install failed';
                 } else if (bs.ai_available) {
@@ -568,7 +568,7 @@
             }
             const logPathEl = document.getElementById('runtime-logpath');
             if (logPathEl) {
-                logPathEl.textContent = bs.install_log || '%APPDATA%\\KryptAim\\runtime\\install.log';
+                logPathEl.textContent = bs.install_log || '%APPDATA%\\AimSync\\runtime\\install.log';
             }
             const btn = document.getElementById('runtime-install-btn');
             if (btn) {
@@ -651,7 +651,7 @@
                 .then(data => {
                     if (msg) {
                         msg.textContent = data.allowed
-                            ? 'License accepted — AI unlocked. Restart KryptAim if the engine was already running.'
+                            ? 'License accepted — AI unlocked. Restart AimSync if the engine was already running.'
                             : (data.message || 'License not valid for AI.');
                         msg.classList.toggle('text-green-300', !!data.allowed);
                         msg.classList.toggle('text-amber-300', !data.allowed);
@@ -1015,7 +1015,7 @@
             const size = formatModelSize(entry.size_bytes);
             if (size) bits.push(size);
             if (entry.game) bits.push(String(entry.game).toUpperCase());
-            if (entry.source) bits.push(entry.source === 'aimmy' ? 'Aimmy' : (entry.source === 'aimsync' ? 'KryptAim' : entry.source));
+            if (entry.source) bits.push(entry.source === 'aimmy' ? 'Aimmy' : (entry.source === 'aimsync' ? 'AimSync' : entry.source));
             sub.textContent = bits.join(' · ');
             meta.appendChild(title);
             if (entry.description) {
@@ -1083,11 +1083,11 @@
                     }
                     if (hintEl) {
                         if (!data.online) {
-                            hintEl.textContent = 'Could not reach GitHub catalogs (KryptAim / Aimmy). Check internet or try again later.';
+                            hintEl.textContent = 'Could not reach GitHub catalogs (AimSync / Aimmy). Check internet or try again later.';
                         } else if (data.empty_catalog) {
                             hintEl.textContent = 'No models listed yet — add entries to models/catalog.json on GitHub or wait for Aimmy CS2 models.';
                         } else {
-                            hintEl.textContent = 'KryptAim models from GitHub + CS2 models from Aimmy. Saves to %APPDATA%\\KryptAim\\models\\';
+                            hintEl.textContent = 'AimSync models from GitHub + CS2 models from Aimmy. Saves to %APPDATA%\\AimSync\\models\\';
                         }
                     }
                 })

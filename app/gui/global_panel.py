@@ -71,7 +71,7 @@ class GlobalPanel(QWidget):
         self._shutdown.stateChanged.connect(self._on_shutdown)
         body.addWidget(SettingRow(
             'Shutdown PC on Stop',
-            subtitle='Shut down Windows when closing KryptAim.',
+            subtitle='Shut down Windows when closing AimSync.',
             control=self._shutdown,
         ))
 
@@ -80,7 +80,7 @@ class GlobalPanel(QWidget):
         self._input_method.setEnabled(False)
         body.addWidget(SettingRow(
             'Input method',
-            subtitle='Dual-PC rebuild uses Makcu on KryptAim PC.',
+            subtitle='Dual-PC rebuild uses Makcu on AimSync PC.',
             control=self._input_method,
         ))
 
@@ -166,5 +166,5 @@ class GlobalPanel(QWidget):
             )
         else:
             self._warning.setText(
-                'Dual-PC: Makcu moves the gaming PC mouse via KryptAim hardware path.'
+                'Dual-PC: Makcu moves the gaming PC mouse via AimSync hardware path.'
             )

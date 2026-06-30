@@ -1,4 +1,4 @@
-"""Native Qt main window — legacy KryptAim shell."""
+"""Native Qt main window — legacy AimSync shell."""
 
 from __future__ import annotations
 
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow):
         ai_scroll.setWidgetResizable(True)
         ai_scroll.setFrameShape(QScrollArea.Shape.NoFrame)
         ai_scroll.setWidget(self._ai_panel)
-        tabs.addTab(ai_scroll, 'KryptAim AI')
+        tabs.addTab(ai_scroll, 'AimSync AI')
         content_layout.addWidget(tabs, 1)
         layout.addWidget(content, 1)
 
@@ -122,7 +122,7 @@ class MainWindow(QMainWindow):
         footer_layout.addWidget(self._badge_input)
         footer_layout.addWidget(self._badge_mode)
         footer_layout.addStretch(1)
-        copy_lbl = QLabel('© 2026 KryptAim')
+        copy_lbl = QLabel('© 2026 AimSync')
         copy_lbl.setStyleSheet('color: rgba(255,255,255,0.28); font-size: 10px;')
         footer_layout.addWidget(copy_lbl)
         layout.addWidget(footer)

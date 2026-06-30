@@ -1,4 +1,4 @@
-"""Community model catalogs — KryptAim GitHub + Aimmy CS2 models."""
+"""Community model catalogs — AimSync GitHub + Aimmy CS2 models."""
 
 from __future__ import annotations
 
@@ -9,13 +9,13 @@ from typing import Any
 
 from app.core.github import download_bytes, get_json, list_repo_contents, raw_github_url
 
-logger = logging.getLogger('KryptAim.ai.model_sources')
+logger = logging.getLogger('AimSync.ai.model_sources')
 
 AIMMY_REPO = 'Babyhamsta/Aimmy'
 AIMMY_REF = 'Aimmy-V2'
 AIMMY_MODELS_PATH = 'models'
 
-KRYPTAIM_REPO = os.environ.get('KRYPTAIM_MODELS_REPO', 'Kava4/KryptAim')
+KRYPTAIM_REPO = os.environ.get('KRYPTAIM_MODELS_REPO', 'Kava4/AimSync')
 KRYPTAIM_REF = os.environ.get('KRYPTAIM_MODELS_REF', 'main')
 KRYPTAIM_CATALOG_PATH = os.environ.get('KRYPTAIM_MODELS_CATALOG', 'models/catalog.json')
 KRYPTAIM_MODELS_PATH = 'models'
@@ -134,7 +134,7 @@ def fetch_aimsync_models() -> tuple[list[dict[str, Any]], str | None]:
                 _model_entry(
                     filename=name,
                     title=Path(name).stem,
-                    description='KryptAim model',
+                    description='AimSync model',
                     size_bytes=int(item.get('size') or 0),
                     download_url=str(item.get('download_url') or raw_github_url(
                         KRYPTAIM_REPO, KRYPTAIM_REF, f'{KRYPTAIM_MODELS_PATH}/{name}',
@@ -194,7 +194,7 @@ def fetch_all_community_models() -> dict[str, Any]:
 
     errors: list[str] = []
     if aimsync_err:
-        errors.append(f'KryptAim: {aimsync_err}')
+        errors.append(f'AimSync: {aimsync_err}')
     if aimmy_err:
         errors.append(f'Aimmy: {aimmy_err}')
 

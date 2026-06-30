@@ -20,11 +20,11 @@ class UpdatesTests(unittest.TestCase):
             {
                 'tag_name': 'v0.2.0',
                 'body': 'Bug fixes',
-                'html_url': 'https://github.com/Kava4/KryptAim/releases/tag/v0.2.0',
+                'html_url': 'https://github.com/Kava4/AimSync/releases/tag/v0.2.0',
                 'assets': [
                     {
-                        'name': 'KryptAim.exe',
-                        'browser_download_url': 'https://example.com/KryptAim.exe',
+                        'name': 'AimSync.exe',
+                        'browser_download_url': 'https://example.com/AimSync.exe',
                         'size': 12345,
                     },
                 ],
@@ -43,9 +43,9 @@ class UpdatesTests(unittest.TestCase):
         mock_get.return_value = (None, 'HTTP 403')
         mock_redirect.return_value = (
             '0.2.0',
-            'https://github.com/Kava4/KryptAim/releases/tag/v0.2.0',
-            'https://github.com/Kava4/KryptAim/releases/download/v0.2.0/KryptAim.exe',
-            'KryptAim.exe',
+            'https://github.com/Kava4/AimSync/releases/tag/v0.2.0',
+            'https://github.com/Kava4/AimSync/releases/download/v0.2.0/AimSync.exe',
+            'AimSync.exe',
             None,
         )
         with patch.object(upd, 'current_version', return_value='0.1.0'):

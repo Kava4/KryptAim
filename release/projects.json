@@ -28,6 +28,6 @@
   "sources": [
     { "type": "org", "name": "Kava4" }
   ],
-  "exclude_repos": ["KryptAim"],
+  "exclude_repos": ["AimSync"],
   "exclude_forks": true
 }

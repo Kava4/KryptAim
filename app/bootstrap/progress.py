@@ -8,7 +8,7 @@ from pathlib import Path
 
 from app.bootstrap.paths import runtime_dir
 
-logger = logging.getLogger('KryptAim.bootstrap')
+logger = logging.getLogger('AimSync.bootstrap')
 
 _install_phase = 'idle'
 _install_message = ''
@@ -41,7 +41,7 @@ def reset_install_progress() -> None:
     _install_started_at = time.time()
     log = install_log_path()
     log.parent.mkdir(parents=True, exist_ok=True)
-    log.write_text(f'=== KryptAim AI runtime install {time.strftime("%Y-%m-%d %H:%M:%S")} ===\n', encoding='utf-8')
+    log.write_text(f'=== AimSync AI runtime install {time.strftime("%Y-%m-%d %H:%M:%S")} ===\n', encoding='utf-8')
 
 
 def set_install_phase(phase: str, message: str = '') -> None:
@@ -87,7 +87,7 @@ def install_progress() -> dict:
     }
 
 
-def mark_install_done(message: str = 'AI runtime installed — restart KryptAim') -> None:
+def mark_install_done(message: str = 'AI runtime installed — restart AimSync') -> None:
     set_install_phase('done', message)
 
 

@@ -199,12 +199,12 @@
 
     function showStoppedScreen(willShutdownPC) {
         const closeDelayMs = 3500;
-        const logoUrl = cfg().logoUrl || '/static/KryptAim_logo.png';
+        const logoUrl = cfg().logoUrl || '/static/AimSync_logo.png';
         document.body.innerHTML = `
             <div class="min-h-screen bg-neutral-950 flex items-center justify-center text-center p-6">
                 <div class="flex flex-col items-center gap-4 max-w-sm">
-                    <img src="${logoUrl}" alt="KryptAim" class="h-36 md:h-44 w-auto max-w-[320px] object-contain mb-2 opacity-95">
-                    <h1 class="text-2xl font-bold text-white mb-2">KryptAim Stopped</h1>
+                    <img src="${logoUrl}" alt="AimSync" class="h-36 md:h-44 w-auto max-w-[320px] object-contain mb-2 opacity-95">
+                    <h1 class="text-2xl font-bold text-white mb-2">AimSync Stopped</h1>
                     <p class="text-white/40 text-sm">The hardware connection has been released.</p>
                     ${willShutdownPC
                         ? '<p class="text-white/60 text-sm mt-2 font-semibold">System shutdown initiated...</p>'
@@ -287,7 +287,7 @@
     global.confirmStopApplication = confirmStopApplication;
     global.quitApplication = quitApplication;
     global.navigateToTab = navigateToTab;
-    global.KryptAimShell = { init: initShell };
+    global.AimSyncShell = { init: initShell };
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initShell);

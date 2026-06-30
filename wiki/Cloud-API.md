@@ -40,7 +40,7 @@ Supporter keys bypass quota (unlimited) via `/license/validate`.
 Fetched from GitHub (cached ~5 min):
 
 ```
-https://raw.githubusercontent.com/Kava4/KryptAim/Beta/release/app-config.json
+https://raw.githubusercontent.com/Kava4/AimSync/Beta/release/app-config.json
 ```
 
 Example:
@@ -63,7 +63,7 @@ Not served from Vercel. The app reads:
 
 | Source | Content |
 |--------|---------|
-| [Kava4/KryptAim/models](https://github.com/Kava4/KryptAim/tree/Beta/models) | Official catalog + `catalog.json` |
+| [Kava4/AimSync/models](https://github.com/Kava4/AimSync/tree/Beta/models) | Official catalog + `catalog.json` |
 | [Aimmy models](https://github.com/Babyhamsta/Aimmy/tree/Aimmy-V2/models) | CS2 `.onnx` files (filtered) |
 
 Local routes:
@@ -71,7 +71,7 @@ Local routes:
 | Route | Method | Purpose |
 |-------|--------|---------|
 | `/api/ai/community/models` | GET | Catalog + installed |
-| `/api/ai/community/download` | POST | Download to `%APPDATA%\KryptAim\models\` |
+| `/api/ai/community/download` | POST | Download to `%APPDATA%\AimSync\models\` |
 
 ---
 

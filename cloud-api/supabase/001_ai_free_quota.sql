@@ -1,4 +1,4 @@
--- KryptAim: free Vision AI daily quota (2h/day per HWID)
+-- AimSync: free Vision AI daily quota (2h/day per HWID)
 -- Run once in Supabase SQL Editor
 
 create table if not exists public.ai_free_quota (

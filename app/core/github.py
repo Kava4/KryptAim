@@ -10,9 +10,9 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-logger = logging.getLogger('KryptAim.github')
+logger = logging.getLogger('AimSync.github')
 
-USER_AGENT = 'KryptAim'
+USER_AGENT = 'AimSync'
 DEFAULT_TIMEOUT = 15.0
 DOWNLOAD_TIMEOUT = 300.0
 

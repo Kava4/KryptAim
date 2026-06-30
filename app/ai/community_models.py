@@ -1,4 +1,4 @@
-"""Community YOLO models — KryptAim GitHub + Aimmy CS2 catalog."""
+"""Community YOLO models — AimSync GitHub + Aimmy CS2 catalog."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any
 from app.ai.model_sources import fetch_all_community_models, download_model_from_url
 from app.core.config import config_dir
 
-logger = logging.getLogger('KryptAim.ai.community')
+logger = logging.getLogger('AimSync.ai.community')
 
 MODEL_EXTENSIONS = ('.onnx', '.pt', '.engine')
 

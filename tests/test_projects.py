@@ -8,10 +8,10 @@ from app.core import projects as projects_mod
 def test_list_github_projects_excludes_aimsync(monkeypatch):
     sample = [
         {
-            'name': 'KryptAim',
-            'full_name': 'Kava4/KryptAim',
+            'name': 'AimSync',
+            'full_name': 'Kava4/AimSync',
             'description': 'Current app',
-            'html_url': 'https://github.com/Kava4/KryptAim',
+            'html_url': 'https://github.com/Kava4/AimSync',
             'stargazers_count': 10,
             'language': 'Python',
             'updated_at': '2026-01-01T00:00:00Z',
@@ -36,7 +36,7 @@ def test_list_github_projects_excludes_aimsync(monkeypatch):
     projects_mod._CACHE['projects'] = []
 
     names = [p['name'] for p in projects_mod.list_github_projects(refresh=True)['projects']]
-    assert 'KryptAim' not in names
+    assert 'AimSync' not in names
     assert 'Other' in names
 
 
@@ -57,19 +57,19 @@ def test_featured_projects_use_curated_copy(monkeypatch):
     monkeypatch.setattr(projects_mod, '_load_config', lambda: {
         'featured': [{
             'repo': 'Kava4/cs2_webradar',
-            'name': 'KryptAim WebRadar',
+            'name': 'AimSync WebRadar',
             'description': 'Live CS2 web radar with 44 maps.',
             'order': 1,
             'tags': ['CS2'],
         }],
         'sources': [{'type': 'org', 'name': 'Kava4'}],
-        'exclude_repos': ['KryptAim'],
+        'exclude_repos': ['AimSync'],
         'exclude_forks': True,
     })
     projects_mod._CACHE['at'] = 0.0
     projects_mod._CACHE['projects'] = []
 
     projects = projects_mod.list_github_projects(refresh=True)['projects']
-    assert projects[0]['name'] == 'KryptAim WebRadar'
+    assert projects[0]['name'] == 'AimSync WebRadar'
     assert '44 maps' in projects[0]['description']
     assert projects[0]['featured'] is True

@@ -1,6 +1,6 @@
 # Roadmap — unified plan (June 2026)
 
-Single source of truth for KryptAim. Merges: Aimmy integration, AI engine migration, Pattern Generator, performance phases, build/distribution, and backlog ideas.
+Single source of truth for AimSync. Merges: Aimmy integration, AI engine migration, Pattern Generator, performance phases, build/distribution, and backlog ideas.
 
 **Last updated:** 2026-06-08
 
@@ -16,7 +16,7 @@ Single source of truth for KryptAim. Merges: Aimmy integration, AI engine migrat
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| Aim offset (NDI crosshair wrong) | **Fixed** | Uses stream crosshair, not KryptAim PC screen center |
+| Aim offset (NDI crosshair wrong) | **Fixed** | Uses stream crosshair, not AimSync PC screen center |
 | Player class inverted (CT shoots CT) | **Fixed** | **My team (ignore)** — CT selected → shoots T |
 | Debug preview low FPS | **Improved** | OpenCV window no longer capped at 10 FPS; raw BGR path |
 | Pattern Generator not laser-accurate | **Open** | Phase 5 — GIF→pattern tuning; G Hub `.lua` import ideal |
@@ -27,11 +27,11 @@ Single source of truth for KryptAim. Merges: Aimmy integration, AI engine migrat
 | Recoil (Simple / Lab / CS2) | **Done** | Tab mode switching fixed; Makcu + safety features |
 | Pattern Generator | **Done** | Embedded + standalone, append to game files |
 | AI Engine (dual-PC) | **Done** | NDI capture, CUDA Ultralytics, aim/trigger, profiles |
-| PyInstaller exe | **Done** | matplotlib bundled; CUDA torch in build-venv; onedir `dist/KryptAim/` |
+| PyInstaller exe | **Done** | matplotlib bundled; CUDA torch in build-venv; onedir `dist/AimSync/` |
 | Alt input methods (Phase 0) | **Done** | Win32, G Hub, Arduino, KMBOX Net, Razer — Makcu untouched |
 | Sunone AI perf (Phase 1–3) | **Next** | Trigger-only preset, fast path, async pipeline, TensorRT polish |
 | OCR weapon helper | **Cancelled** | Removed from codebase; weapon select via UI / hotkeys |
-| Beta / stable split | **Retired** | One unified KryptAim channel + `%APPDATA%\KryptAim` |
+| Beta / stable split | **Retired** | One unified AimSync channel + `%APPDATA%\AimSync` |
 
 **You are here:** Product is **usable end-to-end** (venv + exe). Next meaningful work is **AI performance & UX polish** (Phase 1), not new core plumbing.
 
@@ -70,7 +70,7 @@ Single source of truth for KryptAim. Merges: Aimmy integration, AI engine migrat
 ### Distribution & build
 
 - [x] Venv path: `install_kryptaim_pc.bat` + `run_aimsync.bat`
-- [x] Build path: `create_build_venv.bat` → `build_app.bat` → `dist/KryptAim/`
+- [x] Build path: `create_build_venv.bat` → `build_app.bat` → `dist/AimSync/`
 - [x] Build repair: `repair_build_venv.bat` (CUDA torch force-reinstall)
 - [x] Runtime repair: `repair_ai_deps.bat` (kryptaim-venv)
 - [x] PyInstaller bundles: torch, ultralytics, matplotlib, cyndilib, makcu, onnxruntime-gpu
@@ -154,7 +154,7 @@ These Cursor plans are **done** — kept for history only.
 
 | Plan | Outcome |
 |------|---------|
-| **Aimmy Makcu Integration** | AI engine in unified KryptAim; trigger + aim + models UI |
+| **Aimmy Makcu Integration** | AI engine in unified AimSync; trigger + aim + models UI |
 | **AI engine migration** | NDI, Ultralytics, movement modes, hybrid inference — merged into `AI/Engine/` |
 | **Pattern Generator v1** | Full embedded + standalone tool |
 
@@ -171,9 +171,9 @@ These Cursor plans are **done** — kept for history only.
 
 ---
 
-## Related projects (separate repos — not KryptAim core)
+## Related projects (separate repos — not AimSync core)
 
-From **CS2 Project Ideas** plan — reuse webradar stack, not blocking KryptAim:
+From **CS2 Project Ideas** plan — reuse webradar stack, not blocking AimSync:
 
 | Tier | Idea | Effort |
 |------|------|--------|
@@ -183,7 +183,7 @@ From **CS2 Project Ideas** plan — reuse webradar stack, not blocking KryptAim:
 | 2 | Team coach dashboard, Discord bot, grenade lineups | 1–2 months |
 | 3 | Demo analyzer, server admin panel | 2+ months |
 
-Pick 1–2 when KryptAim Phase 1–2 are stable.
+Pick 1–2 when AimSync Phase 1–2 are stable.
 
 ---
 
@@ -191,7 +191,7 @@ Pick 1–2 when KryptAim Phase 1–2 are stable.
 
 ```mermaid
 flowchart TB
-  subgraph aimSyncPC [KryptAim PC]
+  subgraph aimSyncPC [AimSync PC]
     UI[Flask dashboard :5000]
     Recoil[Recoil engine]
     AI[AI Engine]
@@ -213,7 +213,7 @@ flowchart TB
   Makcu --> HID[Makcu HID to gaming mouse]
 ```
 
-**Dual-PC rule:** Makcu remains the only path that moves the **gaming PC mouse**. Alt methods move locally on the KryptAim PC.
+**Dual-PC rule:** Makcu remains the only path that moves the **gaming PC mouse**. Alt methods move locally on the AimSync PC.
 
 ---
 
@@ -223,10 +223,10 @@ flowchart TB
 |--------|------|
 | `run_aimsync.bat` | Daily use (venv) |
 | `run_dev.bat` | Development |
-| `install_kryptaim_pc.bat` | First-time KryptAim PC setup |
+| `install_kryptaim_pc.bat` | First-time AimSync PC setup |
 | `create_build_venv.bat` | Build machine — create/refresh build venv |
 | `repair_build_venv.bat` | Fix CPU torch in build-venv |
-| `build_app.bat` | Build `dist/KryptAim/` exe |
+| `build_app.bat` | Build `dist/AimSync/` exe |
 | `build_debug.bat` | Exe with console for errors |
 | `repair_ai_deps.bat` | Fix CUDA torch in kryptaim-venv |
 | `stop_all.bat` | Kill running processes |
@@ -245,4 +245,4 @@ flowchart TB
 
 ## Support development
 
-[Ko-fi](https://ko-fi.com/kava4) · [GitHub Discussions](https://github.com/Kava4/KryptAim/discussions)
+[Ko-fi](https://ko-fi.com/kava4) · [GitHub Discussions](https://github.com/Kava4/AimSync/discussions)

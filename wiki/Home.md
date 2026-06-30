@@ -1,10 +1,10 @@
-# KryptAim Wiki
+# AimSync Wiki
 
-**KryptAim** is a desktop utility for **Makcu HID** hardware. It provides a local web dashboard for CS2 recoil profiles and an optional **AI aim engine** (dual-PC + NDI).
+**AimSync** is a desktop utility for **Makcu HID** hardware. It provides a local web dashboard for CS2 recoil profiles and an optional **AI aim engine** (dual-PC + NDI).
 
 Dashboard URL after launch: `http://<your-LAN-IP>:5000`
 
-Repository: [Kava4/KryptAim](https://github.com/Kava4/KryptAim)
+Repository: [Kava4/AimSync](https://github.com/Kava4/AimSync)
 
 ---
 
@@ -15,7 +15,7 @@ Repository: [Kava4/KryptAim](https://github.com/Kava4/KryptAim)
 | [Installation](Installation) | Venv, slim exe, CUDA, NDI, first run |
 | [Quick Start](Quick-Start) | Five-minute setup checklist |
 | [Slim exe distribution](Slim-Exe-Distribution) | Small exe + embeddable Python AI install |
-| [Dual-PC CS2 test](Dual-PC-CS2) | Gaming PC + KryptAim PC workflow |
+| [Dual-PC CS2 test](Dual-PC-CS2) | Gaming PC + AimSync PC workflow |
 
 ---
 
@@ -55,12 +55,12 @@ Repository: [Kava4/KryptAim](https://github.com/Kava4/KryptAim)
 
 ## Links
 
-- [GitHub repository](https://github.com/Kava4/KryptAim)
-- [Releases](https://github.com/Kava4/KryptAim/releases)
+- [GitHub repository](https://github.com/Kava4/AimSync)
+- [Releases](https://github.com/Kava4/AimSync/releases)
 - [Ko-fi support](https://ko-fi.com/kava4)
 
 ---
 
 ## Responsible use
 
-KryptAim is intended for educational use and hardware testing. Using input automation in online games may violate publisher terms of service. You are responsible for how you use this software.
+AimSync is intended for educational use and hardware testing. Using input automation in online games may violate publisher terms of service. You are responsible for how you use this software.

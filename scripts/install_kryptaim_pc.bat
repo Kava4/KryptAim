@@ -2,7 +2,7 @@
 setlocal EnableExtensions
 cd /d "%~dp0.."
 
-echo KryptAim PC - first-time setup
+echo AimSync PC - first-time setup
 echo.
 
 call "%~dp0_ensure_venv.bat"

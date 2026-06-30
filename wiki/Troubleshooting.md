@@ -8,7 +8,7 @@
 |---------|-----|
 | Python not found (venv path) | Install Python 3.10+ with **Add to PATH**, or use slim exe |
 | `install_kryptaim_pc.bat` fails | Read error; run `repair_ai_deps.bat` after NVIDIA driver |
-| Port 5000 in use | Close other KryptAim instances |
+| Port 5000 in use | Close other AimSync instances |
 | Dashboard won't open | Check firewall; use `http://127.0.0.1:5000` |
 
 ---
@@ -19,12 +19,12 @@
 |---------|-----|
 | "AI components not installed" banner | AI tab → **Install AI runtime** |
 | Install stuck / failed | Internet required; allow python.org + pypi.org |
-| AI still unavailable after install | **Restart** `KryptAim.exe` |
-| Retry clean install | Delete `%APPDATA%\KryptAim\runtime\` and install again |
+| AI still unavailable after install | **Restart** `AimSync.exe` |
+| Retry clean install | Delete `%APPDATA%\AimSync\runtime\` and install again |
 | CUDA torch install failed | CPU ONNX may work; update NVIDIA driver and retry |
 | Embed download fails | Falls back to system Python if `py -3.12` is installed |
 
-Log: `%APPDATA%\KryptAim\aimsync.log`
+Log: `%APPDATA%\AimSync\aimsync.log`
 
 ---
 
@@ -43,7 +43,7 @@ Log: `%APPDATA%\KryptAim\aimsync.log`
 | Symptom | Fix |
 |---------|-----|
 | AI tab errors on load | `install_kryptaim_pc.bat` |
-| `torch.cuda` false | `repair_ai_deps.bat` (close KryptAim first) |
+| `torch.cuda` false | `repair_ai_deps.bat` (close AimSync first) |
 | CPU inference ~8 fps | Need `CUDAExecutionProvider` — repair deps + driver |
 | Model load timeout | Check `aimsyc_debug.log`; verify `.onnx` in `bin/models/` |
 | Model fails | Use YOLOv8 `.onnx` / `.pt`; re-run install |
@@ -74,7 +74,7 @@ Log: `%APPDATA%\KryptAim\aimsync.log`
 ## Logs
 
 ```
-%APPDATA%\KryptAim\aimsyc_debug.log
+%APPDATA%\AimSync\aimsyc_debug.log
 ```
 
 Verify stack:

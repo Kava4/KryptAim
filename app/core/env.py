@@ -1,4 +1,4 @@
-"""Environment helpers — KryptAim vars with legacy KryptAim aliases."""
+"""Environment helpers — AimSync vars with legacy AimSync aliases."""
 
 from __future__ import annotations
 

@@ -11,7 +11,7 @@ from typing import Any
 
 from app.core.github import get_json
 
-logger = logging.getLogger('KryptAim.projects')
+logger = logging.getLogger('AimSync.projects')
 
 _CACHE: dict[str, Any] = {'at': 0.0, 'projects': [], 'error': None}
 _CACHE_TTL = 600.0
@@ -31,7 +31,7 @@ def _load_config() -> dict[str, Any]:
             logger.warning('Could not read %s: %s', path, exc)
     return {
         'sources': [{'type': 'org', 'name': os.environ.get('KRYPTAIM_GITHUB_ORG', 'Kava4')}],
-        'exclude_repos': ['KryptAim'],
+        'exclude_repos': ['AimSync'],
         'exclude_forks': True,
         'featured': [],
     }

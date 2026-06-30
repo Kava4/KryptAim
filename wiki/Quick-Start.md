@@ -6,7 +6,7 @@ Five-minute checklist after [Installation](Installation).
 
 ## 1. Hardware
 
-1. Connect **Makcu** to the KryptAim PC.
+1. Connect **Makcu** to the AimSync PC.
 2. Connect the gaming mouse through Makcu (dual-PC setup).
 3. Install **NDI Runtime** on both PCs.
 
@@ -20,7 +20,7 @@ Five-minute checklist after [Installation](Installation).
 scripts\run.bat
 ```
 
-**Slim exe:** run `KryptAim.exe` from `dist\KryptAim\`.
+**Slim exe:** run `AimSync.exe` from `dist\AimSync\`.
 
 Open the dashboard: `http://<LAN-IP>:5000`
 
@@ -50,8 +50,8 @@ Check **Global Settings** → Makcu status should show **Connected**.
 
 1. Gaming PC: NDI output (OBS / NDI Screen Capture).
 2. **Slim exe:** **AI** tab → **Install AI runtime** if prompted → restart app.
-3. KryptAim PC: **AI** tab → Refresh NDI sources → pick stream.
-4. Select model (`cs2_640.onnx` in `%APPDATA%\KryptAim\bin\models\`).
+3. AimSync PC: **AI** tab → Refresh NDI sources → pick stream.
+4. Select model (`cs2_640.onnx` in `%APPDATA%\AimSync\bin\models\`).
 5. Click **Start AI engine**.
 6. Set main PC resolution (e.g. 1920×1080).
 

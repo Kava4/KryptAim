@@ -14,7 +14,7 @@ from pathlib import Path
 from app.core.config import config_dir
 from app.core.env import env_flag, env_get
 
-logger = logging.getLogger('KryptAim.ai_quota')
+logger = logging.getLogger('AimSync.ai_quota')
 
 _LOCK = threading.Lock()
 _MANAGER: 'AiFreeQuotaManager | None' = None

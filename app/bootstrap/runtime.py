@@ -26,7 +26,7 @@ from app.bootstrap.progress import (
 )
 from app.core.paths import app_root, is_frozen
 
-logger = logging.getLogger('KryptAim.bootstrap')
+logger = logging.getLogger('AimSync.bootstrap')
 
 _install_lock = threading.Lock()
 _install_in_progress = False
@@ -165,7 +165,7 @@ def _create_venv(venv_root: Path) -> Path:
 
 
 def install_runtime(*, install_cuda_torch: bool = True) -> tuple[bool, str]:
-    """Create %APPDATA%\\KryptAim\\runtime\\venv and pip install AI deps."""
+    """Create %APPDATA%\\AimSync\\runtime\\venv and pip install AI deps."""
     global _install_in_progress, _install_error
 
     with _install_lock:
@@ -226,7 +226,7 @@ def install_runtime(*, install_cuda_torch: bool = True) -> tuple[bool, str]:
 
         _ready_marker().write_text('ok\n', encoding='utf-8')
         patch_sys_path_for_runtime()
-        msg = 'AI runtime installed — restart KryptAim'
+        msg = 'AI runtime installed — restart AimSync'
         mark_install_done(msg)
         return True, msg
     except subprocess.CalledProcessError as exc:

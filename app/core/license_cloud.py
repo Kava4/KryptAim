@@ -1,4 +1,4 @@
-"""Supporter license validation via KryptAim cloud API."""
+"""Supporter license validation via AimSync cloud API."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from app.core.cloud import validate_supporter_key as _cloud_validate
 from app.core.env import env_get
 from app.core.feedback import get_hwid
 
-logger = logging.getLogger('KryptAim.license')
+logger = logging.getLogger('AimSync.license')
 
 _CACHE: dict[str, Any] = {
     'key': '',

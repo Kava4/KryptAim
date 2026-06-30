@@ -2,7 +2,7 @@
         <div class="max-w-6xl mx-auto px-4 md:px-6">
             <div class="flex items-center justify-between h-16 gap-3">
                 <a href="/" class="flex items-center gap-2.5 flex-shrink-0" title="{{ app_name }} {{ app_version }}">
-                    <img src="{{ url_for('static', filename='KryptAim_mark.svg') }}" alt="KryptAim Logo" class="h-11 w-11">
+                    <img src="{{ url_for('static', filename='AimSync_mark.svg') }}" alt="AimSync Logo" class="h-11 w-11">
                     <span class="sm:hidden text-[10px] font-semibold text-blue-300/90">{{ app_version }}</span>
                     <span class="hidden sm:inline-flex flex-col leading-tight">
                         <span class="text-sm font-semibold text-white">{{ app_name }}</span>
@@ -95,7 +95,7 @@
                 <option value="UI / UX">UI / Interface Issue</option>
                 <option value="Recoil Engine">Recoil Engine</option>
                 <option value="Hardware">Hardware / Makcu</option>
-                <option value="AI Engine">KryptAim AI</option>
+                <option value="AI Engine">AimSync AI</option>
                 <option value="Bug Report">General Bug</option>
             </select>
             <textarea id="feedback-message-input" rows="6" placeholder="Your message…"
@@ -115,7 +115,7 @@
                     </svg>
                 </div>
                 <div>
-                    <h3 class="hub-modal-title">Stop KryptAim?</h3>
+                    <h3 class="hub-modal-title">Stop AimSync?</h3>
                     <p class="text-sm text-white/45 mt-1">The Makcu connection will be released and the background engine will shut down.</p>
                     <p id="stop-app-shutdown-note" class="hidden text-xs text-amber-300/90 mt-2">PC shutdown is enabled in Global Settings — your computer will shut down after stop.</p>
                 </div>
@@ -156,7 +156,7 @@
             <p class="text-[10px] uppercase tracking-widest text-white/30 font-bold mb-2 ml-4">Navigation</p>
             <button type="button" onclick="navigateToTab('global')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white bg-white/5 active">Global Settings</button>
             <button type="button" onclick="navigateToTab('CS2')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5">Game Engine</button>
-            <button type="button" onclick="navigateToTab('ai-engine')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5">KryptAim AI</button>
+            <button type="button" onclick="navigateToTab('ai-engine')" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5">AimSync AI</button>
             <a href="/projects" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/5">Our Projects</a>
         </div>
         <div class="mt-auto pt-8 border-t border-white/5 space-y-4">

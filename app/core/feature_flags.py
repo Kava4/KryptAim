@@ -9,12 +9,12 @@ from typing import Any
 from app.core.env import env_flag, env_get
 from app.core.github import get_json, raw_github_url
 
-logger = logging.getLogger('KryptAim.features')
+logger = logging.getLogger('AimSync.features')
 
 _REMOTE_TTL = 300.0
 _REMOTE_CACHE: dict[str, Any] = {'data': {}, 'fetched_at': 0.0, 'error': None}
 
-DEFAULT_REPO = env_get('UPDATES_REPO', 'Kava4/KryptAim')
+DEFAULT_REPO = env_get('UPDATES_REPO', 'Kava4/AimSync')
 DEFAULT_REF = env_get('APP_CONFIG_REF', 'main')
 DEFAULT_CONFIG_PATH = env_get('APP_CONFIG_PATH', 'release/app-config.json')
 

@@ -1,4 +1,4 @@
-# KryptAim Cloud API
+# AimSync Cloud API
 
 Deploy to **Vercel** (`project-mkgdr`) + **Supabase**.
 

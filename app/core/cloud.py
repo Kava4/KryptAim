@@ -1,4 +1,4 @@
-"""KryptAim cloud API client (patterns, community models)."""
+"""AimSync cloud API client (patterns, community models)."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-logger = logging.getLogger('KryptAim.cloud')
+logger = logging.getLogger('AimSync.cloud')
 
 DEFAULT_CLOUD_API = 'https://project-mkgdr.vercel.app/api'
 

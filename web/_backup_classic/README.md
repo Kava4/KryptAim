@@ -1,6 +1,6 @@
 # Classic UI backup
 
-Snapshot before **KryptAim Hub** theme (tactical gold sidebar layout).
+Snapshot before **AimSync Hub** theme (tactical gold sidebar layout).
 
 ## Restore classic UI
 

@@ -1,6 +1,6 @@
 # Venv distribution
 
-Recommended way to ship KryptAim when PyInstaller bundles cause torch/Makcu issues.
+Recommended way to ship AimSync when PyInstaller bundles cause torch/Makcu issues.
 
 ---
 
@@ -13,12 +13,12 @@ scripts\package_aimsync_pc_release.bat
 ```
 
 Output:
-- Folder: `release\KryptAim-PC\`
-- Zip: `release\KryptAim-PC.zip`
+- Folder: `release\AimSync-PC\`
+- Zip: `release\AimSync-PC.zip`
 
 The zip includes app source + `scripts/` but **not** `kryptaim-venv/`, `dist/`, or `build/`.
 
-Optional: add `release\README-KryptAim-PC.txt` — copied as `README.txt` in the package.
+Optional: add `release\README-AimSync-PC.txt` — copied as `README.txt` in the package.
 
 ---
 
@@ -46,7 +46,7 @@ flowchart LR
 | Download size | Small (~MB) | ~50–120 MB | ~2–4 GB |
 | System Python | Required | **Not required** | Not required |
 | First AI use | `install_kryptaim_pc.bat` | AI tab → Install runtime | Ready |
-| torch/ultralytics | Native pip in venv | pip to `%APPDATA%\KryptAim\runtime` | Bundled in exe |
+| torch/ultralytics | Native pip in venv | pip to `%APPDATA%\AimSync\runtime` | Bundled in exe |
 | Updates | re-run install or `pip -U` | Re-run install or delete `runtime\` | Rebuild exe |
 
 See [Slim exe distribution](Slim-Exe-Distribution) for the embeddable-Python bootstrap flow.
@@ -57,7 +57,7 @@ See [Slim exe distribution](Slim-Exe-Distribution) for the embeddable-Python boo
 
 | Machine | Deliverable | Run |
 |---------|-------------|-----|
-| KryptAim PC | `KryptAim-PC.zip` | `install` → `run_aimsync` |
+| AimSync PC | `AimSync-PC.zip` | `install` → `run_aimsync` |
 | Gaming PC | NDI only | Game + NDI out |
 
-Config: `%APPDATA%\KryptAim\config.json`
+Config: `%APPDATA%\AimSync\config.json`

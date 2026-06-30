@@ -60,7 +60,7 @@ def _acquire_single_instance() -> bool:
     try:
         import ctypes
 
-        mutex = ctypes.windll.kernel32.CreateMutexW(None, False, 'Local\\KryptAim_Rebuild_v1')
+        mutex = ctypes.windll.kernel32.CreateMutexW(None, False, 'Local\\AimSync_Rebuild_v1')
         if ctypes.windll.kernel32.GetLastError() == 183:
             return False
         return True
@@ -111,7 +111,7 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
         dev_mode = dev_mode_enabled()
 
     if not _acquire_single_instance():
-        logging.getLogger('KryptAim').warning('KryptAim is already running.')
+        logging.getLogger('AimSync').warning('AimSync is already running.')
         return 1
 
     root = app_root()
@@ -123,7 +123,7 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
         os.environ['KRYPTAIM_DEV'] = '1'
 
     _setup_logging()
-    logger = logging.getLogger('KryptAim')
+    logger = logging.getLogger('AimSync')
 
     stop_event = threading.Event()
     makcu_manager.set_dev_allowed(dev_mode)
@@ -136,7 +136,7 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
     url = f'http://{get_local_ip()}:5000'
     time.sleep(0.45)
     _open_browser(url)
-    logger.info('KryptAim running at %s', url)
+    logger.info('AimSync running at %s', url)
     if dev_mode:
         logger.info('KRYPTAIM_DEV=1 — local mouse if Makcu unavailable')
 
@@ -167,7 +167,7 @@ def run_web_app(*, dev_mode: bool | None = None) -> int:
 
         root_tk = tk.Tk()
         root_tk.withdraw()
-        root_tk.title('KryptAim')
+        root_tk.title('AimSync')
         root_tk.protocol('WM_DELETE_WINDOW', lambda: request_shutdown(False))
 
         def poll() -> None:

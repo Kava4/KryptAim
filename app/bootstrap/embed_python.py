@@ -12,7 +12,7 @@ from pathlib import Path
 from app.bootstrap.paths import runtime_dir
 from app.bootstrap.progress import append_install_log, set_install_phase
 
-logger = logging.getLogger('KryptAim.bootstrap')
+logger = logging.getLogger('AimSync.bootstrap')
 
 PYTHON_EMBED_VERSION = '3.12.10'
 GET_PIP_URL = 'https://bootstrap.pypa.io/get-pip.py'

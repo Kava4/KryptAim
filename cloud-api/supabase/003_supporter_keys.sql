@@ -1,4 +1,4 @@
--- KryptAim supporter keys (fresh — ignore legacy licenses table)
+-- AimSync supporter keys (fresh — ignore legacy licenses table)
 -- Run in Supabase SQL Editor
 
 create table if not exists public.supporter_keys (

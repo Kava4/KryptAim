@@ -2,11 +2,11 @@
 
 ---
 
-## Where do I download KryptAim?
+## Where do I download AimSync?
 
-[GitHub Releases — Kava4/KryptAim](https://github.com/Kava4/KryptAim/releases)
+[GitHub Releases — Kava4/AimSync](https://github.com/Kava4/AimSync/releases)
 
-Use the slim `KryptAim.exe` unless you need the full offline bundle.
+Use the slim `AimSync.exe` unless you need the full offline bundle.
 
 ---
 
@@ -25,7 +25,7 @@ The codebase was rebuilt (2026): `app/`, `web/`, slim exe bootstrap. Legacy `Ser
 ## Where are models stored?
 
 ```
-%APPDATA%\KryptAim\models\
+%APPDATA%\AimSync\models\
 ```
 
 Use **Community models** in the AI tab or upload manually.
@@ -34,7 +34,7 @@ Use **Community models** in the AI tab or upload manually.
 
 ## How do I update?
 
-**Global Settings → Updates → Check for updates**. Requires a published [GitHub Release](https://github.com/Kava4/KryptAim/releases) with `KryptAim.exe` or `KryptAim.zip`.
+**Global Settings → Updates → Check for updates**. Requires a published [GitHub Release](https://github.com/Kava4/AimSync/releases) with `AimSync.exe` or `AimSync.zip`.
 
 ---
 

@@ -136,7 +136,7 @@
         global.addEventListener('resize', pollPreview);
     }
 
-    global.KryptAimVisionFeed = { start, stop, init, pollPreview };
+    global.AimSyncVisionFeed = { start, stop, init, pollPreview };
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

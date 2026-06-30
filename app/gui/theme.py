@@ -1,4 +1,4 @@
-"""Shared Qt styling — legacy KryptAim web UI palette."""
+"""Shared Qt styling — legacy AimSync web UI palette."""
 
 from __future__ import annotations
 
@@ -28,8 +28,8 @@ ACCENT_RED = '#f87171'
 def logo_path() -> Path | None:
     root = Path(__file__).resolve().parents[2]
     for candidate in (
-        root / 'assets' / 'KryptAim_logo.png',
-        root.parent / 'Server' / 'logo' / 'KryptAim_logo.png',
+        root / 'assets' / 'AimSync_logo.png',
+        root.parent / 'Server' / 'logo' / 'AimSync_logo.png',
     ):
         if candidate.is_file():
             return candidate
